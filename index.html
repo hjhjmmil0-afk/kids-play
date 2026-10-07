@@ -73,6 +73,15 @@
   .bar .ribbon { position: absolute; left: 50%; transform: translateX(-50%); }
   .bar-r { display: flex; gap: 4px; align-items: center; min-width: 60px; justify-content: flex-end; }
 
+  /* 그림 스타일 버튼 */
+  .style-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; font-size: 12px; font-weight: 700; }
+  .style-row > span { background: rgba(255,255,255,.75); padding: 4px 8px; }
+  .seg { display: flex; background: #fff;
+    box-shadow: 0 -3px 0 var(--ink), 0 3px 0 var(--ink), -3px 0 0 var(--ink), 3px 0 0 var(--ink), 0 6px 0 rgba(43,45,66,.2); }
+  .seg button { font-size: 12px; font-weight: 700; padding: 7px 11px; }
+  .seg button + button { box-shadow: -3px 0 0 var(--ink); }
+  .seg button.on { background: var(--blue); color: #fff; text-shadow: 1px 1px 0 var(--ink); }
+
   /* 홈 */
   #home { align-items: center; justify-content: center; padding-bottom: 90px; gap: 14px; }
   .stars { display: flex; gap: 8px; align-items: flex-end; }
@@ -105,7 +114,12 @@
   .now { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
   #nowSwatch { width: 30px; height: 30px; box-shadow: 0 0 0 3px var(--ink); }
   .swatches { display: grid; grid-template-columns: repeat(3, 54px); gap: 12px; }
-  .color-main:not(.land) .swatches { grid-template-columns: repeat(8, 46px); gap: 10px; }
+  .color-main:not(.land) .swatches { grid-template-columns: repeat(10, 44px); gap: 10px; }
+  .sw.rainbow { grid-column: span 3; aspect-ratio: auto; height: 54px; color: #fff; font-size: 14px; font-weight: 700;
+    text-shadow: 1px 1px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink); }
+  .color-main:not(.land) .sw.rainbow { grid-column: span 2; height: 44px; font-size: 12px; }
+  .pbtn:disabled { opacity: .45; }
+  .pbtn:disabled:active { transform: none; }
   .color-main:not(.land) .palette { flex-direction: row; flex-wrap: wrap; justify-content: center; }
   .sw { width: 100%; aspect-ratio: 1; box-shadow: 0 0 0 3px var(--ink), inset 0 -4px 0 rgba(0,0,0,.15); }
   .sw.sel { transform: translateY(-4px); box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px #fff, 0 0 0 9px var(--ink); }
@@ -122,7 +136,10 @@
   @keyframes miss { 0% { opacity: 1; transform: translate(-50%,-50%) scale(1.4); } 30% { transform: translate(-50%,-50%) scale(1); } 100% { opacity: 0; } }
   .shake { animation: shake .3s; }
   @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-  #progress span { line-height: 0; }
+  .progress-row { flex: none; display: flex; justify-content: center; gap: 10px; margin-top: -8px; padding-bottom: 4px; }
+  .progress-row span { line-height: 0; }
+  .progress-row span.got { animation: starpop .45s ease-out; }
+  @keyframes starpop { 0% { transform: scale(.4); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
 
   /* 축하 */
   #celebrate { position: fixed; inset: 0; display: none; place-items: center; background: rgba(43,45,66,.35); z-index: 20; }
@@ -152,6 +169,7 @@
   <div class="stars"><span data-pix="star" data-px="3"></span><span data-pix="star" data-px="4"></span><span data-pix="star" data-px="3"></span></div>
   <div class="ribbon">오늘은 뭐 하고 놀까?</div>
   <h1 class="title">꼬마 놀이터</h1>
+  <div class="style-row"><span>그림 스타일</span><div class="seg"></div></div>
   <div class="choices">
     <button class="choice" data-go="colorPick">
       <div class="card"><div class="pv"><canvas id="pvColor"></canvas></div></div>
@@ -166,13 +184,13 @@
 
 <!-- 2-1. 동물 고르기 -->
 <section id="colorPick" class="screen">
-  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">누구를 색칠할까?</div><div class="bar-r"></div></div>
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">누구를 색칠할까?</div><div class="bar-r"><div class="seg"></div></div></div>
   <div class="pick-main"><div class="grid" id="animalGrid"></div></div>
 </section>
 
 <!-- 2-2. 장소 고르기 -->
 <section id="spotPick" class="screen">
-  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">어디로 가 볼까?</div><div class="bar-r"></div></div>
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">어디로 가 볼까?</div><div class="bar-r"><div class="seg"></div></div></div>
   <div class="pick-main"><div class="grid" id="placeGrid"></div></div>
 </section>
 
@@ -185,7 +203,7 @@
     <div class="card palette">
       <div class="now"><span id="nowSwatch"></span>이 색으로 칠해요</div>
       <div class="swatches" id="swatches"></div>
-      <div class="tools"><button class="pbtn sm blue" id="saveColor">저장하기</button></div>
+      <div class="tools"><button class="pbtn sm pink" id="undoBtn">↩ 되돌리기</button><button class="pbtn sm blue" id="saveColor">저장하기</button></div>
     </div>
   </div>
 </section>
@@ -193,7 +211,8 @@
 <!-- 3-2. 틀린그림찾기 -->
 <section id="spot" class="screen">
   <div class="bar"><button class="pbtn sm" data-go="spotPick">◀ 뒤로</button><div class="ribbon" id="spotTitle"></div>
-    <div class="bar-r" id="progress"></div></div>
+    <div class="bar-r"></div></div>
+  <div class="progress-row" id="progress"></div>
   <div class="spot-main" id="spotMain">
     <div class="card pic" id="picA"><canvas id="cvA"></canvas></div>
     <div class="card pic" id="picB"><canvas id="cvB"></canvas></div>
@@ -225,8 +244,14 @@ const starPts = (cx, cy, Ro, Ri) => Array.from({ length: 10 }, (_, i) => {
   return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
 });
 
-function hit(s, px, py) {
-  if (s.t === 'r') return px >= s.x && px < s.x + s.w && py >= s.y && py < s.y + s.h;
+function hit(s, px, py, round) {
+  if (s.t === 'r') {
+    if (!(px >= s.x && px < s.x + s.w && py >= s.y && py < s.y + s.h)) return false;
+    if (!round || Math.min(s.w, s.h) > 6) return true;
+    const r = Math.min(1.2, Math.min(s.w, s.h) * .35);   // 부드러운 모드: 작은 네모는 모서리를 둥글게
+    const cx = Math.min(Math.max(px, s.x + r), s.x + s.w - r), cy = Math.min(Math.max(py, s.y + r), s.y + s.h - r);
+    return (px - cx) ** 2 + (py - cy) ** 2 <= r * r;
+  }
   if (s.t === 'e') { const dx = (px - s.x) / s.rx, dy = (py - s.y) / s.ry; return dx * dx + dy * dy <= 1; }
   let inside = false; const p = s.pts;
   for (let i = 0, j = p.length - 1; i < p.length; j = i++) {
@@ -242,8 +267,9 @@ function bounds(s) {
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
 }
 
-function build(def, variant = 'A') {
-  const { w, h } = def;
+// S = 1 이면 픽셀 그림, S가 크면 같은 도형을 촘촘하게 그려서 부드러운 그림
+function build(def, variant = 'A', S = 1) {
+  const w = def.w * S, h = def.h * S;
   const map = new Uint16Array(w * h);
   const regions = [{ k: 'bg', col: def.bg || null, fix: null, nl: false }];
   const idx = { bg: 0 }, dbox = {};
@@ -254,9 +280,10 @@ function build(def, variant = 'A') {
     if (active && variant === 'B' && s.cB) regions[ri].col = s.cB;
     const clip = s.clip ? [].concat(s.clip).map(k => idx[k]) : null;
     const [x0, y0, x1, y1] = bounds(s);
-    for (let y = Math.max(0, Math.floor(y0)); y <= Math.min(h - 1, Math.ceil(y1)); y++)
-      for (let x = Math.max(0, Math.floor(x0)); x <= Math.min(w - 1, Math.ceil(x1)); x++) {
-        if (!hit(s, x + .5, y + .5)) continue;
+    const round = S > 1 && !s.nl;
+    for (let y = Math.max(0, Math.floor(y0 * S)); y <= Math.min(h - 1, Math.ceil(y1 * S)); y++)
+      for (let x = Math.max(0, Math.floor(x0 * S)); x <= Math.min(w - 1, Math.ceil(x1 * S)); x++) {
+        if (!hit(s, (x + .5) / S, (y + .5) / S, round)) continue;
         if (s.d !== undefined) {
           const b = dbox[s.d] || (dbox[s.d] = { x0: x, y0: y, x1: x, y1: y });
           b.x0 = Math.min(b.x0, x); b.y0 = Math.min(b.y0, y); b.x1 = Math.max(b.x1, x); b.y1 = Math.max(b.y1, y);
@@ -275,12 +302,18 @@ function build(def, variant = 'A') {
     if (x < w - 1 && ok(a, map[i + 1])) edges.push(x + 1, y, 0, a === 0 || map[i + 1] === 0 ? 1 : 0);
     if (y < h - 1 && ok(a, map[i + w])) edges.push(x, y + 1, 1, a === 0 || map[i + w] === 0 ? 1 : 0);
   }
+  // 칸마다 위치 범위 (무지개 칠할 때 사용)
+  const rb = regions.map(() => [w, h, 0, 0]);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const b = rb[map[y * w + x]];
+    if (x < b[0]) b[0] = x; if (y < b[1]) b[1] = y; if (x > b[2]) b[2] = x; if (y > b[3]) b[3] = y;
+  }
   const diffs = Object.keys(dbox).sort().map(k => {
     const b = dbox[k];
-    return { x: (b.x0 + b.x1 + 1) / 2, y: (b.y0 + b.y1 + 1) / 2,
-             r: Math.min(10, Math.max(5, Math.max(b.x1 - b.x0 + 1, b.y1 - b.y0 + 1) / 2 + 2)) };
+    return { x: (b.x0 + b.x1 + 1) / 2 / S, y: (b.y0 + b.y1 + 1) / 2 / S,
+             r: Math.min(10, Math.max(5, Math.max(b.x1 - b.x0 + 1, b.y1 - b.y0 + 1) / S / 2 + 2)) };
   });
-  return { w, h, map, regions, edges, diffs };
+  return { w, h, S, map, regions, edges, diffs, rb };
 }
 const defaultColors = art => art.regions.map(r => r.fix || r.col);
 
@@ -294,21 +327,33 @@ function draw(ctx, art, colors, cs, opt = {}) {
   const { w, h, map, edges } = art;
   const off = document.createElement('canvas'); off.width = w; off.height = h;
   const octx = off.getContext('2d'), img = octx.createImageData(w, h), d = img.data;
-  const cols = colors.map(c => c ? rgb(c) : null);
+  const cols = colors.map(c => c && c !== 'rainbow' ? rgb(c) : null);
+  const rbBand = colors.map((c, ri) => {
+    if (c !== 'rainbow') return 0;
+    const b = art.rb[ri];
+    return Math.max(1, Math.round((b[2] - b[0] + b[3] - b[1] + 2) / 12));
+  });
   for (let i = 0; i < map.length; i++) {
-    const c = cols[map[i]]; if (!c) continue;
+    const ri = map[i];
+    let c = cols[ri];
+    if (rbBand[ri]) {
+      const b = art.rb[ri], x = i % w, y = (i / w) | 0;
+      c = rgb(RAINBOW[Math.floor((x - b[0] + y - b[1]) / rbBand[ri]) % 7]);
+    }
+    if (!c) continue;
     d[i * 4] = c[0]; d[i * 4 + 1] = c[1]; d[i * 4 + 2] = c[2]; d[i * 4 + 3] = 255;
   }
   octx.putImageData(img, 0, 0);
-  ctx.clearRect(0, 0, w * cs, h * cs);
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(off, 0, 0, w * cs, h * cs);
+  const f = cs / art.S;   // cs = 원래 한 칸 크기, f = 실제로 그리는 작은 칸 크기
+  ctx.clearRect(0, 0, w * f, h * f);
+  ctx.imageSmoothingEnabled = art.S > 1;
+  ctx.drawImage(off, 0, 0, w * f, h * f);
   const thin = opt.thin ?? Math.max(1, cs * .26), thick = opt.thick ?? Math.max(1.5, cs * .42);
   ctx.fillStyle = INK;
   for (let k = 0; k < edges.length; k += 4) {
-    const x = edges[k] * cs, y = edges[k + 1] * cs, lw = edges[k + 3] ? thick : thin;
-    if (edges[k + 2] === 0) ctx.fillRect(x - lw / 2, y - lw / 2, lw, cs + lw);
-    else ctx.fillRect(x - lw / 2, y - lw / 2, cs + lw, lw);
+    const x = edges[k] * f, y = edges[k + 1] * f, lw = edges[k + 3] ? thick : thin;
+    if (edges[k + 2] === 0) ctx.fillRect(x - lw / 2, y - lw / 2, lw, f + lw);
+    else ctx.fillRect(x - lw / 2, y - lw / 2, f + lw, lw);
   }
 }
 function fitCanvas(cv, cw, ch) {
@@ -318,8 +363,12 @@ function fitCanvas(cv, cw, ch) {
   const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return ctx;
 }
+// 그림 스타일: 'smooth' (부드럽게) / 'pixel' (픽셀)
+let STYLE = 'smooth';
+try { STYLE = localStorage.getItem('kidsplay-style') || 'smooth'; } catch (e) {}
+const scaleOf = () => STYLE === 'smooth' ? 6 : 1;
 function preview(cv, def, cs) {
-  const art = build(def, 'A');
+  const art = build(def, 'A', scaleOf());
   cv.width = def.w * cs; cv.height = def.h * cs;
   draw(cv.getContext('2d'), art, defaultColors(art), cs, { thin: cs * .3, thick: cs * .45 });
 }
@@ -386,8 +435,128 @@ const ANIMALS = [
     P('bow', [[44, 10], [38, 5], [38, 14]], '#4a8ff0'), P('bow', [[44, 10], [50, 5], [50, 14]], '#4a8ff0'),
     R('knot', 42, 8, 4, 4, '#ffd23f'),
   ]},
+  // 강아지: 줄무늬 티 + 멜빵바지
+  { id: 'dog', name: '강아지', w: 64, h: 64, shapes: [
+    P('tail', [[42, 46], [50, 40], [54, 33], [57, 35], [53, 44], [45, 50]], '#e8b77a'),
+    ...sym(E('arms', 19, 41, 3.5, 6, '#e8b77a')),
+    E('shirt', 32, 40, 11, 10, '#ff6b6b'),
+    R('stripes', 18, 34, 28, 2, '#ffffff', { clip: 'shirt' }), R('stripes', 18, 38, 28, 2, '#ffffff', { clip: 'shirt' }),
+    ...sym(R('straps', 24, 31, 3, 11, '#4a8ff0')),
+    P('overall', [[24, 41], [40, 41], [41, 46], [43, 56], [34, 56], [32, 53], [30, 56], [21, 56], [23, 46]], '#4a8ff0'),
+    ...sym(E('btn', 25.5, 41.5, 1.5, 1.5, '#ffd23f')),
+    R('pocket', 29, 44, 6, 4, '#6cc7ff', { clip: 'overall' }),
+    ...sym(R('shoes', 20, 56, 10, 4, '#3cb371')),
+    E('head', 32, 20, 15, 12, '#f3cf9c'),
+    E('patch', 38.5, 17, 4.5, 4, '#a0673a', { clip: 'head' }),
+    ...sym(P('ears', [[18, 10], [13, 14], [11, 24], [14, 30], [18, 28], [21, 18]], '#a0673a')),
+    E('muzzle', 32, 26, 7, 5, '#fff8ec'),
+    R('tongue', 31, 28, 3, 3, '#ff8cc6'),
+    ...sym(ink(23, 15, 3, 4)), ...sym(hl(23, 15)),
+    ink(30, 22, 4, 3), ink(31, 25, 2, 1), ...sym(ink(29, 26, 2, 1)),
+    ...sym(E('cheeks', 21, 24, 2.6, 1.6, '#ffb3c8')),
+  ]},
+  // 도깨비: 뿔 + 조끼 + 호랑이무늬 바지 + 방망이
+  { id: 'dokkaebi', name: '도깨비', w: 64, h: 64, shapes: [
+    P('club', [[44, 47], [47, 44], [56, 30], [59, 26], [63, 29], [61, 33], [49, 49]], '#c98a4b'),
+    ...[[58.5, 29.5], [55, 35], [51.5, 40.5]].map(([x, y]) => E('studs', x, y, 1.4, 1.4, '#ffd23f', { clip: 'club' })),
+    ...sym(E('arms', 19, 41, 3.5, 6, '#ff8f8f')),
+    E('body', 32, 40, 11, 10, '#ff8f8f'),
+    ...sym(P('vest', [[20, 32], [28, 32], [28, 48], [20, 47]], '#3cb371', { clip: 'body' })),
+    P('pants', [[21, 45], [43, 45], [44, 56], [34, 56], [32, 52], [30, 56], [20, 56]], '#ffd23f'),
+    ...[[23, 26], [28, 31], [35, 38], [40, 43]].map(([a, b]) => P('tstripes', [[a, 47], [a + 2, 47], [b - 1, 55], [b - 3, 55]], '#3a3a4a', { clip: 'pants' })),
+    R('belt', 20, 43, 24, 3, '#ff5a5f'),
+    ...sym(R('shoes', 20, 56, 10, 4, '#a0673a')),
+    E('hair', 32, 14, 17, 8, '#5a4a8a'),
+    P('horn', [[28, 10], [32, 0], [36, 10]], '#ffd23f'),
+    E('head', 32, 21, 15, 12, '#ff8f8f'),
+    ...sym(E('eyew', 25, 18, 3.6, 3.6, '#ffffff')),
+    ...sym(ink(24, 17, 3, 3)), ...sym(hl(24, 17)),
+    ...sym(ink(20, 12, 7, 2)),
+    E('nose', 32, 23, 2.6, 2, '#ff6b6b'),
+    P('mouth', [[24, 26], [40, 26], [37, 30], [27, 30]], '#7a2b3a'),
+    ...sym(P('fangs', [[27, 26], [30, 26], [28.5, 29]], '#ffffff')),
+    ...sym(E('cheeks', 20, 24, 2.4, 1.5, '#ffd1e6')),
+  ]},
+  // 유령: 마법사 모자 + 나비넥타이 + 별 지팡이
+  { id: 'ghost', name: '유령', w: 64, h: 64, shapes: [
+    P('wand', [[51, 36], [53, 36], [58, 21], [56, 20]], '#a0673a'),
+    P('wandstar', starPts(57.5, 17, 5, 2.2), '#ffd23f'),
+    ...sym(P('arms', [[18, 33], [9, 29], [8, 34], [17, 40]], '#f4f6ff')),
+    E('body', 32, 28, 16, 18, '#f4f6ff'),
+    P('body', [[16, 28], [48, 28], [48, 52], [44, 57], [40, 52], [36, 57], [32, 52], [28, 57], [24, 52], [20, 57], [16, 52]], '#f4f6ff'),
+    P('hat', [[22, 12], [42, 12], [37, 0], [32, -2]], '#a26bff'),
+    R('band', 20, 8, 24, 3, '#ffd23f', { clip: 'hat' }),
+    P('hatstar', starPts(34, 4, 2.6, 1.2), '#ffffff'),
+    E('brim', 32, 12, 16, 2.6, '#7d4cff'),
+    ...sym(ink(23, 20, 4, 6)), ...sym(hl(23, 20)), ...sym(hl(24, 21)),
+    E('mouth', 32, 30, 2.6, 3, '#ff8cc6'),
+    ...sym(E('cheeks', 20, 28, 2.6, 1.6, '#ffb3c8')),
+    ...sym(P('bowtie', [[32, 39], [25, 36], [25, 42]], '#ff5a5f')),
+    R('knot', 30, 37, 4, 4, '#ffd23f'),
+  ]},
+  // 괴물: 눈 세 개 + 뿔 + 반바지 + 리본
+  { id: 'monster', name: '괴물', w: 64, h: 64, shapes: [
+    ...sym(P('horns', [[19, 15], [15, 3], [25, 11]], '#ffd23f')),
+    ...sym(P('arms', [[15, 31], [5, 39], [8, 43], [16, 37]], '#a26bff')),
+    ...sym(R('feet', 19, 53, 10, 6, '#a26bff')),
+    E('body', 32, 32, 18, 21, '#a26bff'),
+    ...[[21, 39, 3, 2.5], [44, 34, 2.5, 2], [41, 26, 2, 1.6]].map(([x, y, a, b]) => E('spots', x, y, a, b, '#c9a3ff', { clip: 'body' })),
+    P('shorts', [[16, 44], [48, 44], [48, 54], [34, 54], [32, 51], [30, 54], [16, 54]], '#3cb371', { clip: ['body', 'spots', 'bg'] }),
+    R('belt', 14, 43, 36, 3, '#ffd23f', { clip: ['body', 'spots', 'bg'] }),
+    E('eyew', 32, 18, 4.6, 4.6, '#ffffff'), ...sym(E('eyew', 23, 22, 3, 3, '#ffffff')),
+    ink(31, 17, 3, 3), hl(31, 17), ...sym(ink(22, 21, 2, 2)),
+    P('mouth', [[22, 29], [42, 29], [38, 36], [26, 36]], '#7a2b3a'),
+    ...sym(R('teeth', 26, 29, 3, 2, '#ffffff')), R('teeth', 31, 29, 2, 2, '#ffffff'),
+    ...sym(E('cheeks', 18, 30, 2.4, 1.5, '#ff8cc6')),
+    P('bow', [[17, 9], [11, 5], [11, 13]], '#ff5a5f'), P('bow', [[17, 9], [23, 5], [23, 13]], '#ff5a5f'),
+    R('bowknot', 15, 7, 4, 4, '#ffffff'),
+  ]},
+  // 악어: 멜빵바지 + 나비넥타이
+  { id: 'croc', name: '악어', w: 64, h: 64, shapes: [
+    P('tail', [[40, 47], [52, 49], [62, 56], [62, 58], [50, 57], [41, 54]], '#5fbf5a'),
+    ...sym(E('arms', 19, 41, 3.5, 6, '#5fbf5a')),
+    E('body', 32, 40, 12, 11, '#5fbf5a'),
+    E('belly', 32, 42, 7, 8, '#e9f5b8', { clip: 'body' }),
+    ...sym(R('straps', 24, 32, 3, 10, '#ff9f43')),
+    P('overall', [[24, 41], [40, 41], [41, 46], [43, 56], [34, 56], [32, 53], [30, 56], [21, 56], [23, 46]], '#ff9f43'),
+    ...sym(E('btn', 25.5, 41.5, 1.5, 1.5, '#ffffff')),
+    ...sym(R('shoes', 20, 56, 10, 4, '#4a8ff0')),
+    ...sym(E('head', 24, 13, 5, 5, '#5fbf5a')),
+    E('head', 32, 21, 15, 9, '#5fbf5a'),
+    E('head', 32, 25, 17, 7, '#5fbf5a'),
+    ...sym(E('eyew', 24, 13, 3, 3, '#ffffff')),
+    ...sym(ink(24, 12, 2, 3)), ...sym(hl(24, 12)),
+    ...sym(ink(28, 21, 2, 1)),
+    ink(18, 28, 28, 1), ...sym(ink(16, 27, 2, 1)),
+    ...[[21, 29], [26, 29], [36, 29], [41, 29]].map(([x, y]) => P('teeth', [[x, y], [x + 2.4, y], [x + 1.2, y + 2.4]], '#ffffff')),
+    ...sym(E('cheeks', 19, 24, 2.4, 1.5, '#ffb3c8')),
+    ...sym(P('bowtie', [[32, 34], [26, 31], [26, 37]], '#ff5a5f')),
+    R('knot', 30, 32, 4, 4, '#ffd23f'),
+  ]},
+  // 토끼: 우비 + 장화 + 당근 + 꽃
+  { id: 'rabbit', name: '토끼', w: 64, h: 64, shapes: [
+    ...sym(E('ears', 26, 8, 4, 10, '#f7f2ee')),
+    ...sym(E('inner', 26, 9, 2, 7, '#ffd1e6', { clip: 'ears' })),
+    ...sym(E('arms', 19, 41, 3.5, 6, '#ffd23f')),
+    ...sym(R('legs', 25, 51, 5, 4, '#f7f2ee')),
+    ...sym(R('boots', 23, 54, 9, 6, '#ff5a5f')),
+    P('coat', [[23, 31], [41, 31], [46, 52], [18, 52]], '#ffd23f'),
+    P('shirt', [[28, 31], [36, 31], [34, 52], [30, 52]], '#6cc7ff', { clip: 'coat' }),
+    E('btns', 26.5, 38.5, 1.4, 1.4, '#ff5a5f'), E('btns', 25.5, 44.5, 1.4, 1.4, '#ff5a5f'),
+    ...sym(R('pocket', 19, 45, 6, 4, '#ffb627', { clip: 'coat' })),
+    E('head', 32, 21, 14, 11, '#f7f2ee'),
+    ...sym(ink(24, 18, 3, 4)), ...sym(hl(24, 18)),
+    P('nose', [[30, 23], [34, 23], [32, 25.5]], '#ff8cc6'),
+    ...sym(ink(30, 26, 2, 1)),
+    R('teeth', 30, 27, 4, 2, '#ffffff'),
+    ...sym(E('cheeks', 22, 25, 2.6, 1.6, '#ffb3c8')),
+    ...[[38, 11], [42, 11], [40, 9], [40, 13]].map(([x, y]) => E('petals', x, y, 1.9, 1.9, '#ff8cc6')),
+    E('fcenter', 40, 11, 1.4, 1.4, '#ffd23f'),
+    P('leaves', [[46, 37], [42, 30], [46, 33], [47, 29], [49, 34], [52, 31], [50, 36]], '#3cb371'),
+    P('carrot', [[44, 38], [50, 36], [56, 52], [53, 53]], '#ff9f43'),
+  ]},
 ];
-const LOCKED_ANIMALS = ['강아지', '도깨비', '유령', '괴물', '악어', '토끼'];
+const LOCKED_ANIMALS = [];
 
 // =====================================================================
 //  틀린그림 장면 (96 x 64 칸)  only:'A' = 오른쪽 그림에서 없어짐, only:'B' = 새로 생김, cB = 색 바뀜
@@ -452,11 +621,102 @@ const PLACES = [
     E('bub', 48, 8, 1.6, 1.6, '#e8f8ff'), E('bub', 51, 4, 1.1, 1.1, '#e8f8ff'),
     E('bub', 66, 30, 1.6, 1.6, '#e8f8ff'), E('bub', 68, 26, 1.1, 1.1, '#e8f8ff'),
   ]},
+  { id: 'sky', name: '하늘 위', w: 96, h: 64, shapes: [
+    R('s1', 0, 0, 96, 20, '#8fd3fb', { nl: 1 }), R('s2', 0, 20, 96, 20, '#a7ddfc', { nl: 1 }), R('s3', 0, 40, 96, 24, '#c2e9fd', { nl: 1 }),
+    E('rb1', 30, 66, 27, 23, '#ff6b6b'), E('rb2', 30, 66, 24, 20, '#ffd23f'), E('rb3', 30, 66, 21, 17, '#5fd35b'),
+    E('rb4', 30, 66, 18, 14, '#3fb6ff'), E('rbin', 30, 66, 15, 11, '#c2e9fd', { nl: 1 }),
+    ...[[8, 62, 12, 6], [26, 64, 12, 6], [46, 64, 13, 7], [68, 62, 12, 6], [88, 63, 12, 7]].map(([x, y, a, b]) => E('clouds', x, y, a, b, '#ffffff')),
+    E('sun', 86, 10, 6, 6, '#ffd23f'), ink(84, 9, 1, 2), ink(88, 9, 1, 2), ink(85, 12, 3, 1),
+    E('mc', 26, 31, 5, 3, '#ffffff', { only: 'A', d: 4 }), E('mc', 31, 29, 5, 4, '#ffffff', { only: 'A', d: 4 }), E('mc', 36, 31, 4, 3, '#ffffff', { only: 'A', d: 4 }),
+    P('bird1', [[14, 12], [19, 15], [24, 12], [24, 14.5], [19, 17.5], [14, 14.5]], '#3a3a4a', { only: 'A', d: 1 }),
+    P('bird2', [[50, 8], [54, 10.5], [58, 8], [58, 10], [54, 12.5], [50, 10]], '#3a3a4a'),
+    ink(40, 18, 1, 8, { only: 'B', d: 2 }),
+    P('kite', [[40, 3], [45, 10], [40, 17], [35, 10]], '#ff8cc6', { only: 'B', d: 2 }),
+    R('kitex', 39, 3, 2, 14, '#ffffff', { only: 'B', d: 2, clip: 'kite' }),
+    ink(59, 28, 1, 5), ink(68, 28, 1, 5),
+    E('balloon', 64, 20, 8, 9.5, '#ff5a5f', { cB: '#4a8ff0', d: 0 }),
+    R('bstripe', 62, 10, 4, 20, '#ffd23f', { clip: 'balloon' }),
+    R('basket', 59, 32, 10, 5, '#a0673a'),
+    P('ptail', [[73, 33], [72, 26], [76, 32]], '#ff5a5f', { cB: '#3cb371', d: 3 }),
+    E('plane', 82, 33, 9, 2.6, '#ffffff'),
+    P('pwing', [[79, 33], [84, 33], [80, 39]], '#ff5a5f', { cB: '#3cb371', d: 3 }),
+    ...[78, 82, 86].map(x => R('pwin', x, 32, 2, 1, '#6cc7ff', { clip: 'plane' })),
+  ]},
+  { id: 'swamp', name: '늪지대', w: 96, h: 64, shapes: [
+    R('sw1', 0, 0, 96, 12, '#bfe6e0', { nl: 1 }), R('sw2', 0, 12, 96, 14, '#d6efe6', { nl: 1 }),
+    ...[[10, 22, 12, 8], [30, 20, 10, 9], [52, 22, 12, 7], [74, 20, 11, 9], [92, 22, 10, 8]].map(([x, y, a, b]) => E('bgtrees', x, y, a, b, '#5c9a6a')),
+    R('bank', 0, 24, 96, 7, '#7fb069'),
+    R('water', 0, 30, 96, 34, '#6fb7a8'),
+    ...[[46, 40, 6], [20, 58, 7], [82, 56, 6]].map(([x, y, a]) => R('ripple', x - a / 2, y, a, 1, '#9fd8cb')),
+    R('log', 8, 38, 30, 6, '#a0673a'), E('logend', 38, 41, 2.6, 3, '#e6c08a'),
+    E('shell', 21, 36, 5, 3.5, '#3cb371', { only: 'A', d: 1 }), E('turtle', 27.5, 36.5, 2.2, 1.8, '#8ae66b', { only: 'A', d: 1 }),
+    ink(27, 36, 1, 1, { only: 'A', d: 1 }),
+    E('pad1', 60, 51, 8, 3, '#3cb371'), E('pad2', 80, 41, 6, 2.5, '#3cb371'), E('pad3', 30, 56, 6, 2.5, '#3cb371'),
+    P('lotus', [[76, 40], [77, 34], [80, 37], [83, 34], [84, 40]], '#ff8cc6', { only: 'B', d: 3 }),
+    E('frog', 60, 46, 5, 4, '#8ae66b', { cB: '#ff9f43', d: 0 }),
+    E('frog', 57, 42, 2, 2, '#8ae66b', { cB: '#ff9f43', d: 0 }), E('frog', 63, 42, 2, 2, '#8ae66b', { cB: '#ff9f43', d: 0 }),
+    ink(56, 41, 2, 2), ink(62, 41, 2, 2), ink(58, 47, 4, 1),
+    ...[3, 7, 89, 93].map(x => R('reed', x, 24, 1, 22, '#6b8f3a')),
+    R('cattail', 2, 20, 3, 7, '#8a5530'), R('cattail', 6, 24, 3, 7, '#8a5530'),
+    R('cattail', 88, 18, 3, 7, '#8a5530', { only: 'A', d: 4 }), R('cattail', 92, 22, 3, 7, '#8a5530'),
+    E('dwing', 46, 12, 2, 2.6, '#e8f8ff'), E('dwing', 50, 12, 2, 2.6, '#e8f8ff'),
+    E('dfly', 48, 14, 4.5, 1.2, '#4a7bff', { cB: '#ff5a5f', d: 2 }),
+  ]},
+  { id: 'playground', name: '놀이터', w: 96, h: 64, shapes: [
+    R('p1', 0, 0, 96, 14, '#8fd3fb', { nl: 1 }), R('p2', 0, 14, 96, 14, '#a7ddfc', { nl: 1 }), R('p3', 0, 28, 96, 14, '#c2e9fd', { nl: 1 }),
+    E('sun', 9, 8, 5, 5, '#ffd23f'),
+    E('cl', 30, 9, 5, 3, '#ffffff', { only: 'A', d: 4 }), E('cl', 35, 7, 5, 4, '#ffffff', { only: 'A', d: 4 }), E('cl', 40, 9, 4, 3, '#ffffff', { only: 'A', d: 4 }),
+    E('cl2', 82, 10, 5, 3, '#ffffff'), E('cl2', 87, 8, 4, 3, '#ffffff'),
+    R('grass', 0, 40, 96, 24, '#8fd36a'),
+    E('sandpit', 74, 55, 19, 7, '#f5d6a8'),
+    R('ladder', 10, 26, 2, 22, '#4a8ff0'), R('ladder', 18, 26, 2, 22, '#4a8ff0'),
+    ...[31, 36, 41].map(y => R('ladder', 12, y, 6, 1.5, '#4a8ff0')),
+    R('plat', 8, 23, 16, 3, '#ff9f43'),
+    P('slide', [[22, 25], [27, 25], [41, 48], [35, 48]], '#ff5a5f', { cB: '#ffd23f', d: 0 }),
+    R('frame', 44, 14, 28, 3, '#a0673a'),
+    P('frame', [[44, 14], [47, 14], [43, 48], [40, 48]], '#a0673a'), P('frame', [[69, 14], [72, 14], [76, 48], [73, 48]], '#a0673a'),
+    ink(50, 17, 1, 18), ink(56, 17, 1, 18), R('seat1', 48, 35, 10, 2, '#ff5a5f'),
+    ink(60, 17, 1, 18, { only: 'A', d: 1 }), ink(66, 17, 1, 18, { only: 'A', d: 1 }), R('seat2', 58, 35, 10, 2, '#3cb371', { only: 'A', d: 1 }),
+    E('ball', 28, 56, 4.5, 4.5, '#ff6b6b', { cB: '#4a8ff0', d: 2 }),
+    R('ballst', 23, 55, 10, 2, '#ffffff', { clip: 'ball' }),
+    P('bucket', [[62, 50], [69, 50], [68, 57], [63, 57]], '#ffd23f'),
+    R('shovel', 72, 47, 1, 7, '#a0673a'), E('shead', 72.5, 55, 2, 2.2, '#4a8ff0'),
+    R('castle', 79, 50, 9, 6, '#e8c690', { only: 'B', d: 3 }), R('castle', 79, 47, 3, 3, '#e8c690', { only: 'B', d: 3 }),
+    R('castle', 85, 47, 3, 3, '#e8c690', { only: 'B', d: 3 }),
+    ink(83, 41, 1, 9, { only: 'B', d: 3 }), P('flag', [[84, 41], [88, 43], [84, 45]], '#ff5a5f', { only: 'B', d: 3 }),
+  ]},
+  { id: 'kinder', name: '유치원', w: 96, h: 64, shapes: [
+    R('wall', 0, 0, 96, 44, '#fff1d6', { nl: 1 }), R('wains', 0, 36, 96, 8, '#ffd9a8'),
+    R('floor', 0, 44, 96, 20, '#e0a96d'),
+    R('plank', 0, 52, 96, 1, '#c98a4b'), R('plank', 0, 59, 96, 1, '#c98a4b'),
+    R('wframe', 5, 5, 24, 20, '#ffffff'), R('glass', 7, 7, 20, 16, '#a7ddfc'),
+    E('wsun', 22, 11, 2.6, 2.6, '#ffd23f', { clip: 'glass' }),
+    R('wframe', 16, 7, 2, 16, '#ffffff'), R('wframe', 7, 14, 20, 2, '#ffffff'),
+    R('board', 34, 5, 32, 21, '#a0673a'), R('chalk', 36, 7, 28, 17, '#3c7a5a'),
+    P('chouse', [[40, 21], [40, 16], [44, 12], [48, 16], [48, 21]], '#ffffff'),
+    E('csun', 57, 13, 3, 3, '#ffffff', { only: 'A', d: 0 }),
+    E('rim', 81, 13, 8, 8, '#ff5a5f', { cB: '#3cb371', d: 1 }), E('face', 81, 13, 6, 6, '#ffffff'),
+    ink(81, 8, 1, 5), ink(81, 13, 4, 1),
+    R('desktop', 30, 38, 36, 3, '#c98a4b'), R('desklegs', 32, 41, 2, 10, '#c98a4b'), R('desklegs', 62, 41, 2, 10, '#c98a4b'),
+    R('cr1', 37, 32, 3, 6, '#ff5a5f'), R('cr2', 42, 32, 3, 6, '#4a8ff0', { only: 'A', d: 2 }), R('cr3', 47, 32, 3, 6, '#ffd23f'),
+    R('paper', 52, 35, 11, 3, '#ffffff'),
+    R('blk1', 6, 50, 7, 7, '#ff5a5f'), R('blk2', 13, 50, 7, 7, '#4a8ff0'),
+    R('blk3', 9, 43, 7, 7, '#ffd23f', { cB: '#3cb371', d: 3 }),
+    R('pot', 70, 48, 6, 6, '#ff9f43'), E('plant', 73, 44, 4.5, 4, '#3cb371'),
+    E('bear', 86, 39, 2, 2, '#c98a4b'), E('bear', 92, 39, 2, 2, '#c98a4b'),
+    E('bear', 89, 53, 6, 6, '#c98a4b'), E('bear', 89, 43, 5, 4.5, '#c98a4b'),
+    E('bmuz', 89, 45, 2.2, 1.6, '#f3d9b1'),
+    ink(87, 42, 1, 1), ink(90, 42, 1, 1), ink(88, 44, 2, 1),
+    P('bbow', [[89, 49], [85, 47], [85, 51]], '#ff5a5f', { only: 'B', d: 4 }), P('bbow', [[89, 49], [93, 47], [93, 51]], '#ff5a5f', { only: 'B', d: 4 }),
+  ]},
 ];
-const LOCKED_PLACES = ['하늘 위', '늪지대', '놀이터', '유치원'];
+const LOCKED_PLACES = [];
 
 const PALETTE = ['#ff5a5f', '#ff9f43', '#ffd23f', '#8ae66b', '#3cb371', '#6cc7ff', '#4a7bff', '#a26bff',
-                 '#ff8cc6', '#ffd1e6', '#a0673a', '#f5d6a8', '#9aa3b5', '#3a3a4a', '#ffffff'];
+                 '#ff8cc6', '#ffd1e6', '#a0673a', '#f5d6a8', '#9aa3b5', '#3a3a4a', '#ffffff',
+                 '#2ee6c8', '#d4b3ff', '#ff3d8b', 'rainbow'];
+const RAINBOW = ['#ff4d4d', '#ff9a2e', '#ffe03a', '#5fd35b', '#3fb6ff', '#5b6cff', '#b05cff'];
+const RAINBOW_CSS = `linear-gradient(135deg, ${RAINBOW.map((c, i) => `${c} ${i / 7 * 100}% ${(i + 1) / 7 * 100}%`).join(', ')})`;
 
 // =====================================================================
 //  꾸밈용 픽셀 그림
@@ -564,7 +824,7 @@ let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() 
 
 // 고르기 화면 타일
 function makeTiles() {
-  const ag = $('animalGrid');
+  const ag = $('animalGrid'); ag.innerHTML = ''; $('placeGrid').innerHTML = '';
   ANIMALS.forEach(def => {
     const t = document.createElement('button'); t.className = 'card tile';
     const cv = document.createElement('canvas'); preview(cv, def, 6);
@@ -600,7 +860,9 @@ function layoutGrid(grid, cols, rows, aspect) {
 let paint = null, selColor = PALETTE[0];
 function makePalette() {
   PALETTE.forEach(c => {
-    const b = document.createElement('button'); b.className = 'sw'; b.style.background = c; b.dataset.c = c;
+    const b = document.createElement('button'); b.className = 'sw'; b.dataset.c = c;
+    if (c === 'rainbow') { b.classList.add('rainbow'); b.style.background = RAINBOW_CSS; b.textContent = '무지개'; }
+    else b.style.background = c;
     b.onclick = () => { selColor = c; sfx.tap(); syncPalette(); };
     $('swatches').appendChild(b);
   });
@@ -608,11 +870,12 @@ function makePalette() {
 }
 function syncPalette() {
   document.querySelectorAll('.sw').forEach(b => b.classList.toggle('sel', b.dataset.c === selColor));
-  $('nowSwatch').style.background = selColor;
+  $('nowSwatch').style.background = selColor === 'rainbow' ? RAINBOW_CSS : selColor;
 }
 function startColor(def) {
-  const art = build(def, 'A');
-  paint = { def, art, colors: art.regions.map(r => r.fix || '#ffffff'), painted: new Set(), done: false };
+  const art = build(def, 'A', scaleOf());
+  paint = { def, art, colors: art.regions.map(r => r.fix || '#ffffff'), history: [], done: false };
+  syncUndo();
   $('colorTitle').textContent = `${def.name} 색칠하기`;
   go('color');
 }
@@ -630,15 +893,16 @@ function redrawColor() { draw(paint.ctx, paint.art, paint.colors, paint.cs); }
 $('colorCv').addEventListener('pointerdown', e => {
   if (!paint) return;
   const r = e.currentTarget.getBoundingClientRect();
-  const x = Math.floor((e.clientX - r.left) / r.width * 64), y = Math.floor((e.clientY - r.top) / r.height * 64);
-  if (x < 0 || y < 0 || x > 63 || y > 63) return;
-  const ri = paint.art.map[y * 64 + x];
-  if (paint.art.regions[ri].fix) return;
+  const A = paint.art;
+  const x = Math.floor((e.clientX - r.left) / r.width * A.w), y = Math.floor((e.clientY - r.top) / r.height * A.h);
+  if (x < 0 || y < 0 || x >= A.w || y >= A.h) return;
+  const ri = A.map[y * A.w + x];
+  if (paint.art.regions[ri].fix || paint.colors[ri] === selColor) return;
+  paint.history.push([ri, paint.colors[ri]]);
   paint.colors[ri] = selColor;
-  if (ri !== 0) selColor === '#ffffff' ? paint.painted.delete(ri) : paint.painted.add(ri);
-  sfx.pop(); redrawColor();
-  const need = paint.art.regions.filter((r, i) => i && !r.fix).length;
-  if (!paint.done && paint.painted.size >= need) {
+  sfx.pop(); redrawColor(); syncUndo();
+  const allDone = paint.art.regions.every((r, i) => i === 0 || r.fix || paint.colors[i] !== '#ffffff');
+  if (!paint.done && allDone) {
     paint.done = true;
     setTimeout(() => celebrate('완성! 참 잘했어요', `${paint.def.name}가 정말 멋져졌어요`, [
       ['계속 칠하기', '', () => $('celebrate').classList.remove('show')],
@@ -648,6 +912,15 @@ $('colorCv').addEventListener('pointerdown', e => {
   }
 });
 $('resetBtn').onclick = () => { if (!paint) return; sfx.tap(); startColor(paint.def); };
+// 되돌리기: 방금 칠한 것부터 하나씩 이전 색으로
+function syncUndo() { $('undoBtn').disabled = !paint || !paint.history.length; }
+$('undoBtn').onclick = () => {
+  if (!paint || !paint.history.length) return;
+  const [ri, prev] = paint.history.pop();
+  paint.colors[ri] = prev;
+  tone(700, 0, .12, 'triangle', .25, 350);
+  redrawColor(); syncUndo();
+};
 $('saveColor').onclick = () => saveColor();
 async function saveColor() {
   const cs = 12, cv = document.createElement('canvas'); cv.width = cv.height = 64 * cs;
@@ -665,14 +938,15 @@ async function saveColor() {
 // =====================================================================
 let spot = null;
 function startSpot(def) {
-  const A = build(def, 'A'), B = build(def, 'B');
+  const A = build(def, 'A', scaleOf()), B = build(def, 'B', scaleOf());
   spot = { def, A, B, diffs: A.diffs, found: new Set() };
   $('spotTitle').textContent = `${def.name} 틀린그림찾기`;
   renderProgress();
   go('spot');
 }
-function renderProgress() {
-  $('progress').innerHTML = spot.diffs.map((_, i) => `<span>${spriteSVG(spot.found.size > i ? 'star' : 'starOff', 2)}</span>`).join('');
+function renderProgress(pop) {
+  $('progress').innerHTML = spot.diffs.map((_, i) =>
+    `<span class="${pop && i === spot.found.size - 1 ? 'got' : ''}">${spriteSVG(spot.found.size > i ? 'star' : 'starOff', 3)}</span>`).join('');
 }
 function layoutSpot() {
   if (!spot) return;
@@ -688,6 +962,12 @@ function layoutSpot() {
   redrawSpot();
 }
 function ring(ctx, d, cs) {
+  if (STYLE === 'smooth') {
+    ctx.beginPath(); ctx.arc(d.x * cs, d.y * cs, d.r * cs, 0, Math.PI * 2);
+    ctx.lineWidth = cs * 2.2; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+    ctx.lineWidth = cs * 1.1; ctx.strokeStyle = '#ff3b6b'; ctx.stroke();
+    return;
+  }
   for (let y = Math.floor(d.y - d.r - 2); y <= d.y + d.r + 2; y++)
     for (let x = Math.floor(d.x - d.r - 2); x <= d.x + d.r + 2; x++) {
       const dist = Math.hypot(x + .5 - d.x, y + .5 - d.y);
@@ -707,7 +987,7 @@ function spotTap(e) {
   const gx = (e.clientX - r.left) / r.width * 96, gy = (e.clientY - r.top) / r.height * 64;
   const i = spot.diffs.findIndex((d, k) => !spot.found.has(k) && Math.hypot(gx - d.x, gy - d.y) <= d.r + 1.5);
   if (i >= 0) {
-    spot.found.add(i); sfx.ding(); redrawSpot(); renderProgress();
+    spot.found.add(i); sfx.ding(); redrawSpot(); renderProgress(true);
     if (spot.found.size === spot.diffs.length) setTimeout(() => celebrate('다 찾았어요!', '눈이 정말 좋구나', [
       ['다시 하기', '', () => startSpot(spot.def)],
       ['다른 장소', 'pink', () => go('spotPick')],
@@ -749,10 +1029,28 @@ function celebrate(title, sub, buttons) {
 // =====================================================================
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
+// 그림 스타일 버튼
+function renderPreviews() {
+  preview($('pvColor'), ANIMALS[1], 6);
+  preview($('pvSpot'), PLACES[0], 5);
+  makeTiles();
+  layout();
+}
+function syncStyle() {
+  document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', b.dataset.style === STYLE));
+}
+document.querySelectorAll('.seg').forEach(seg => seg.innerHTML =
+  '<button data-style="smooth">부드럽게</button><button data-style="pixel">픽셀</button>');
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+  if (STYLE === b.dataset.style) return;
+  STYLE = b.dataset.style; sfx.tap();
+  try { localStorage.setItem('kidsplay-style', STYLE); } catch (e) {}
+  syncStyle(); renderPreviews();
+});
+
 buildScenery();
-preview($('pvColor'), ANIMALS[1], 6);
-preview($('pvSpot'), PLACES[0], 5);
-makeTiles();
+syncStyle();
+renderPreviews();
 makePalette();
 </script>
 </body>
