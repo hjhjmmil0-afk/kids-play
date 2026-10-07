@@ -86,8 +86,13 @@
   #home { align-items: center; justify-content: center; padding-bottom: 90px; gap: 14px; }
   .stars { display: flex; gap: 8px; align-items: flex-end; }
   .stars span:nth-child(2) { transform: translateY(-6px); }
-  .choices { display: flex; gap: 34px; margin-top: 26px; }
-  .choice { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .choices { display: flex; gap: 34px; margin-top: 26px; max-width: 100%; overflow-x: auto; overflow-y: hidden;
+    padding: 6px 24px 22px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .choices::-webkit-scrollbar { display: none; }
+  .choice { flex: none; display: flex; flex-direction: column; align-items: center; gap: 16px; scroll-snap-align: center; }
+  .choice:first-child { margin-left: auto; } .choice:last-child { margin-right: auto; }
+  .swipe-hint { display: none; font-size: 12px; font-weight: 700; color: var(--ink); background: rgba(255,255,255,.75); padding: 4px 10px; margin-top: -10px; }
+  .swipe-hint.show { display: block; }
   .choice .card { padding: 12px; }
   .choice .pv { height: 150px; display: grid; place-items: center; }
   .choice .pv canvas { height: 150px; width: auto; }
@@ -191,6 +196,14 @@
   .confetti { position: fixed; top: -12px; width: 10px; height: 10px; z-index: 21; pointer-events: none; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(110vh) rotate(540deg); } }
 
+  @media (max-width: 560px) {
+    .bar .bar-r .seg { display: none; }
+    .bar { padding: 0 12px; }
+    .color-main:not(.land) .swatches { grid-template-columns: repeat(7, 38px); gap: 8px; }
+    .color-main:not(.land) .sw.rainbow { height: 38px; }
+    .color-main { padding: 4px 12px 16px; gap: 16px; }
+    .palette { padding: 12px 10px; }
+  }
   @media (max-width: 700px) {
     .choices { gap: 18px; }
     .choice .pv, .choice .pv canvas { height: 110px; }
@@ -223,6 +236,7 @@
       <span class="pbtn green">영어 놀이</span>
     </button>
   </div>
+  <div class="swipe-hint" id="swipeHint">◀ 옆으로 밀어서 골라요 ▶</div>
 </section>
 
 <!-- 2-3. 영어 주제 고르기 -->
@@ -886,6 +900,7 @@ document.addEventListener('click', e => {
   if (b) { sfx.tap(); go(b.dataset.go); }
 });
 function layout() {
+  if (current === 'home') { const c = document.querySelector('.choices'); $('swipeHint').classList.toggle('show', c.scrollWidth > c.clientWidth + 4); }
   if (current === 'colorPick') layoutGrid($('animalGrid'), 3, 3, 1);
   if (current === 'spotPick') layoutGrid($('placeGrid'), 3, 2, 1.5);
   if (current === 'color') layoutColor();
@@ -958,7 +973,8 @@ function layoutColor() {
   const m = $('colorMain'), W = m.clientWidth - 40, H = m.clientHeight - 30;
   const land = W > H * 1.15;
   m.classList.toggle('land', land);
-  const size = Math.floor(land ? Math.min(H - 20, W - 260) : Math.min(W - 20, H - 210));
+  const palH = document.querySelector('#colorMain .palette').offsetHeight || 190;
+  const size = Math.floor(land ? Math.min(H - 20, W - 260) : Math.min(W - 20, H - palH - 30));
   paint.cs = Math.max(3, size) / 64;
   paint.ctx = fitCanvas($('colorCv'), paint.cs * 64, paint.cs * 64);
   redrawColor();
