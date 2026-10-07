@@ -141,6 +141,45 @@
   .progress-row span.got { animation: starpop .45s ease-out; }
   @keyframes starpop { 0% { transform: scale(.4); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
 
+  /* 영어 놀이 */
+  .pbtn.green { background: #3cb371; color: #fff; text-shadow: 1px 1px 0 var(--ink); }
+  .emoji { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .pv-eng { width: 150px; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(#cfeeff, #ffffff); }
+  .pv-eng .e { font-size: 80px; line-height: 1.1; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .pv-eng .w { font-size: 16px; font-weight: 700; color: var(--blue); }
+  .tile .emo { width: 100%; display: grid; place-items: center; line-height: 1;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; background: linear-gradient(#e6f5ff, #fff); }
+  .tile .en { font-size: 11px; color: #7a8099; margin-top: -4px; }
+  .eng-main { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 4px 20px 22px; }
+  .eng-main.land { flex-direction: row; gap: 30px; }
+  .stage { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(#e3f4ff, #ffffff 70%); }
+  .stage .big { line-height: 1.05; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; position: relative; z-index: 1; }
+  .stage .big.bounce { animation: bounce .7s ease-in-out infinite; }
+  @keyframes bounce { 50% { transform: translateY(-12px) scale(1.06); } }
+  .stage .word { font-size: 26px; font-weight: 700; margin-top: 8px; z-index: 1; transition: color .15s; }
+  .stage .ko { font-size: 13px; color: #8a90a8; z-index: 1; }
+  .stage .sent { font-size: 15px; margin-top: 8px; color: #4a5170; z-index: 1; text-align: center; padding: 0 60px; transition: color .15s; }
+  .stage .speaking { color: var(--pink) !important; }
+  .stage .sbtns { display: flex; gap: 16px; margin-top: 16px; z-index: 1; }
+  .arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; font-size: 18px; padding: 16px 12px; }
+  .arrow:active { transform: translateY(calc(-50% + 3px)); }
+  .arrow.l { left: 14px; } .arrow.r { right: 14px; }
+  .fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .fx i { position: absolute; top: -40px; font-style: normal; animation: drop linear infinite;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  @keyframes drop { to { transform: translateY(var(--fall)); } }
+  .shakefx { animation: shake .35s 3; }
+  .swayfx { animation: sway 1.4s ease-in-out infinite; }
+  @keyframes sway { 50% { transform: rotate(-10deg) translateX(-12px); } }
+  .thumbs { display: grid; grid-template-columns: repeat(2, var(--tw)); gap: 14px; }
+  .eng-main:not(.land) .thumbs { grid-template-columns: repeat(4, var(--tw)); }
+  .thumb { width: var(--tw); height: var(--tw); display: grid; place-items: center; font-size: calc(var(--tw) * .55); line-height: 1;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .thumb.sel { background: #fff3b0; transform: translateY(-4px); }
+  .thumb:active { transform: translateY(2px); }
+
   /* 축하 */
   #celebrate { position: fixed; inset: 0; display: none; place-items: center; background: rgba(43,45,66,.35); z-index: 20; }
   #celebrate.show { display: grid; }
@@ -179,6 +218,37 @@
       <div class="card"><div class="pv"><canvas id="pvSpot"></canvas></div></div>
       <span class="pbtn pink">틀린그림찾기</span>
     </button>
+    <button class="choice" data-go="engPick">
+      <div class="card"><div class="pv pv-eng"><span class="e">🌧️</span><span class="w">Rain!</span></div></div>
+      <span class="pbtn green">영어 놀이</span>
+    </button>
+  </div>
+</section>
+
+<!-- 2-3. 영어 주제 고르기 -->
+<section id="engPick" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">무엇을 배워 볼까?</div><div class="bar-r"></div></div>
+  <div class="pick-main"><div class="grid" id="topicGrid"></div></div>
+</section>
+
+<!-- 3-3. 영어 카드 -->
+<section id="eng" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="engPick">◀ 뒤로</button><div class="ribbon" id="engTitle"></div><div class="bar-r"></div></div>
+  <div class="eng-main" id="engMain">
+    <div class="card stage" id="stage">
+      <div class="fx" id="fx"></div>
+      <button class="arrow l pbtn sm" id="prevCard">◀</button>
+      <button class="arrow r pbtn sm" id="nextCard">▶</button>
+      <button class="big" id="bigEmoji"></button>
+      <div class="word" id="engWord"></div>
+      <div class="ko" id="koWord"></div>
+      <div class="sent" id="engSent"></div>
+      <div class="sbtns">
+        <button class="pbtn sm blue" id="sayWord">🔊 단어</button>
+        <button class="pbtn sm pink" id="saySent">💬 문장</button>
+      </div>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
   </div>
 </section>
 
@@ -806,8 +876,9 @@ let current = 'home';
 function go(id) {
   current = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick'].includes(id));
+  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick'].includes(id));
   $('celebrate').classList.remove('show');
+  if (id !== 'eng' && canSpeak) speechSynthesis.cancel();
   layout();
 }
 document.addEventListener('click', e => {
@@ -819,6 +890,8 @@ function layout() {
   if (current === 'spotPick') layoutGrid($('placeGrid'), 3, 2, 1.5);
   if (current === 'color') layoutColor();
   if (current === 'spot') layoutSpot();
+  if (current === 'engPick') layoutGrid($('topicGrid'), 3, 2, 1);
+  if (current === 'eng') layoutEng();
 }
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { drawGround(); layout(); }, 120); });
 
@@ -829,7 +902,7 @@ function makeTiles() {
     const t = document.createElement('button'); t.className = 'card tile';
     const cv = document.createElement('canvas'); preview(cv, def, 6);
     t.append(cv); t.insertAdjacentHTML('beforeend', `<span class="nm">${def.name}</span>`);
-    t.onclick = () => { sfx.tap(); startColor(def); };
+    t.onclick = () => { sfx.tap(); startColor(def); sayEn(EN_ANIMALS[def.id]); };
     ag.appendChild(t);
   });
   LOCKED_ANIMALS.forEach(n => ag.insertAdjacentHTML('beforeend',
@@ -852,6 +925,7 @@ function layoutGrid(grid, cols, rows, aspect) {
   const tw = Math.max(70, Math.floor(Math.min(byW, byH, aspect > 1 ? 280 : 190)));
   grid.style.gridTemplateColumns = `repeat(${cols}, ${tw + 16}px)`;
   grid.querySelectorAll('.q').forEach(q => q.style.height = tw / aspect + 'px');
+  grid.querySelectorAll('.emo').forEach(q => { q.style.height = tw + 'px'; q.style.fontSize = Math.floor(tw * .55) + 'px'; });
 }
 
 // =====================================================================
@@ -863,7 +937,7 @@ function makePalette() {
     const b = document.createElement('button'); b.className = 'sw'; b.dataset.c = c;
     if (c === 'rainbow') { b.classList.add('rainbow'); b.style.background = RAINBOW_CSS; b.textContent = '무지개'; }
     else b.style.background = c;
-    b.onclick = () => { selColor = c; sfx.tap(); syncPalette(); };
+    b.onclick = () => { selColor = c; sfx.tap(); syncPalette(); sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
     $('swatches').appendChild(b);
   });
   syncPalette();
@@ -988,6 +1062,8 @@ function spotTap(e) {
   const i = spot.diffs.findIndex((d, k) => !spot.found.has(k) && Math.hypot(gx - d.x, gy - d.y) <= d.r + 1.5);
   if (i >= 0) {
     spot.found.add(i); sfx.ding(); redrawSpot(); renderProgress(true);
+    const word = (EN_SPOT[spot.def.id] || [])[i];
+    if (word) setTimeout(() => sayEn(word), 350);
     if (spot.found.size === spot.diffs.length) setTimeout(() => celebrate('다 찾았어요!', '눈이 정말 좋구나', [
       ['다시 하기', '', () => startSpot(spot.def)],
       ['다른 장소', 'pink', () => go('spotPick')],
@@ -1002,6 +1078,201 @@ function spotTap(e) {
 }
 $('cvA').addEventListener('pointerdown', spotTap);
 $('cvB').addEventListener('pointerdown', spotTap);
+
+// =====================================================================
+//  영어 놀이: [그림, 한국어, 영어 단어, 영어 문장, 움직임]
+// =====================================================================
+const TOPICS = [
+  { id: 'weather', emoji: '🌦️', ko: '날씨', en: 'Weather', cards: [
+    ['☀️', '해', 'Sun', "It's sunny.", 'bounce'],
+    ['🌧️', '비', 'Rain', "It's raining.", 'rain'],
+    ['❄️', '눈', 'Snow', "It's snowing.", 'snow'],
+    ['☁️', '구름', 'Cloud', "It's cloudy.", 'sway'],
+    ['🌈', '무지개', 'Rainbow', 'Look! A rainbow!', 'bounce'],
+    ['🌬️', '바람', 'Wind', "It's windy.", 'sway'],
+    ['⛈️', '천둥', 'Thunder', 'Boom, boom! Thunder!', 'shake'],
+    ['🌙', '달', 'Moon', 'The moon is bright.', 'stars'],
+  ]},
+  { id: 'animals', emoji: '🐶', ko: '동물', en: 'Animals', cards: [
+    ['🐶', '강아지', 'Dog', 'The dog says woof woof!'],
+    ['🐱', '고양이', 'Cat', 'The cat says meow!'],
+    ['🐰', '토끼', 'Rabbit', 'The rabbit hops, hop hop!'],
+    ['🐻', '곰', 'Bear', 'The bear is big.'],
+    ['🐘', '코끼리', 'Elephant', 'The elephant has a long nose.'],
+    ['🦁', '사자', 'Lion', 'The lion says roar!', 'shake'],
+    ['🐟', '물고기', 'Fish', 'The fish can swim.', 'sway'],
+    ['🐦', '새', 'Bird', 'The bird can fly.', 'sway'],
+  ]},
+  { id: 'food', emoji: '🍎', ko: '음식', en: 'Food', cards: [
+    ['🍎', '사과', 'Apple', 'I like apples.'],
+    ['🍌', '바나나', 'Banana', 'Bananas are yellow.'],
+    ['🍓', '딸기', 'Strawberry', 'Strawberries are sweet.'],
+    ['🥛', '우유', 'Milk', 'I drink milk.'],
+    ['🍞', '빵', 'Bread', 'I eat bread.'],
+    ['🍚', '밥', 'Rice', "Let's eat rice."],
+    ['🥕', '당근', 'Carrot', 'Carrots are orange.'],
+    ['🍪', '쿠키', 'Cookie', 'Yummy cookie!'],
+  ]},
+  { id: 'colors', emoji: '🎨', ko: '색깔', en: 'Colors', cards: [
+    ['🔴', '빨강', 'Red', 'The apple is red.'],
+    ['🟠', '주황', 'Orange', 'The carrot is orange.'],
+    ['🟡', '노랑', 'Yellow', 'The banana is yellow.'],
+    ['🟢', '초록', 'Green', 'The leaf is green.'],
+    ['🔵', '파랑', 'Blue', 'The sky is blue.'],
+    ['🟣', '보라', 'Purple', 'Grapes are purple.'],
+    ['🩷', '분홍', 'Pink', 'I like pink.'],
+    ['⚪', '하양', 'White', 'Snow is white.'],
+  ]},
+  { id: 'cars', emoji: '🚗', ko: '탈것', en: 'Vehicles', cards: [
+    ['🚗', '자동차', 'Car', 'Beep beep! Here comes the car.', 'sway'],
+    ['🚌', '버스', 'Bus', "Let's ride the bus."],
+    ['🚒', '소방차', 'Fire truck', 'The fire truck is red.'],
+    ['🚂', '기차', 'Train', 'Choo choo! Here comes the train.', 'sway'],
+    ['✈️', '비행기', 'Airplane', 'The airplane flies high.', 'sway'],
+    ['🚲', '자전거', 'Bike', 'I can ride a bike.'],
+    ['⛵', '배', 'Boat', 'The boat is on the water.', 'sway'],
+    ['🚑', '구급차', 'Ambulance', 'The ambulance is fast.'],
+  ]},
+  { id: 'hello', emoji: '👋', ko: '인사', en: 'Hello', cards: [
+    ['🌞', '좋은 아침', 'Good morning', 'Good morning! Did you sleep well?'],
+    ['👋', '안녕', 'Hello', 'Hello, my friend!', 'sway'],
+    ['🙏', '고마워', 'Thank you', 'Thank you so much!'],
+    ['😋', '맛있어', 'Yummy', 'Yummy, yummy in my tummy!'],
+    ['🤗', '사랑해', 'I love you', 'I love you so much!', 'hearts'],
+    ['🛁', '목욕하자', 'Bath time', "It's bath time!", 'bubbles'],
+    ['😴', '잘 자', 'Good night', 'Good night, sleep tight.', 'stars'],
+    ['💭', '좋은 꿈 꿔', 'Sweet dreams', 'Have sweet dreams!', 'stars'],
+  ]},
+];
+const EN_ANIMALS = { shark: 'Shark', fox: 'Fox', cat: 'Cat', dog: 'Dog', dokkaebi: 'Goblin', ghost: 'Ghost', monster: 'Monster', croc: 'Crocodile', rabbit: 'Rabbit' };
+const EN_SPOT = {
+  forest: ['Cloud', 'Mushroom', 'Bird', 'Flower', 'Butterfly'], sea: ['Fish', 'Starfish', 'Fish', 'Octopus', 'Seaweed'],
+  sky: ['Balloon', 'Bird', 'Kite', 'Airplane', 'Cloud'], swamp: ['Frog', 'Turtle', 'Dragonfly', 'Flower', 'Plant'],
+  playground: ['Slide', 'Swing', 'Ball', 'Sandcastle', 'Cloud'], kinder: ['Sun', 'Clock', 'Crayon', 'Block', 'Ribbon'],
+};
+const EN_COLORS = ['Red', 'Orange', 'Yellow', 'Light green', 'Green', 'Sky blue', 'Blue', 'Purple', 'Pink', 'Light pink',
+                   'Brown', 'Beige', 'Gray', 'Black', 'White', 'Mint', 'Lavender', 'Hot pink', 'Rainbow'];
+
+// ---------- 목소리 (아이패드에 들어 있는 음성) ----------
+const canSpeak = 'speechSynthesis' in window;
+const voices = { en: null, ko: null, loaded: false };
+function loadVoices() {
+  if (!canSpeak) return;
+  const vs = speechSynthesis.getVoices();
+  if (!vs.length) return;
+  const norm = v => v.lang.replace('_', '-').toLowerCase();
+  const pick = (pre, exact, nice) => {
+    const c = vs.filter(v => norm(v).startsWith(pre));
+    return c.find(v => norm(v) === exact && /premium|enhanced|natural/i.test(v.name))
+        || c.find(v => norm(v) === exact && nice.test(v.name))
+        || c.find(v => norm(v) === exact) || c[0] || null;
+  };
+  voices.en = pick('en', 'en-us', /samantha|ava|allison|google us/i);
+  voices.ko = pick('ko', 'ko-kr', /yuna|google/i);
+  voices.loaded = true;
+}
+if (canSpeak) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+// parts: [{ t: 글, lang: 'ko'|'en', start, end }]
+function say(parts, done) {
+  if (!canSpeak) { done && done(); return; }
+  speechSynthesis.cancel();
+  if (!voices.loaded) loadVoices();
+  const list = parts.filter(p => !(p.lang === 'ko' && voices.loaded && !voices.ko));
+  list.forEach((p, i) => {
+    const u = new SpeechSynthesisUtterance(p.t);
+    u.lang = p.lang === 'ko' ? 'ko-KR' : 'en-US';
+    if (voices[p.lang]) u.voice = voices[p.lang];
+    u.rate = p.lang === 'en' ? .8 : .95; u.pitch = 1.1;
+    u.onstart = () => p.start && p.start();
+    u.onend = () => { p.end && p.end(); if (i === list.length - 1 && done) done(); };
+    speechSynthesis.speak(u);
+  });
+}
+const sayEn = t => say([{ t, lang: 'en' }]);
+
+// ---------- 영어 화면 ----------
+let eng = null;
+function makeTopics() {
+  const g = $('topicGrid');
+  TOPICS.forEach(tp => {
+    const t = document.createElement('button'); t.className = 'card tile';
+    t.innerHTML = `<div class="emo">${tp.emoji}</div><span class="nm">${tp.ko}</span><span class="en">${tp.en}</span>`;
+    t.onclick = () => { sfx.tap(); startEng(tp); };
+    g.appendChild(t);
+  });
+}
+function startEng(tp) {
+  eng = { tp, i: 0 };
+  $('engTitle').textContent = `${tp.ko} · ${tp.en}`;
+  $('thumbs').innerHTML = '';
+  tp.cards.forEach((c, i) => {
+    const b = document.createElement('button'); b.className = 'card thumb'; b.textContent = c[0];
+    b.onclick = () => { sfx.tap(); showCard(i); };
+    $('thumbs').appendChild(b);
+  });
+  go('eng');
+  showCard(0, false);
+  sayEn(tp.en);
+}
+function setFx(kind) {
+  const fx = $('fx'), big = $('bigEmoji');
+  fx.innerHTML = ''; big.classList.remove('shakefx', 'swayfx');
+  const rainLike = { rain: '💧', snow: '❄️', stars: '⭐', hearts: '💗', bubbles: '🫧' }[kind];
+  if (rainLike) {
+    const h = $('stage').clientHeight + 80;
+    for (let k = 0; k < 14; k++) {
+      const d = document.createElement('i'); d.textContent = rainLike;
+      d.style.left = (k / 14 * 100 + Math.random() * 5) + '%';
+      d.style.fontSize = (kind === 'rain' ? 18 : 22) + Math.random() * 12 + 'px';
+      d.style.setProperty('--fall', h + 'px');
+      d.style.animationDuration = (kind === 'rain' ? .9 : 3) + Math.random() * 1.5 + 's';
+      d.style.animationDelay = -Math.random() * 3 + 's';
+      d.style.opacity = kind === 'stars' ? .7 : .85;
+      fx.appendChild(d);
+    }
+  }
+  if (kind === 'shake') { void big.offsetWidth; big.classList.add('shakefx'); }
+  if (kind === 'sway') big.classList.add('swayfx');
+}
+function showCard(i, speak = true) {
+  const cards = eng.tp.cards;
+  eng.i = (i + cards.length) % cards.length;
+  const [emo, ko, en, sent, kind] = cards[eng.i];
+  $('bigEmoji').textContent = emo; $('engWord').textContent = en; $('koWord').textContent = ko; $('engSent').textContent = sent;
+  document.querySelectorAll('.thumb').forEach((b, k) => b.classList.toggle('sel', k === eng.i));
+  setFx(kind);
+  if (speak) speakCard('all');
+}
+function speakCard(what) {
+  const [, ko, en, sent] = eng.tp.cards[eng.i];
+  const big = $('bigEmoji'), w = $('engWord'), s = $('engSent');
+  const on = el => () => { el.classList.add('speaking'); big.classList.add('bounce'); };
+  const off = el => () => el.classList.remove('speaking');
+  const parts = [];
+  if (what === 'all') parts.push({ t: ko, lang: 'ko', start: () => big.classList.add('bounce') });
+  if (what !== 'sent') parts.push({ t: en, lang: 'en', start: on(w), end: off(w) });
+  if (what !== 'word') parts.push({ t: sent, lang: 'en', start: on(s), end: off(s) });
+  say(parts, () => big.classList.remove('bounce'));
+  setTimeout(() => { if (!canSpeak) big.classList.remove('bounce'); }, 1500);
+}
+$('bigEmoji').onclick = () => speakCard('all');
+$('sayWord').onclick = () => speakCard('word');
+$('saySent').onclick = () => speakCard('sent');
+$('prevCard').onclick = () => { sfx.tap(); showCard(eng.i - 1); };
+$('nextCard').onclick = () => { sfx.tap(); showCard(eng.i + 1); };
+function layoutEng() {
+  if (!eng) return;
+  const m = $('engMain'), W = m.clientWidth - 40, H = m.clientHeight - 30, gap = 14;
+  const land = W > H * 1.15;
+  m.classList.toggle('land', land);
+  let tw, sw, sh;
+  if (land) { tw = Math.floor(Math.min((H - gap * 3) / 4, 120)); sw = Math.min(W - tw * 2 - gap - 34, H * 1.25); sh = H; }
+  else { tw = Math.floor(Math.min((W - gap * 3) / 4 - 8, 120)); sw = W; sh = Math.min(H - tw * 2 - gap - 30, W); }
+  m.style.setProperty('--tw', tw + 'px');
+  const st = $('stage'); st.style.width = sw + 'px'; st.style.height = sh + 'px';
+  $('bigEmoji').style.fontSize = Math.floor(Math.min(sw, sh) * .32) + 'px';
+  setFx(eng.tp.cards[eng.i][4]);
+}
 
 // =====================================================================
 //  축하 화면
@@ -1052,6 +1323,7 @@ buildScenery();
 syncStyle();
 renderPreviews();
 makePalette();
+makeTopics();
 </script>
 </body>
 </html>
