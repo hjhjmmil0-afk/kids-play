@@ -185,6 +185,44 @@
   .thumb.sel { background: #fff3b0; transform: translateY(-4px); }
   .thumb:active { transform: translateY(2px); }
 
+  /* 옷입히기 */
+  .pbtn.orange { background: #ff9f43; color: #fff; text-shadow: 1px 1px 0 var(--ink); }
+  #dressBoard { position: relative; overflow: hidden; }
+  #dressBoard .fx { inset: 10px; }
+  .dpanel { padding: 14px; display: flex; flex-direction: column; gap: 12px; align-items: center; width: 372px; }
+  .color-main:not(.land) .dpanel { width: min(100%, 640px); }
+  .dtabs { display: flex; gap: 6px; width: 100%; }
+  .dtab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; font-weight: 700;
+    box-shadow: 0 0 0 2px var(--ink); background: #f3f5fa; }
+  .dtab .emoji { font-size: 22px; line-height: 1.1; }
+  .dtab.on { background: #fff3b0; transform: translateY(-2px); box-shadow: 0 0 0 3px var(--ink); }
+  .ditems { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+  .color-main:not(.land) .ditems { grid-template-columns: repeat(6, 1fr); }
+  .ditem { display: flex; flex-direction: column; align-items: center; padding: 4px 2px 6px; font-size: 11px; font-weight: 700; }
+  .ditem canvas { width: 100%; max-width: 74px; height: auto; aspect-ratio: 1; }
+  .ditem.on { background: #fff3b0; }
+  .ditem:active { transform: translateY(2px); }
+  .dpal-label { font-size: 11px; color: #7a8099; margin-bottom: -6px; }
+  .dpal { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; width: 100%; }
+  .dsw { aspect-ratio: 1; box-shadow: 0 0 0 2px var(--ink); font-size: 14px; font-weight: 700; background: #fff; }
+  .dsw.sel { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px #fff, 0 0 0 6px var(--ink); }
+  .mission { position: absolute; left: 18px; top: 18px; display: none; align-items: center; gap: 10px; padding: 8px 12px; z-index: 2;
+    background: rgba(255,255,255,.92); box-shadow: 0 0 0 3px var(--ink), 0 5px 0 rgba(43,45,66,.2); }
+  .mission.show { display: flex; }
+  .memo { font-size: 40px; line-height: 1; animation: bounce 1s ease-in-out infinite; }
+  .needs { display: flex; gap: 8px; }
+  .need { position: relative; width: 46px; height: 46px; background: #f3f5fa; box-shadow: 0 0 0 2px #c9cedb; }
+  .need canvas { width: 100%; height: 100%; opacity: .4; filter: grayscale(.8); }
+  .need.ok { background: #e3f9df; box-shadow: 0 0 0 2px #3cb371; }
+  .need.ok canvas { opacity: 1; filter: none; }
+  .need b { position: absolute; right: -6px; top: -8px; background: #3cb371; color: #fff; font-size: 12px; width: 20px; height: 20px;
+    display: grid; place-items: center; border-radius: 50%; box-shadow: 0 0 0 2px #fff; }
+  @media (max-width: 560px) {
+    .color-main:not(.land) .ditems { grid-template-columns: repeat(3, 1fr); }
+    .dpanel { padding: 10px; gap: 9px; }
+    .mission { left: 10px; top: 10px; padding: 6px 8px; } .need { width: 36px; height: 36px; } .memo { font-size: 30px; }
+  }
+
   /* 축하 */
   #celebrate { position: fixed; inset: 0; display: none; place-items: center; background: rgba(43,45,66,.35); z-index: 20; }
   #celebrate.show { display: grid; }
@@ -235,6 +273,10 @@
       <div class="card"><div class="pv pv-eng"><span class="e">🌧️</span><span class="w">Rain!</span></div></div>
       <span class="pbtn green">영어 놀이</span>
     </button>
+    <button class="choice" data-go="dressPick">
+      <div class="card"><div class="pv"><canvas id="pvDress"></canvas></div></div>
+      <span class="pbtn orange">옷입히기</span>
+    </button>
   </div>
   <div class="swipe-hint" id="swipeHint">◀ 옆으로 밀어서 골라요 ▶</div>
 </section>
@@ -243,6 +285,32 @@
 <section id="engPick" class="screen">
   <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">무엇을 배워 볼까?</div><div class="bar-r"></div></div>
   <div class="pick-main"><div class="grid" id="topicGrid"></div></div>
+</section>
+
+<!-- 2-4. 옷입히기 동물 고르기 -->
+<section id="dressPick" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">누구 옷을 입혀 볼까?</div><div class="bar-r"><div class="seg"></div></div></div>
+  <div class="pick-main"><div class="grid" id="dressGrid"></div></div>
+</section>
+
+<!-- 3-4. 옷입히기 -->
+<section id="dress" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="dressPick">◀ 뒤로</button><div class="ribbon" id="dressTitle"></div>
+    <div class="bar-r"><button class="pbtn sm pink" id="missionBtn">⭐ 미션 시작</button></div></div>
+  <div class="color-main" id="dressMain">
+    <div class="card board" id="dressBoard">
+      <canvas id="dressCv"></canvas>
+      <div class="fx" id="dressFx"></div>
+      <div class="mission" id="missionBox"><button class="memo emoji" id="missionEmo"></button><div class="needs" id="missionNeed"></div></div>
+    </div>
+    <div class="card dpanel">
+      <div class="dtabs" id="dTabs"></div>
+      <div class="ditems" id="dItems"></div>
+      <div class="dpal-label">색을 고르고 옷을 누르면 색이 바뀌어요</div>
+      <div class="dpal" id="dPalette"></div>
+      <div class="tools"><button class="pbtn sm" id="undressBtn">다 벗기</button><button class="pbtn sm blue" id="saveDress">저장하기</button></div>
+    </div>
+  </div>
 </section>
 
 <!-- 3-3. 영어 카드 -->
@@ -890,7 +958,7 @@ let current = 'home';
 function go(id) {
   current = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick'].includes(id));
+  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'dressPick'].includes(id));
   $('celebrate').classList.remove('show');
   if (id !== 'eng' && canSpeak) speechSynthesis.cancel();
   layout();
@@ -907,6 +975,8 @@ function layout() {
   if (current === 'spot') layoutSpot();
   if (current === 'engPick') layoutGrid($('topicGrid'), 3, 2, 1);
   if (current === 'eng') layoutEng();
+  if (current === 'dressPick') layoutGrid($('dressGrid'), 3, 3, 1);
+  if (current === 'dress') layoutDress();
 }
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { drawGround(); layout(); }, 120); });
 
@@ -1291,6 +1361,334 @@ function layoutEng() {
 }
 
 // =====================================================================
+//  동물 옷입히기
+// =====================================================================
+// 동물마다 몸에서 가져올 부분 (색칠 도안에서 옷을 뺀 나머지)
+const DRESS = {
+  shark:    { back: ['tail', 'fin'], own: ['body', 'belly', 'arms'], legs: true, skin: '#6fa8e8', head: [], face: ['ink', 'hl', 'cheeks'], T: ['body', 'belly'], ey: 22.5, hand: [10, 46] },
+  fox:      { back: ['tail', 'tailtip'], skin: '#ff9f43', belly: '#ffffff', head: ['ears', 'inner', 'head', 'muzzle'], face: ['ink', 'hl', 'cheeks'], ey: 16.5 },
+  cat:      { back: ['tail', 'tailtip'], skin: '#ffcf8a', belly: '#ffffff', head: ['ears', 'inner', 'head', 'patch', 'muzzle'], face: ['ink', 'hl', 'cheeks'], ey: 18.5 },
+  dog:      { back: ['tail'], skin: '#f3cf9c', belly: '#fff8ec', head: ['head', 'patch', 'ears', 'muzzle'], face: ['tongue', 'ink', 'hl', 'cheeks'], ey: 16.5 },
+  dokkaebi: { back: [], skin: '#ff8f8f', head: ['hair', 'horn', 'head'], face: ['eyew', 'ink', 'hl', 'nose', 'mouth', 'fangs', 'cheeks'], ey: 18 },
+  ghost:    { back: [], own: ['arms', 'body'], legs: false, skin: '#f4f6ff', head: [], face: ['ink', 'hl', 'mouth', 'cheeks'], T: ['body'], ey: 22.5, hand: [9, 32] },
+  monster:  { back: ['horns'], own: ['arms', 'feet', 'body', 'spots'], legs: false, skin: '#a26bff', head: [], face: ['eyew', 'ink', 'hl', 'mouth', 'teeth', 'cheeks'], T: ['body', 'spots'], ey: 20, hand: [7, 41] },
+  croc:     { back: ['tail'], skin: '#5fbf5a', belly: '#e9f5b8', head: ['head'], face: ['eyew', 'ink', 'hl', 'teeth', 'cheeks'], ey: 13 },
+  rabbit:   { back: [], skin: '#f7f2ee', belly: '#ffe3ee', head: ['ears', 'inner', 'head'], face: ['ink', 'hl', 'nose', 'teeth', 'cheeks'], ey: 19.5 },
+};
+function stdBody(skin, belly) {
+  return [
+    ...sym(E('arms', 19, 41, 3.5, 6, skin)),
+    E('torso', 32, 41, 10.5, 10, skin),
+    ...(belly ? [E('belly', 32, 43, 6.5, 6.5, belly, { clip: 'torso' })] : []),
+  ];
+}
+const stdLegs = skin => sym(R('legs', 25.5, 49, 5, 9, skin));
+function animalParts(aid) {
+  const A = ANIMALS.find(a => a.id === aid), C = DRESS[aid];
+  const pick = keys => A.shapes.filter(s => keys.includes(s.k));
+  const body = C.own ? pick(C.own) : stdBody(C.skin, C.belly);
+  if (C.own ? C.legs : true) body.unshift(...stdLegs(C.skin));
+  return { back: pick(C.back), body, head: pick(C.head), face: pick(C.face),
+           ctx: { T: C.T || ['torso', 'belly'], ey: C.ey, hand: C.hand || [19, 46] } };
+}
+const MANNEQUIN = { back: [], body: [...stdLegs('#e6e9f2'), ...stdBody('#e6e9f2')], head: [E('head', 32, 19, 14, 12, '#e6e9f2')], face: [],
+                    ctx: { T: ['torso'], ey: 18, hand: [19, 46] } };
+
+// 옷: cat = hat/top/bottom/shoes 는 하나씩, acc(소품)는 여러 개
+const DCATS = [['hat', '🎩', '모자'], ['top', '👕', '윗옷'], ['bottom', '👖', '바지'], ['shoes', '👟', '신발'], ['acc', '🎒', '소품']];
+const ITEMS = [
+  { id: 'cap', cat: 'hat', ko: '모자', en: 'Cap', make: () => [
+    P('cap', [[19, 13], [20, 8], [25, 4], [32, 3], [39, 4], [44, 8], [45, 13]], '#ff6b6b'), R('cap_brim', 37, 11, 15, 3, '#ffd23f')] },
+  { id: 'crown', cat: 'hat', ko: '왕관', en: 'Crown', make: () => [
+    P('crown', [[22, 11], [22, 2], [26.5, 6], [29, 0], [32, 5], [35, 0], [37.5, 6], [42, 2], [42, 11]], '#ffd23f'),
+    E('crown_gem', 32, 8, 1.8, 1.8, '#ff5a5f'), ...sym(E('crown_gems', 25.5, 8.5, 1.3, 1.3, '#4a8ff0'))] },
+  { id: 'beanie', cat: 'hat', ko: '털모자', en: 'Winter hat', make: () => [
+    P('beanie', [[18, 14], [19, 8], [24, 4], [32, 3], [40, 4], [45, 8], [46, 14]], '#4a8ff0'),
+    R('beanie_band', 17, 11, 30, 4, '#ffffff'), E('beanie_pom', 32, 2.5, 3.4, 3.4, '#ffffff')] },
+  { id: 'sunhat', cat: 'hat', ko: '밀짚모자', en: 'Sun hat', make: () => [
+    E('sunhat_brim', 32, 12, 20, 3.6, '#f5d6a8'),
+    P('sunhat', [[23, 12], [23.5, 6], [27, 3], [32, 2], [37, 3], [40.5, 6], [41, 12]], '#f5d6a8'),
+    R('sunhat_band', 22, 8, 20, 2.6, '#ff6b9a', { clip: 'sunhat' })] },
+  { id: 'tophat', cat: 'hat', ko: '신사 모자', en: 'Top hat', make: () => [
+    R('tophat', 24, -1, 16, 12, '#3a3a4a'), R('tophat_band', 24, 7, 16, 2, '#ff5a5f'), E('tophat_brim', 32, 11, 13, 2.4, '#3a3a4a')] },
+  { id: 'ribbon', cat: 'hat', ko: '리본', en: 'Ribbon', make: () => [
+    P('ribbon', [[44, 9], [38, 4], [38, 14]], '#ff8cc6'), P('ribbon', [[44, 9], [50, 4], [50, 14]], '#ff8cc6'), R('ribbon_knot', 42, 7, 4, 4, '#ff5a5f')] },
+
+  { id: 'tshirt', cat: 'top', ko: '티셔츠', en: 'T-shirt', make: c => [
+    ...sym(E('tshirt', 19.5, 36.5, 4.4, 3.6, '#4a8ff0')), R('tshirt', 0, 31, 64, 13, '#4a8ff0', { clip: c.T })] },
+  { id: 'stripe', cat: 'top', ko: '줄무늬 티', en: 'Striped shirt', make: c => [
+    ...sym(E('stripe', 19.5, 36.5, 4.4, 3.6, '#ffffff')), R('stripe', 0, 31, 64, 13, '#ffffff', { clip: c.T }),
+    ...[33.5, 37.5, 41.5].map(y => R('stripe_line', 0, y, 64, 2, '#ff6b6b', { clip: 'stripe' }))] },
+  { id: 'dress', cat: 'top', ko: '원피스', en: 'Dress', make: () => [
+    ...sym(E('dress', 19.5, 36.5, 4.4, 3.6, '#ff8cc6')), P('dress', [[22, 31], [42, 31], [48, 54], [16, 54]], '#ff8cc6'),
+    ...[[27, 38], [36, 37], [32, 44], [41, 47], [23, 48]].map(([x, y]) => E('dress_dot', x, y, 1.6, 1.6, '#ffffff', { clip: 'dress' }))] },
+  { id: 'raincoat', cat: 'top', ko: '우비', en: 'Raincoat', make: () => [
+    ...sym(E('raincoat', 19, 41, 4.3, 6.8, '#ffd23f')), P('raincoat', [[21, 30], [43, 30], [46, 53], [18, 53]], '#ffd23f'),
+    ...[37, 43, 49].map(y => E('raincoat_btn', 29, y, 1.4, 1.4, '#ff5a5f'))] },
+  { id: 'sweater', cat: 'top', ko: '스웨터', en: 'Sweater', make: c => [
+    ...sym(E('sweater', 19, 41, 4.3, 6.8, '#3cb371')), R('sweater', 0, 30, 64, 20, '#3cb371', { clip: c.T }),
+    R('sweater_line', 0, 37, 64, 3, '#ffffff', { clip: 'sweater' })] },
+
+  { id: 'shorts', cat: 'bottom', ko: '반바지', en: 'Shorts', make: () => [
+    P('shorts', [[21, 45], [43, 45], [44, 53], [34, 53], [32, 50], [30, 53], [20, 53]], '#4a8ff0')] },
+  { id: 'skirt', cat: 'bottom', ko: '치마', en: 'Skirt', make: () => [
+    P('skirt', [[22, 45], [42, 45], [48, 54], [16, 54]], '#ff6b9a'), R('skirt_hem', 0, 51, 64, 3, '#ffffff', { clip: 'skirt' })] },
+  { id: 'pants', cat: 'bottom', ko: '긴바지', en: 'Pants', make: () => [
+    P('pants', [[21, 45], [43, 45], [43.5, 58], [34, 58], [32, 51], [30, 58], [20.5, 58]], '#4a7bff')] },
+  { id: 'overalls', cat: 'bottom', late: true, ko: '멜빵바지', en: 'Overalls', make: () => [
+    ...sym(R('overalls', 24.5, 31, 3, 11, '#ff9f43')),
+    P('overalls', [[24, 41], [40, 41], [41, 46], [43, 55], [34, 55], [32, 52], [30, 55], [21, 55], [23, 46]], '#ff9f43'),
+    ...sym(E('overalls_btn', 26, 41.5, 1.5, 1.5, '#ffd23f')), R('overalls_pocket', 29, 44, 6, 4, '#ffd23f', { clip: 'overalls' })] },
+
+  { id: 'sneakers', cat: 'shoes', ko: '운동화', en: 'Sneakers', make: () => [
+    ...sym(R('sneakers', 21, 55, 9.5, 5, '#ff5a5f')), ...sym(R('sneakers_lace', 23.5, 56, 3, 1.5, '#ffffff'))] },
+  { id: 'boots', cat: 'shoes', ko: '장화', en: 'Rain boots', make: () => [
+    ...sym(R('boots', 22, 50, 8, 10, '#ffd23f')), ...sym(R('boots_top', 21.5, 50, 9, 2, '#ff9f43'))] },
+  { id: 'party', cat: 'shoes', ko: '구두', en: 'Party shoes', make: () => [
+    ...sym(E('party', 25.5, 58, 5.5, 2.6, '#a26bff')), ...sym(E('party_bow', 25.5, 56.3, 1.7, 1.2, '#ffd23f'))] },
+
+  { id: 'glasses', cat: 'acc', layer: 'preface', ko: '안경', en: 'Glasses', make: c => [
+    ...sym(E('glasses', 25, c.ey, 4.4, 3.8, '#e6f7ff')), R('glasses_bridge', 29, c.ey - 1, 6, 1.4, '#3a3a4a')] },
+  { id: 'sunglasses', cat: 'acc', layer: 'postface', ko: '선글라스', en: 'Sunglasses', make: c => [
+    ...sym(E('sunglasses', 25, c.ey, 4.6, 3.6, '#3a3a4a')), R('sunglasses_bridge', 29, c.ey - 1, 6, 1.4, '#3a3a4a')] },
+  { id: 'scarf', cat: 'acc', layer: 'neck', ko: '목도리', en: 'Scarf', make: () => [
+    R('scarf', 19, 29, 26, 5, '#ff5a5f'), R('scarf_end', 36, 33, 6, 10, '#ff5a5f'), R('scarf_line', 19, 31, 26, 1.4, '#ffffff', { clip: 'scarf' })] },
+  { id: 'mittens', cat: 'acc', layer: 'hands', ko: '장갑', en: 'Mittens', make: c => [
+    ...sym(E('mittens', c.hand[0], c.hand[1], 3.8, 3.2, '#ff5a5f'))] },
+  { id: 'umbrella', cat: 'acc', layer: 'front', ko: '우산', en: 'Umbrella', make: () => [
+    R('umbrella_stick', 53, 21, 1.4, 24, '#3a3a4a'),
+    P('umbrella', [[43, 22], [45, 16], [49, 12], [54, 11], [59, 12], [63, 16], [64, 22]], '#4a8ff0'),
+    P('umbrella_stripe', [[52, 11], [56, 11], [57, 22], [51, 22]], '#ffffff', { clip: 'umbrella' })] },
+  { id: 'bag', cat: 'acc', layer: 'front', ko: '가방', en: 'Bag', make: () => [
+    P('bag_strap', [[23, 31], [26, 31], [46, 44], [43, 45]], '#a0673a'), R('bag', 42, 43, 9, 8, '#ff9f43'), R('bag_flap', 42, 43, 9, 3, '#ffd23f', { clip: 'bag' })] },
+  { id: 'wand', cat: 'acc', layer: 'front', ko: '요술봉', en: 'Magic wand', make: () => [
+    P('wand', [[47, 44], [49, 44], [55, 25], [53, 24]], '#a0673a'), P('wand_star', starPts(54.5, 21, 5, 2.2), '#ffd23f')] },
+];
+const itemById = id => ITEMS.find(i => i.id === id);
+const itemOfKey = k => itemById(k.split('_')[0]);
+const emptyWorn = () => ({ hat: null, top: null, bottom: null, shoes: null, acc: [] });
+const wornList = w => [w.hat, w.top, w.bottom, w.shoes, ...w.acc].filter(Boolean);
+
+// 겹치는 순서대로 쌓기
+function composeDef(parts, worn) {
+  const c = parts.ctx, W = wornList(worn).map(itemById);
+  const take = f => W.filter(f).flatMap(it => it.make(c));
+  return { w: 64, h: 64, shapes: [
+    ...parts.back, ...parts.body,
+    ...take(i => i.cat === 'bottom' && !i.late), ...take(i => i.cat === 'top'), ...take(i => i.cat === 'bottom' && i.late),
+    ...take(i => i.cat === 'shoes'), ...take(i => i.layer === 'hands'),
+    ...parts.head, ...take(i => i.layer === 'preface'), ...parts.face, ...take(i => i.layer === 'postface'),
+    ...take(i => i.cat === 'hat'), ...take(i => i.layer === 'neck'), ...take(i => i.layer === 'front'),
+  ]};
+}
+function wearOne(worn, it) {
+  const w = { ...worn, acc: [...worn.acc] };
+  if (it.cat === 'acc') { if (!w.acc.includes(it.id)) w.acc.push(it.id); } else w[it.cat] = it.id;
+  return w;
+}
+// 옷 버튼 그림: 회색 마네킹에 입혀서 그 옷 부분만 잘라 보여줘요
+function itemPreview(it) {
+  const S = 3, art = build(composeDef(MANNEQUIN, wearOne(emptyWorn(), it)), 'A', S);
+  let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+  for (let i = 0; i < art.map.length; i++) {
+    const r = art.regions[art.map[i]];
+    if (r.k === 'bg' || itemOfKey(r.k) !== it) continue;
+    const x = i % art.w, y = (i / art.w) | 0;
+    if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y;
+  }
+  const cs = 6, full = document.createElement('canvas'); full.width = full.height = 64 * cs;
+  const cols = art.regions.map(r => r.k === 'bg' ? null : (r.fix || r.col));
+  draw(full.getContext('2d'), art, cols, cs, { thin: 1.6, thick: 2.2 });
+  const bx0 = x0 / S, by0 = y0 / S, bx1 = (x1 + 1) / S, by1 = (y1 + 1) / S;
+  const side = Math.max(bx1 - bx0, by1 - by0) + 4, cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2;
+  const out = document.createElement('canvas'); out.width = out.height = 120;
+  out.getContext('2d').drawImage(full, (cx - side / 2) * cs, (cy - side / 2) * cs, side * cs, side * cs, 0, 0, 120, 120);
+  return out;
+}
+
+// ---------- 화면 ----------
+let dress = null, dTab = 'hat', dColor = null;
+const previewCache = {};
+function makeDressTiles() {
+  const g = $('dressGrid'); g.innerHTML = '';
+  ANIMALS.forEach(a => {
+    const t = document.createElement('button'); t.className = 'card tile';
+    const cv = document.createElement('canvas'); preview(cv, composeDef(animalParts(a.id), emptyWorn()), 6);
+    t.append(cv); t.insertAdjacentHTML('beforeend', `<span class="nm">${a.name}</span>`);
+    t.onclick = () => { sfx.tap(); startDress(a); };
+    g.appendChild(t);
+  });
+}
+function startDress(a) {
+  dress = { a, parts: animalParts(a.id), worn: emptyWorn(), over: {}, mission: null, mi: -1 };
+  $('dressTitle').textContent = `${a.name} 옷입히기`;
+  endMissionUI();
+  renderDTabs(); renderDItems();
+  go('dress');
+  sayEn(EN_ANIMALS[a.id]);
+}
+function rebuildDress() {
+  dress.art = build(composeDef(dress.parts, dress.worn), 'A', scaleOf());
+  redrawDress();
+}
+function dressColors() {
+  return dress.art.regions.map(r => r.fix || dress.over[r.k] || (r.k === 'bg' ? (dress.mission ? dress.mission.bg : '#ffffff') : r.col));
+}
+function redrawDress() { if (dress.ctx) draw(dress.ctx, dress.art, dressColors(), dress.cs); }
+function renderDTabs() {
+  const box = $('dTabs'); box.innerHTML = '';
+  DCATS.forEach(([cat, emo, ko]) => {
+    const b = document.createElement('button'); b.className = 'dtab' + (cat === dTab ? ' on' : '');
+    b.innerHTML = `<span class="emoji">${emo}</span><span>${ko}</span>`;
+    b.onclick = () => { dTab = cat; sfx.tap(); renderDTabs(); renderDItems(); };
+    box.appendChild(b);
+  });
+}
+function isWorn(it) { return it.cat === 'acc' ? dress.worn.acc.includes(it.id) : dress.worn[it.cat] === it.id; }
+function renderDItems() {
+  const box = $('dItems'); box.innerHTML = '';
+  ITEMS.filter(it => it.cat === dTab).forEach(it => {
+    const b = document.createElement('button'); b.className = 'card ditem' + (isWorn(it) ? ' on' : '');
+    const pv = previewCache[it.id] || (previewCache[it.id] = itemPreview(it));
+    const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.getContext('2d').drawImage(pv, 0, 0);
+    b.append(cv); b.insertAdjacentHTML('beforeend', `<span>${it.ko}</span>`);
+    b.onclick = () => toggleItem(it);
+    box.appendChild(b);
+  });
+}
+function colorWord(c) { const i = PALETTE.indexOf(c); return i >= 0 ? EN_COLORS[i] + ' ' : ''; }
+function toggleItem(it) {
+  const w = dress.worn;
+  if (isWorn(it)) {
+    if (it.cat === 'acc') w.acc = w.acc.filter(x => x !== it.id); else w[it.cat] = null;
+    tone(600, 0, .1, 'triangle', .2, 300);
+  } else {
+    if (it.cat === 'acc') w.acc.push(it.id); else w[it.cat] = it.id;
+    if (dColor) dress.over[it.id] = dColor; else delete dress.over[it.id];
+    sfx.pop();
+    sayEn((dColor ? colorWord(dColor) : '') + it.en + '!');
+  }
+  rebuildDress(); renderDItems(); checkMission();
+}
+function makeDPalette() {
+  const box = $('dPalette'); box.innerHTML = '';
+  [null, ...PALETTE].forEach(c => {
+    const b = document.createElement('button'); b.className = 'dsw';
+    if (c === null) { b.textContent = '↺'; b.title = '원래 색'; }
+    else b.style.background = c === 'rainbow' ? RAINBOW_CSS : c;
+    b.onclick = () => { dColor = c; sfx.tap(); syncDPalette(); if (c) sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
+    b.dataset.c = c || '';
+    box.appendChild(b);
+  });
+  syncDPalette();
+}
+function syncDPalette() { document.querySelectorAll('.dsw').forEach(b => b.classList.toggle('sel', b.dataset.c === (dColor || ''))); }
+// 캐릭터 위의 옷을 누르면: 고른 색으로 바꾸고 영어로 말해요
+$('dressCv').addEventListener('pointerdown', e => {
+  if (!dress || !dress.art) return;
+  const A = dress.art, r = e.currentTarget.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) / r.width * A.w), y = Math.floor((e.clientY - r.top) / r.height * A.h);
+  if (x < 0 || y < 0 || x >= A.w || y >= A.h) return;
+  const reg = A.regions[A.map[y * A.w + x]], it = reg.k === 'bg' ? null : itemOfKey(reg.k);
+  if (!it) { if (reg.k !== 'bg') sayEn(EN_ANIMALS[dress.a.id]); return; }
+  if (dColor) { dress.over[reg.k] = dColor; sfx.pop(); redrawDress(); }
+  else sfx.tap();
+  sayEn(colorWord(dress.over[it.id] || '') + it.en + '!');
+});
+$('undressBtn').onclick = () => { sfx.tap(); dress.worn = emptyWorn(); dress.over = {}; rebuildDress(); renderDItems(); checkMission(); };
+$('saveDress').onclick = () => saveArt(dress.art, dressColors(), `옷입히기_${dress.a.name}`);
+async function saveArt(art, colors, name) {
+  const cs = 12, cv = document.createElement('canvas'); cv.width = cv.height = 64 * cs;
+  draw(cv.getContext('2d'), art, colors, cs);
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  const file = new File([blob], `${name}_${Date.now()}.png`, { type: 'image/png' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+}
+function layoutDress() {
+  if (!dress) return;
+  const m = $('dressMain'), W = m.clientWidth - 40, H = m.clientHeight - 30;
+  const land = W > H * 1.15;
+  m.classList.toggle('land', land);
+  const panel = document.querySelector('#dressMain .dpanel');
+  const size = Math.floor(land ? Math.min(H - 20, W - panel.offsetWidth - 50) : Math.min(W - 20, H - panel.offsetHeight - 30));
+  dress.cs = Math.max(3, size) / 64;
+  dress.ctx = fitCanvas($('dressCv'), dress.cs * 64, dress.cs * 64);
+  if (!dress.art) dress.art = build(composeDef(dress.parts, dress.worn), 'A', scaleOf());
+  redrawDress();
+  if (dress.mission) setDressFx(dress.mission.fx);
+}
+
+// ---------- 날씨 미션 ----------
+const MISSIONS = [
+  { emo: '☔', ko: '비가 와요! 우비, 장화, 우산을 챙겨요.', en: "It's raining!", need: ['raincoat', 'boots', 'umbrella'], bg: '#d3e2f2', fx: 'rain' },
+  { emo: '⛄', ko: '눈이 와요! 스웨터, 털모자, 목도리, 장갑을 입어요.', en: "It's snowing!", need: ['sweater', 'beanie', 'scarf', 'mittens'], bg: '#eef5fc', fx: 'snow' },
+  { emo: '☀️', ko: '해가 쨍쨍해요! 밀짚모자, 선글라스, 반바지를 입어요.', en: "It's sunny!", need: ['sunhat', 'sunglasses', 'shorts'], bg: '#fff3c4', fx: 'sun' },
+  { emo: '🎉', ko: '오늘은 파티 날! 왕관, 구두, 요술봉을 챙겨요.', en: "It's party time!", need: ['crown', 'party', 'wand'], bg: '#ffe3f0', fx: 'party' },
+];
+function setDressFx(kind) {
+  const fx = $('dressFx'); fx.innerHTML = '';
+  const ch = { rain: '💧', snow: '❄️', party: '🎈', sun: '✨' }[kind];
+  if (!ch) return;
+  const h = $('dressBoard').clientHeight + 80;
+  for (let k = 0; k < 12; k++) {
+    const d = document.createElement('i'); d.textContent = ch;
+    d.style.left = (k / 12 * 100 + Math.random() * 6) + '%';
+    d.style.fontSize = 16 + Math.random() * 12 + 'px';
+    d.style.setProperty('--fall', h + 'px');
+    d.style.animationDuration = (kind === 'rain' ? 1 : 3.2) + Math.random() * 1.5 + 's';
+    d.style.animationDelay = -Math.random() * 3 + 's';
+    fx.appendChild(d);
+  }
+}
+function startMission(next) {
+  dress.mi = next ? (dress.mi + 1) % MISSIONS.length : Math.floor(Math.random() * MISSIONS.length);
+  const m = MISSIONS[dress.mi];
+  dress.mission = m; dress.worn = emptyWorn(); dress.over = {}; dColor = null; syncDPalette();
+  $('celebrate').classList.remove('show');
+  $('missionBtn').textContent = '✕ 미션 그만';
+  $('missionBox').classList.add('show');
+  $('missionEmo').textContent = m.emo;
+  rebuildDress(); renderDItems(); renderNeed(); setDressFx(m.fx);
+  say([{ t: m.en, lang: 'en' }, { t: m.ko, lang: 'ko' }, { t: m.en, lang: 'en' }]);
+}
+function renderNeed() {
+  const box = $('missionNeed'); box.innerHTML = '';
+  dress.mission.need.forEach(id => {
+    const it = itemById(id), on = isWorn(it);
+    const s = document.createElement('span'); s.className = 'need' + (on ? ' ok' : '');
+    const cv = document.createElement('canvas'); cv.width = cv.height = 120;
+    cv.getContext('2d').drawImage(previewCache[id] || (previewCache[id] = itemPreview(it)), 0, 0);
+    s.append(cv); if (on) s.insertAdjacentHTML('beforeend', '<b>✓</b>');
+    box.appendChild(s);
+  });
+}
+function checkMission() {
+  if (!dress || !dress.mission) return;
+  renderNeed();
+  if (dress.mission.need.every(id => isWorn(itemById(id)))) {
+    const m = dress.mission;
+    setTimeout(() => {
+      celebrate('미션 성공!', m.en.replace('!', '') + ' · 잘 입었어요', [
+        ['다음 미션', 'pink', () => startMission(true)],
+        ['그만하기', '', () => { endMission(); }],
+      ]);
+      setTimeout(() => sayEn('Great job!'), 700);
+    }, 400);
+  }
+}
+function endMissionUI() {
+  $('missionBtn').textContent = '⭐ 미션 시작';
+  $('missionBox').classList.remove('show');
+  $('dressFx').innerHTML = '';
+}
+function endMission() { dress.mission = null; endMissionUI(); $('celebrate').classList.remove('show'); redrawDress(); }
+$('missionBtn').onclick = () => { sfx.tap(); dress.mission ? endMission() : startMission(false); };
+$('missionEmo').onclick = () => { if (dress.mission) say([{ t: dress.mission.en, lang: 'en' }, { t: dress.mission.ko, lang: 'ko' }]); };
+
+// =====================================================================
 //  축하 화면
 // =====================================================================
 function celebrate(title, sub, buttons) {
@@ -1320,7 +1718,10 @@ document.addEventListener('dblclick', e => e.preventDefault());
 function renderPreviews() {
   preview($('pvColor'), ANIMALS[1], 6);
   preview($('pvSpot'), PLACES[0], 5);
+  preview($('pvDress'), composeDef(animalParts('rabbit'), { hat: 'sunhat', top: 'stripe', bottom: 'shorts', shoes: 'sneakers', acc: ['sunglasses'] }), 6);
   makeTiles();
+  makeDressTiles();
+  if (dress) { dress.art = null; }
   layout();
 }
 function syncStyle() {
@@ -1340,6 +1741,7 @@ syncStyle();
 renderPreviews();
 makePalette();
 makeTopics();
+makeDPalette();
 </script>
 </body>
 </html>
