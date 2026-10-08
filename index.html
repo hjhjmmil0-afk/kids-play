@@ -244,7 +244,8 @@
   .pz-main.land { flex-direction: row-reverse; }
   .pz-col { display: flex; flex-direction: column; gap: 18px; align-items: center; }
   .pz-main:not(.land) .pz-col { display: contents; }
-  .pz-main:not(.land) .pz-ex { order: 1; } .pz-main:not(.land) .pz-board { order: 2; } .pz-main:not(.land) .pz-tray { order: 3; }
+  .pz-main:not(.land) .pz-ex { order: 1; align-self: flex-end; } .pz-main:not(.land) .pz-board { order: 2; }
+  .pz-main:not(.land) .pz-tray { order: 3; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .pz-ex { position: relative; padding: 8px; }
   .pz-ex canvas { display: block; }
   .pz-ex .tag { position: absolute; left: 8px; top: 8px; background: var(--pink); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 7px; z-index: 1; }
@@ -282,10 +283,53 @@
   .jamo.eaten { transform: scale(0); opacity: 0; pointer-events: none; }
   .jamo.hint { animation: hintglow .5s ease-in-out 3; }
   @keyframes hintglow { 50% { box-shadow: 0 0 0 3px var(--ink), 0 0 0 9px #ffd23f; transform: scale(1.12); } }
-  .pac { position: absolute; width: var(--tile); height: var(--tile); z-index: 3; pointer-events: none; transition: left .45s ease-in-out, top .45s ease-in-out; }
-  .pac svg { width: 100%; height: 100%; display: block; }
-  .pac .mouth { transform-origin: 30px 30px; animation: chomp .22s ease-in-out infinite alternate; }
   @keyframes chomp { from { transform: scaleY(1); } to { transform: scaleY(.06); } }
+
+  /* 옷입히기 배경 */
+  .bgsw { width: 100%; aspect-ratio: 1; box-shadow: inset 0 0 0 2px rgba(43,45,66,.15); }
+  .bg-room { background: linear-gradient(#fff3e6 0 58%, #e9c9a2 58% 62%, #d9b48a 62%) !important; }
+  .bg-school { background: linear-gradient(#f6f1e4 0 56%, #c9a36b 56%) !important; }
+  .bg-party_bg { background: radial-gradient(circle at 20% 20%, #ffd1e6 0 6%, transparent 6.5%), radial-gradient(circle at 80% 30%, #c9e8ff 0 5%, transparent 5.5%), radial-gradient(circle at 60% 15%, #fff3b0 0 4%, transparent 4.5%), linear-gradient(#ffe3f0 0 70%, #d9b4ff 70%) !important; }
+  .bg-park { background: radial-gradient(circle at 70% 24%, #ffffff 0 9%, transparent 9.5%), radial-gradient(circle at 25% 18%, #ffffff 0 7%, transparent 7.5%), linear-gradient(#8fd3fb 0 62%, #8ad36a 62%) !important; }
+  .bg-pool { background: linear-gradient(#bfe9ff 0 40%, #46ade2 40% 44%, #6cc7ff 44%) !important; }
+  #dressBoard { position: relative; overflow: hidden; }
+  #dressBoard::before { content: ''; position: absolute; inset: 0; pointer-events: none; }
+  #dressBoard.bg-room::before { background: radial-gradient(circle at 78% 20%, #ffd23f 0 7%, transparent 7.5%), linear-gradient(90deg, transparent 0 10%, rgba(255,255,255,.7) 10% 30%, transparent 30%) 0 0 / 100% 56% no-repeat; }
+  #dressBoard.bg-school::before { background: linear-gradient(#2f5d3f, #2f5d3f) 50% 28% / 56% 26% no-repeat, linear-gradient(#5b3a29, #5b3a29) 50% 28% / 60% 30% no-repeat; }
+  #dressBoard.bg-pool::before { background: repeating-linear-gradient(90deg, rgba(255,255,255,.8) 0 6%, transparent 6% 12%) 0 52% / 100% 4% no-repeat; }
+  #dressBoard canvas { position: relative; z-index: 1; }
+  .dtabs { flex-wrap: wrap; }
+  .dtab { min-width: 54px; }
+
+  /* 아이스크림 가게 배경 */
+  #iceBoard { position: relative; overflow: hidden;
+    background: repeating-linear-gradient(90deg, #ff8cc6 0 28px, #ffffff 28px 56px) 0 0 / 100% 11% no-repeat,
+                linear-gradient(#c98a4b, #a0673a) 0 100% / 100% 16% no-repeat,
+                linear-gradient(#fff7fb, #ffe9f3) !important; }
+  #iceBoard::before { content: ''; position: absolute; left: 0; right: 0; top: 11%; height: 7%; pointer-events: none;
+    background: radial-gradient(circle at 14px 0, #ff8cc6 0 14px, transparent 15px) 0 0 / 56px 100% repeat-x,
+                radial-gradient(circle at 42px 0, #ffffff 0 14px, transparent 15px) 0 0 / 56px 100% repeat-x; }
+  #iceBoard::after { content: '🍨 🧁 🍰 🍩 🍧'; position: absolute; left: 0; right: 0; top: 24%; text-align: center; letter-spacing: 14px; font-size: 22px; opacity: .55; pointer-events: none;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  #iceBoard canvas { position: relative; z-index: 1; }
+
+  /* 퍼즐 */
+  .pz-ex { cursor: pointer; }
+  .pz-ex:active { transform: translateY(2px); }
+  #exBox { position: fixed; inset: 0; display: none; background: rgba(43,45,66,.8); z-index: 40; padding: 20px; flex-direction: column; gap: 14px; }
+  #exBox.show { display: flex; align-items: center; justify-content: center; }
+  #exImg { max-width: 94vw; max-height: 82vh; box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--ink); }
+  .exhint { color: #fff; font-size: 13px; font-weight: 700; }
+
+  /* 한글 미로 */
+  .han-field { background: #1e2352 !important; }
+  #mazeCv { position: absolute; left: 0; top: 0; }
+  .jamo { background: #fff3b0 !important; box-shadow: 0 0 0 3px #ffd23f, 0 0 14px rgba(255,210,63,.6); }
+  .jamo.eaten { transform: scale(0); opacity: 0; pointer-events: none; }
+  .muncher { position: absolute; z-index: 3; pointer-events: none; transition: left .15s linear, top .15s linear; }
+  .muncher svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .muncher.flip svg { transform: scaleX(-1); }
+  .muncher .mouth { transform-origin: 32px 36px; animation: chomp .2s ease-in-out infinite alternate; }
 
   /* 저장 */
   #saveBox { position: fixed; inset: 0; display: none; place-items: center; background: rgba(43,45,66,.45); z-index: 30; padding: 16px; }
@@ -347,7 +391,7 @@
       <div class="card"><div class="pv pv-eng"><span class="e">🌧️</span><span class="w">Rain!</span></div></div>
       <span class="pbtn green">영어 놀이</span>
     </button>
-    <button class="choice" data-go="dressPick">
+    <button class="choice" id="goDress">
       <div class="card"><div class="pv"><canvas id="pvDress"></canvas></div></div>
       <span class="pbtn orange">옷입히기</span>
     </button>
@@ -373,20 +417,13 @@
   <div class="pick-main"><div class="grid" id="topicGrid"></div></div>
 </section>
 
-<!-- 2-4. 옷입히기 동물 고르기 -->
-<section id="dressPick" class="screen">
-  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">누구 옷을 입혀 볼까?</div><div class="bar-r"><div class="seg"></div></div></div>
-  <div class="pick-main"><div class="grid" id="dressGrid"></div></div>
-</section>
-
-<!-- 3-4. 옷입히기 -->
+<!-- 옷입히기 -->
 <section id="dress" class="screen">
-  <div class="bar"><button class="pbtn sm" data-go="dressPick">◀ 뒤로</button><div class="ribbon" id="dressTitle"></div>
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">옷입히기</div>
     <div class="bar-r"><button class="pbtn sm pink" id="missionBtn">⭐ 미션 시작</button></div></div>
   <div class="color-main" id="dressMain">
-    <div class="card board" id="dressBoard">
+    <div class="card board bg-room" id="dressBoard">
       <canvas id="dressCv"></canvas>
-      <div class="fx" id="dressFx"></div>
       <div class="mission" id="missionBox"><button class="memo emoji" id="missionEmo"></button><div class="needs" id="missionNeed"></div></div>
     </div>
     <div class="card dpanel">
@@ -426,7 +463,7 @@
   <div class="bar"><button class="pbtn sm" data-go="puzzlePick">◀ 뒤로</button><div class="ribbon" id="pzTitle"></div><div class="bar-r"></div></div>
   <div class="pz-main" id="pzMain">
     <div class="pz-col" id="pzCol">
-      <div class="card pz-ex"><span class="tag">완성 그림</span><canvas id="pzEx"></canvas></div>
+      <button class="card pz-ex" id="pzExCard"><span class="tag">완성 그림 · 누르면 크게</span><canvas id="pzEx"></canvas></button>
       <div class="card pz-tray" id="pzTray"></div>
     </div>
     <div class="card pz-board"><canvas id="pzBoard"></canvas></div>
@@ -450,7 +487,15 @@
       <button class="pbtn sm blue" id="hanSay">🔊 듣기</button>
     </div>
     <div class="card han-field" id="hanField">
-      <div class="pac" id="pac"><svg class="face" viewBox="0 0 60 60"><circle cx="30" cy="30" r="27" fill="#ffd23f" stroke="#2b2d42" stroke-width="3"/><polygon class="mouth" points="30,30 64,6 64,54" fill="#ffffff"/><circle cx="31" cy="15" r="3.6" fill="#2b2d42"/></svg></div>
+      <canvas id="mazeCv"></canvas>
+      <div class="muncher" id="muncher"><svg viewBox="0 0 64 64">
+        <path d="M32 10 C 34 2 42 2 44 7" stroke="#3cb371" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="45" cy="6" rx="4.6" ry="2.8" fill="#6fd36a" transform="rotate(-25 45 6)"/>
+        <circle cx="32" cy="36" r="25" fill="#7ee0c3" stroke="#2b2d42" stroke-width="3"/>
+        <polygon class="mouth" points="32,36 62,20 62,52" fill="#1e2352"/>
+        <circle cx="25" cy="27" r="3.6" fill="#2b2d42"/><circle cx="26.2" cy="25.8" r="1.3" fill="#ffffff"/>
+        <ellipse cx="18" cy="37" rx="3.6" ry="2.3" fill="#ffb3c8"/>
+      </svg></div>
     </div>
   </div>
 </section>
@@ -512,6 +557,8 @@
     <div class="card pic" id="picB"><canvas id="cvB"></canvas></div>
   </div>
 </section>
+
+<div id="exBox"><img id="exImg" alt="완성 그림"><span class="exhint">화면을 누르면 닫혀요</span></div>
 
 <div id="saveBox"><div class="card">
   <p class="ctext">그림을 꾹 눌러 주세요</p>
@@ -645,6 +692,7 @@ function draw(ctx, art, colors, cs, opt = {}) {
   const octx = off.getContext('2d'), img = octx.createImageData(w, h), d = img.data;
   const cols = colors.map(c => c && c !== 'rainbow' ? rgb(c) : null);
   const isRb = colors.map(c => c === 'rainbow');
+  const soft = !!opt.soft && art.S > 1;
   for (let i = 0; i < map.length; i++) {
     const ri = map[i];
     let c = cols[ri];
@@ -654,6 +702,20 @@ function draw(ctx, art, colors, cs, opt = {}) {
       c = rgb(RAINBOW[Math.floor((x - b[0] + y - b[1]) / band) % 7]);
     }
     if (!c) continue;
+    if (soft && ri !== 0) {
+      // 부드러운 그래픽: 조각마다 위는 밝게, 아래는 어둡게 + 반짝이는 하이라이트
+      const b = art.cbox[art.comp[i]], x = i % w, y = (i / w) | 0;
+      const bw = b[2] - b[0] + 1, bh = b[3] - b[1] + 1, t = (y - b[1]) / bh;
+      let f = 1.08 - .2 * t;
+      const sz = Math.min(bw, bh);
+      if (sz > 6 * art.S) {
+        const gx = b[0] + bw * .32, gy = b[1] + bh * .26, gr = sz * .11;
+        const dd = Math.hypot(x - gx, (y - gy) * 1.4);
+        if (dd < gr) f += .45 * (1 - dd / gr);
+      }
+      d[i * 4] = Math.min(255, c[0] * f); d[i * 4 + 1] = Math.min(255, c[1] * f); d[i * 4 + 2] = Math.min(255, c[2] * f); d[i * 4 + 3] = 255;
+      continue;
+    }
     d[i * 4] = c[0]; d[i * 4 + 1] = c[1]; d[i * 4 + 2] = c[2]; d[i * 4 + 3] = 255;
   }
   octx.putImageData(img, 0, 0);
@@ -662,11 +724,33 @@ function draw(ctx, art, colors, cs, opt = {}) {
   ctx.imageSmoothingEnabled = art.S > 1;
   ctx.drawImage(off, 0, 0, w * f, h * f);
   const thin = opt.thin ?? Math.max(1, cs * .26), thick = opt.thick ?? Math.max(1.5, cs * .42);
-  ctx.fillStyle = INK;
+  if (!soft) {
+    ctx.fillStyle = INK;
+    for (let k = 0; k < edges.length; k += 4) {
+      const x = edges[k] * f, y = edges[k + 1] * f, lw = edges[k + 3] ? thick : thin;
+      if (edges[k + 2] === 0) ctx.fillRect(x - lw / 2, y - lw / 2, lw, f + lw);
+      else ctx.fillRect(x - lw / 2, y - lw / 2, f + lw, lw);
+    }
+    return;
+  }
+  // 부드러운 모드: 테두리를 검정 대신 그 칸 색을 어둡게 한 색으로 (그래픽 느낌)
+  const groups = {};
   for (let k = 0; k < edges.length; k += 4) {
-    const x = edges[k] * f, y = edges[k + 1] * f, lw = edges[k + 3] ? thick : thin;
-    if (edges[k + 2] === 0) ctx.fillRect(x - lw / 2, y - lw / 2, lw, f + lw);
-    else ctx.fillRect(x - lw / 2, y - lw / 2, f + lw, lw);
+    const ex = edges[k], ey = edges[k + 1], dir = edges[k + 2], outer = edges[k + 3];
+    const i2 = ey * w + ex, i1 = dir === 0 ? i2 - 1 : i2 - w;
+    const r1 = map[i1], r2 = map[i2], ri = r1 === 0 ? r2 : r2 === 0 ? r1 : r2;
+    const base = isRb[ri] || !cols[ri] ? [80, 80, 110] : cols[ri];
+    const m = outer ? .62 : .5;
+    const key = `rgb(${(base[0] * (1 - m) + 43 * m) | 0},${(base[1] * (1 - m) + 45 * m) | 0},${(base[2] * (1 - m) + 66 * m) | 0})`;
+    (groups[key] || (groups[key] = [])).push(k);
+  }
+  for (const key in groups) {
+    ctx.fillStyle = key;
+    for (const k of groups[key]) {
+      const x = edges[k] * f, y = edges[k + 1] * f, lw = (edges[k + 3] ? thick : thin) * .9;
+      if (edges[k + 2] === 0) ctx.fillRect(x - lw / 2, y - lw / 2, lw, f + lw);
+      else ctx.fillRect(x - lw / 2, y - lw / 2, f + lw, lw);
+    }
   }
 }
 function fitCanvas(cv, cw, ch) {
@@ -680,10 +764,10 @@ function fitCanvas(cv, cw, ch) {
 let STYLE = 'smooth';
 try { STYLE = localStorage.getItem('kidsplay-style') || 'smooth'; } catch (e) {}
 const scaleOf = () => STYLE === 'smooth' ? 6 : 1;
-function preview(cv, def, cs) {
+function preview(cv, def, cs, opt = {}) {
   const art = build(def, 'A', scaleOf());
   cv.width = art.bw * cs; cv.height = art.bh * cs;
-  draw(cv.getContext('2d'), art, defaultColors(art), cs, { thin: cs * .3, thick: cs * .45 });
+  draw(cv.getContext('2d'), art, defaultColors(art), cs, { thin: cs * .3, thick: cs * .45, ...opt });
 }
 
 // =====================================================================
@@ -1106,7 +1190,7 @@ let current = 'home';
 function go(id) {
   current = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'dressPick', 'puzzlePick', 'hanPick'].includes(id));
+  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'puzzlePick', 'hanPick'].includes(id));
   $('celebrate').classList.remove('show');
   if (id !== 'eng' && canSpeak) speechSynthesis.cancel();
   layout();
@@ -1122,7 +1206,6 @@ function layout() {
   if (current === 'spot') layoutSpot();
   if (current === 'engPick') layoutGrid($('topicGrid'), 3, 2, 1);
   if (current === 'eng') layoutEng();
-  if (current === 'dressPick') layoutGrid($('dressGrid'), 3, 3, 1);
   if (current === 'dress') layoutDress();
   if (current === 'ice') layoutIce();
   if (current === 'puzzlePick') layoutGrid($('pzGrid'), 3, 2, 1.5);
@@ -1514,207 +1597,183 @@ function layoutEng() {
 }
 
 // =====================================================================
-//  동물 옷입히기
+//  옷입히기 (꼬마 인형)
 // =====================================================================
-// 동물마다 몸에서 가져올 부분 (색칠 도안에서 옷을 뺀 나머지)
-const DRESS = {
-  shark:    { back: ['tail', 'fin'], own: ['body', 'belly', 'arms'], legs: true, skin: '#6fa8e8', head: [], face: ['ink', 'hl', 'cheeks'], T: ['body', 'belly'], ey: 22.5, hand: [10, 46] },
-  fox:      { back: ['tail', 'tailtip'], skin: '#ff9f43', belly: '#ffffff', head: ['ears', 'inner', 'head', 'muzzle'], face: ['ink', 'hl', 'cheeks'], ey: 16.5 },
-  cat:      { back: ['tail', 'tailtip'], skin: '#ffcf8a', belly: '#ffffff', head: ['ears', 'inner', 'head', 'patch', 'muzzle'], face: ['ink', 'hl', 'cheeks'], ey: 18.5 },
-  dog:      { back: ['tail'], skin: '#f3cf9c', belly: '#fff8ec', head: ['head', 'patch', 'ears', 'muzzle'], face: ['tongue', 'ink', 'hl', 'cheeks'], ey: 16.5 },
-  dokkaebi: { back: [], skin: '#ff8f8f', head: ['hair', 'horn', 'head'], face: ['eyew', 'ink', 'hl', 'nose', 'mouth', 'fangs', 'cheeks'], ey: 18 },
-  ghost:    { back: [], own: ['arms', 'body'], legs: false, skin: '#f4f6ff', head: [], face: ['ink', 'hl', 'mouth', 'cheeks'], T: ['body'], ey: 22.5, hand: [9, 32] },
-  monster:  { back: ['horns'], own: ['arms', 'feet', 'body', 'spots'], legs: false, skin: '#a26bff', head: [], face: ['eyew', 'ink', 'hl', 'mouth', 'teeth', 'cheeks'], T: ['body', 'spots'], ey: 20, hand: [7, 41] },
-  croc:     { back: ['tail'], skin: '#5fbf5a', belly: '#e9f5b8', head: ['head'], face: ['eyew', 'ink', 'hl', 'teeth', 'cheeks'], ey: 13 },
-  rabbit:   { back: [], skin: '#f7f2ee', belly: '#ffe3ee', head: ['ears', 'inner', 'head'], face: ['ink', 'hl', 'nose', 'teeth', 'cheeks'], ey: 19.5 },
+const SKIN = '#ffe3cf', HAIRC = '#3a3140';
+// 치비 스타일: 머리가 크고 눈이 큰 꼬마 인형
+const DOLL = {
+  body: [
+    ...sym(P('leg', [[27, 43.5], [31.3, 43.5], [31.2, 58], [27.3, 58]], SKIN)),
+    ...sym(E('foot', 29.2, 58.5, 2.9, 1.6, SKIN)),
+    ...sym(P('arm', [[26, 31.5], [23.5, 32.3], [21.5, 45], [24.2, 45.6], [26.5, 36]], SKIN)),
+    ...sym(E('hand', 22.9, 46.3, 1.7, 1.7, SKIN)),
+    P('torso', [[26, 31], [38, 31], [38.6, 44], [25.4, 44]], SKIN),
+    P('under', [[26.8, 32], [37.2, 32], [37.8, 40], [26.2, 40]], '#ffffff'),
+    P('under2', [[26, 40], [38, 40], [38.4, 44], [25.6, 44]], '#ffffff'),
+    E('bow', 32, 33, 1.2, .8, '#ff8cc6'),
+    R('neck', 30.5, 29, 3, 3, SKIN),
+  ],
+  head: [E('head', 32, 17, 12, 12.5, SKIN), ...sym(E('ear', 20.2, 18.5, 1.4, 2, SKIN))],
+  face: [
+    ...sym(E('eyew', 27.4, 18.2, 3.1, 4.1, '#ffffff', { fix: '#ffffff' })),
+    ...sym(E('iris', 27.4, 18.7, 2.5, 3.5, '#5a4a6b', { fix: '#5a4a6b' })),
+    ...sym(E('iris2', 27.4, 19.6, 1.7, 2.3, '#2b2d42', { fix: '#2b2d42' })),
+    ...sym(E('eyehl', 26.4, 16.9, 1, 1.25, '#ffffff', { fix: '#ffffff' })), ...sym(E('eyehl2', 28.4, 20.4, .55, .65, '#ffffff', { fix: '#ffffff' })),
+    ...sym(R('brow', 25, 13.2, 4.6, .7, null, { fix: '#5a4a6b' })),
+    E('nose', 32, 22.3, .55, .45, '#e8a98a', { fix: '#e8a98a' }),
+    E('mouth', 32, 24.6, 1.4, .8, '#e86b8a', { fix: '#e86b8a' }),
+    ...sym(E('blush', 24.3, 21.8, 2.1, 1.2, '#ffb3c8', { fix: '#ffb3c8' })),
+  ],
 };
-function stdBody(skin, belly) {
-  return [
-    ...sym(E('arms', 19, 41, 3.5, 6, skin)),
-    E('torso', 32, 41, 10.5, 10, skin),
-    ...(belly ? [E('belly', 32, 43, 6.5, 6.5, belly, { clip: 'torso' })] : []),
-  ];
+// 옷은 예전 몸 기준으로 그려져 있어서, 새 몸(큰 머리·작은 몸)에 맞게 옮겨요
+const HEADK = 12 / 8.6;
+function tfPt(kind, x, y) {
+  if (kind === 'head') return [32 + (x - 32) * HEADK, 17 + (y - 13) * HEADK];
+  if (kind === 'body') return [32 + (x - 32) * .75, y <= 42 ? 31 + (y - 23) * (13 / 19) : 44 + (y - 42) * (14 / 15)];
+  return [x, y];
 }
-const stdLegs = skin => sym(R('legs', 25.5, 49, 5, 9, skin));
-// 동물마다 몸 크기가 달라서, 옷을 그 몸에 맞게 늘리고 옮겨요
-const FIT_STD = { head: { top: 7, hw: 15 }, torso: { top: 31, bot: 51, hw: 10.5 }, hips: { y: 45, hw: 11 }, neck: { y: 29, hw: 13 }, feet: 25.75 };
-const FITS = {
-  shark:    { head: { top: 11, hw: 16 }, torso: { top: 31, bot: 51, hw: 15 }, hips: { y: 42, hw: 14.5 }, neck: { y: 31.5, hw: 14.5 } },
-  cat:      { head: { top: 8, hw: 15 } },
-  dog:      { head: { top: 8, hw: 15 } },
-  dokkaebi: { head: { top: 6, hw: 17 }, neck: { y: 31, hw: 13 } },
-  ghost:    { head: { top: 10, hw: 16 }, torso: { top: 33, bot: 54, hw: 16 }, hips: { y: 45, hw: 16.5 }, neck: { y: 31, hw: 16 } },
-  monster:  { head: { top: 5, hw: 14 }, torso: { top: 37, bot: 53, hw: 17 }, hips: { y: 45, hw: 15.5 }, neck: { y: 37, hw: 17 }, feet: 24 },
-  croc:     { head: { top: 3, hw: 12 }, neck: { y: 30, hw: 13 } },
-  rabbit:   { head: { top: 10, hw: 14 }, neck: { y: 30, hw: 12.5 } },
-};
-const fitOf = aid => ({ ...FIT_STD, ...(FITS[aid] || {}) });
-function fitShapes(shapes, kind, c) {
+function fitK(shapes, kind) {
   if (!kind) return shapes;
-  const F = c.fit; let fx, fy, sx, sy;
-  if (kind === 'hat') { sx = sy = F.head.hw / 15; fx = x => 32 + (x - 32) * sx; fy = y => F.head.top + (y - 7) * sy; }
-  else if (kind === 'top') { sx = F.torso.hw / 10.5; sy = (F.torso.bot - F.torso.top) / 20; fx = x => 32 + (x - 32) * sx; fy = y => F.torso.top + (y - 31) * sy; }
-  else if (kind === 'bottom') { sx = F.hips.hw / 11; sy = (58 - F.hips.y) / 13; fx = x => 32 + (x - 32) * sx; fy = y => F.hips.y + (y - 45) * sy; }
-  else if (kind === 'neck') { sx = F.neck.hw / 13; sy = 1; fx = x => 32 + (x - 32) * sx; fy = y => F.neck.y + (y - 29); }
-  else if (kind === 'shoes') { sx = (32 - F.feet) / (32 - 25.75); sy = 1; fx = x => 32 + (x - 32) * sx; fy = y => y; }
-  else if (kind === 'hand') { sx = sy = 1; const dx = Math.min(3, (64 - c.hand[0]) - 45), dy = Math.max(-8, c.hand[1] - 46); fx = x => x + dx; fy = y => y + dy; }
-  return shapes.map(s => s.t === 'r' ? { ...s, x: fx(s.x), y: fy(s.y), w: s.w * sx, h: s.h * sy }
-    : s.t === 'e' ? { ...s, x: fx(s.x), y: fy(s.y), rx: s.rx * (kind === 'top' ? Math.min(sx, 1.1) : sx), ry: s.ry * sy }
-    : { ...s, pts: s.pts.map(([x, y]) => [fx(x), fy(y)]) });
+  const sx = kind === 'head' ? HEADK : .75;
+  return shapes.map(s => {
+    if (s.t === 'r') { const [x, y] = tfPt(kind, s.x, s.y), [x2, y2] = tfPt(kind, s.x + s.w, s.y + s.h); return { ...s, x, y, w: x2 - x, h: y2 - y }; }
+    if (s.t === 'e') { const [x, y] = tfPt(kind, s.x, s.y), [, yb] = tfPt(kind, s.x, s.y + s.ry); return { ...s, x, y, rx: s.rx * sx, ry: yb - y }; }
+    return { ...s, pts: s.pts.map(([px, py]) => tfPt(kind, px, py)) };
+  });
 }
-const fitKind = it => it.fit || { hat: 'hat', top: 'top', bottom: it.late ? 'top' : 'bottom', shoes: 'shoes' }[it.cat] || null;
-function animalParts(aid) {
-  const A = ANIMALS.find(a => a.id === aid), C = DRESS[aid];
-  const pick = keys => A.shapes.filter(s => keys.includes(s.k));
-  const body = C.own ? pick(C.own) : stdBody(C.skin, C.belly);
-  if (C.own ? C.legs : true) body.unshift(...stdLegs(C.skin));
-  return { back: pick(C.back), body, head: pick(C.head), face: pick(C.face),
-           ctx: { T: C.T || ['torso', 'belly'], ey: C.ey, hand: C.hand || [19, 46], fit: fitOf(aid) } };
-}
-const MANNEQUIN = { back: [], body: [...stdLegs('#e6e9f2'), ...stdBody('#e6e9f2')], head: [E('head', 32, 19, 14, 12, '#e6e9f2')], face: [],
-                    ctx: { T: ['torso'], ey: 18, hand: [19, 46], fit: FIT_STD } };
-
-// 옷: cat = hat/top/bottom/shoes 는 하나씩, acc(소품)는 여러 개
-const DCATS = [['hat', '🎩', '모자'], ['top', '👕', '윗옷'], ['bottom', '👖', '바지'], ['shoes', '👟', '신발'], ['acc', '🎒', '소품']];
+const bangs = () => P('hair', [[23.4, 13], [23.4, 8], [27, 4.4], [32, 3.6], [37, 4.4], [40.6, 8], [40.6, 13], [38.5, 7.5], [33.5, 9.2], [29.5, 7.6], [26.2, 9.8]], HAIRC);
+const HAIR = {
+  long:  { ko: '긴 머리', en: 'Long hair', back: [E('hairB', 32, 20, 10.5, 14, HAIRC), ...sym(E('hairB', 24, 31, 3.6, 5, HAIRC))], front: [bangs()] },
+  bob:   { ko: '단발', en: 'Bob', back: [E('hairB', 32, 13, 10, 10.5, HAIRC), R('hairB', 22, 13, 20, 8, HAIRC)], front: [bangs()] },
+  twin:  { ko: '양갈래', en: 'Pigtails', back: [E('hairB', 32, 12.5, 9.8, 10, HAIRC), ...sym(E('hairB', 21, 19.5, 3.2, 7.5, HAIRC))],
+           front: [bangs(), ...sym(E('hair_rb', 21.5, 12.6, 2.1, 1.5, '#ff6b9a'))] },
+  bun:   { ko: '똥머리', en: 'Hair bun', back: [E('hairB', 32, 12.5, 9.6, 10, HAIRC), E('hairB', 32, 3, 3.8, 3.4, HAIRC)], front: [P('hair', [[23.4, 12], [23.4, 8], [27, 4.6], [32, 3.8], [37, 4.6], [40.6, 8], [40.6, 12], [38, 8.5], [32, 7.8], [26, 8.5]], HAIRC)] },
+  short: { ko: '짧은 머리', en: 'Short hair', back: [E('hairB', 32, 11.5, 9.6, 9.4, HAIRC)], front: [P('hair', [[23.4, 12], [23.6, 7], [28, 4], [34, 3.6], [40.6, 7], [40.6, 11], [39, 8], [34, 9.5], [29, 7.5], [26, 10]], HAIRC)] },
+  curly: { ko: '곱슬머리', en: 'Curly hair', back: [E('hairB', 32, 14, 11, 12, HAIRC), ...sym(E('hairB', 22, 22, 3.6, 4, HAIRC)), ...sym(E('hairB', 24, 28, 3.2, 3.6, HAIRC))],
+           front: [...sym(E('hair', 26.5, 6.2, 3.6, 3, HAIRC)), E('hair', 32, 5, 3.8, 3, HAIRC), ...sym(E('hair', 23.8, 10, 2.2, 2.4, HAIRC))] },
+};
+const shortSl = (k, c) => sym(P(k, [[24, 24], [20.5, 25], [19.6, 30.5], [23.2, 31], [24.3, 27]], c));
+const longSl = (k, c) => sym(P(k, [[24, 24], [20.5, 25], [18, 40], [21.2, 40.8], [24.2, 29]], c));
+const bodyTop = (k, c, yb = 37) => P(k, [[24, 23.5], [40, 23.5], [40.6, yb], [23.4, yb]], c);
+const DCATS = [['hair', '💇', '머리'], ['hat', '🎩', '모자'], ['top', '👕', '윗옷'], ['bottom', '👖', '아래옷'], ['dress', '👗', '원피스'],
+               ['shoes', '👟', '신발'], ['acc', '🎒', '소품'], ['bg', '🏠', '배경']];
 const ITEMS = [
-  { id: 'cap', cat: 'hat', ko: '모자', en: 'Cap', make: () => [
-    P('cap', [[19, 13], [20, 8], [25, 4], [32, 3], [39, 4], [44, 8], [45, 13]], '#ff6b6b'), R('cap_brim', 37, 11, 15, 3, '#ffd23f')] },
-  { id: 'crown', cat: 'hat', ko: '왕관', en: 'Crown', make: () => [
-    P('crown', [[22, 11], [22, 2], [26.5, 6], [29, 0], [32, 5], [35, 0], [37.5, 6], [42, 2], [42, 11]], '#ffd23f'),
-    E('crown_gem', 32, 8, 1.8, 1.8, '#ff5a5f'), ...sym(E('crown_gems', 25.5, 8.5, 1.3, 1.3, '#4a8ff0'))] },
-  { id: 'beanie', cat: 'hat', ko: '털모자', en: 'Winter hat', make: () => [
-    P('beanie', [[18, 14], [19, 8], [24, 4], [32, 3], [40, 4], [45, 8], [46, 14]], '#4a8ff0'),
-    R('beanie_band', 17, 11, 30, 4, '#ffffff'), E('beanie_pom', 32, 2.5, 3.4, 3.4, '#ffffff')] },
-  { id: 'sunhat', cat: 'hat', ko: '밀짚모자', en: 'Sun hat', make: () => [
-    E('sunhat_brim', 32, 12, 20, 3.6, '#f5d6a8'),
-    P('sunhat', [[23, 12], [23.5, 6], [27, 3], [32, 2], [37, 3], [40.5, 6], [41, 12]], '#f5d6a8'),
-    R('sunhat_band', 22, 8, 20, 2.6, '#ff6b9a', { clip: 'sunhat' })] },
-  { id: 'tophat', cat: 'hat', ko: '신사 모자', en: 'Top hat', make: () => [
-    R('tophat', 24, -1, 16, 12, '#3a3a4a'), R('tophat_band', 24, 7, 16, 2, '#ff5a5f'), E('tophat_brim', 32, 11, 13, 2.4, '#3a3a4a')] },
-  { id: 'ribbon', cat: 'hat', ko: '리본', en: 'Ribbon', make: () => [
-    P('ribbon', [[44, 9], [38, 4], [38, 14]], '#ff8cc6'), P('ribbon', [[44, 9], [50, 4], [50, 14]], '#ff8cc6'), R('ribbon_knot', 42, 7, 4, 4, '#ff5a5f')] },
-
-  { id: 'tshirt', cat: 'top', ko: '티셔츠', en: 'T-shirt', make: c => [
-    ...sym(E('tshirt', 19.5, 36.5, 4.4, 3.6, '#4a8ff0')), R('tshirt', 0, 31, 64, 13, '#4a8ff0', { clip: c.T })] },
-  { id: 'stripe', cat: 'top', ko: '줄무늬 티', en: 'Striped shirt', make: c => [
-    ...sym(E('stripe', 19.5, 36.5, 4.4, 3.6, '#ffffff')), R('stripe', 0, 31, 64, 13, '#ffffff', { clip: c.T }),
-    ...[33.5, 37.5, 41.5].map(y => R('stripe_line', 0, y, 64, 2, '#ff6b6b', { clip: 'stripe' }))] },
-  { id: 'dress', cat: 'top', ko: '원피스', en: 'Dress', make: () => [
-    ...sym(E('dress', 19.5, 36.5, 4.4, 3.6, '#ff8cc6')), P('dress', [[22, 31], [42, 31], [48, 54], [16, 54]], '#ff8cc6'),
-    ...[[27, 38], [36, 37], [32, 44], [41, 47], [23, 48]].map(([x, y]) => E('dress_dot', x, y, 1.6, 1.6, '#ffffff', { clip: 'dress' }))] },
-  { id: 'raincoat', cat: 'top', ko: '우비', en: 'Raincoat', make: () => [
-    ...sym(E('raincoat', 19, 41, 4.3, 6.8, '#ffd23f')), P('raincoat', [[21, 30], [43, 30], [46, 53], [18, 53]], '#ffd23f'),
-    ...[37, 43, 49].map(y => E('raincoat_btn', 29, y, 1.4, 1.4, '#ff5a5f'))] },
-  { id: 'sweater', cat: 'top', ko: '스웨터', en: 'Sweater', make: c => [
-    ...sym(E('sweater', 19, 41, 4.3, 6.8, '#3cb371')), R('sweater', 0, 30, 64, 20, '#3cb371', { clip: c.T }),
-    R('sweater_line', 0, 37, 64, 3, '#ffffff', { clip: 'sweater' })] },
-
-  { id: 'shorts', cat: 'bottom', ko: '반바지', en: 'Shorts', make: () => [
-    P('shorts', [[21, 45], [43, 45], [44, 53], [34, 53], [32, 50], [30, 53], [20, 53]], '#4a8ff0')] },
-  { id: 'skirt', cat: 'bottom', ko: '치마', en: 'Skirt', make: () => [
-    P('skirt', [[22, 45], [42, 45], [48, 54], [16, 54]], '#ff6b9a'), R('skirt_hem', 0, 51, 64, 3, '#ffffff', { clip: 'skirt' })] },
-  { id: 'pants', cat: 'bottom', ko: '긴바지', en: 'Pants', make: () => [
-    P('pants', [[21, 45], [43, 45], [43.5, 58], [34, 58], [32, 51], [30, 58], [20.5, 58]], '#4a7bff')] },
-  { id: 'overalls', cat: 'bottom', late: true, ko: '멜빵바지', en: 'Overalls', make: () => [
-    ...sym(R('overalls', 24.5, 31, 3, 11, '#ff9f43')),
-    P('overalls', [[24, 41], [40, 41], [41, 46], [43, 55], [34, 55], [32, 52], [30, 55], [21, 55], [23, 46]], '#ff9f43'),
-    ...sym(E('overalls_btn', 26, 41.5, 1.5, 1.5, '#ffd23f')), R('overalls_pocket', 29, 44, 6, 4, '#ffd23f', { clip: 'overalls' })] },
-
-  { id: 'sneakers', cat: 'shoes', ko: '운동화', en: 'Sneakers', make: () => [
-    ...sym(R('sneakers', 21, 55, 9.5, 5, '#ff5a5f')), ...sym(R('sneakers_lace', 23.5, 56, 3, 1.5, '#ffffff'))] },
-  { id: 'boots', cat: 'shoes', ko: '장화', en: 'Rain boots', make: () => [
-    ...sym(R('boots', 22, 50, 8, 10, '#ffd23f')), ...sym(R('boots_top', 21.5, 50, 9, 2, '#ff9f43'))] },
-  { id: 'party', cat: 'shoes', ko: '구두', en: 'Party shoes', make: () => [
-    ...sym(E('party', 25.5, 58, 5.5, 2.6, '#a26bff')), ...sym(E('party_bow', 25.5, 56.3, 1.7, 1.2, '#ffd23f'))] },
-
-  { id: 'glasses', cat: 'acc', layer: 'preface', ko: '안경', en: 'Glasses', make: c => [
-    ...sym(E('glasses', 25, c.ey, 4.4, 3.8, '#e6f7ff')), R('glasses_bridge', 29, c.ey - 1, 6, 1.4, '#3a3a4a')] },
-  { id: 'sunglasses', cat: 'acc', layer: 'postface', ko: '선글라스', en: 'Sunglasses', make: c => [
-    ...sym(E('sunglasses', 25, c.ey, 4.6, 3.6, '#3a3a4a')), R('sunglasses_bridge', 29, c.ey - 1, 6, 1.4, '#3a3a4a')] },
-  { id: 'scarf', cat: 'acc', fit: 'neck', layer: 'neck', ko: '목도리', en: 'Scarf', make: () => [
-    R('scarf', 19, 29, 26, 5, '#ff5a5f'), R('scarf_end', 36, 33, 6, 10, '#ff5a5f'), R('scarf_line', 19, 31, 26, 1.4, '#ffffff', { clip: 'scarf' })] },
-  { id: 'mittens', cat: 'acc', layer: 'hands', ko: '장갑', en: 'Mittens', make: c => [
-    ...sym(E('mittens', c.hand[0], c.hand[1], 3.8, 3.2, '#ff5a5f'))] },
-  { id: 'umbrella', cat: 'acc', fit: 'hand', layer: 'front', ko: '우산', en: 'Umbrella', make: () => [
-    R('umbrella_stick', 53, 21, 1.4, 24, '#3a3a4a'),
-    P('umbrella', [[43, 22], [45, 16], [49, 12], [54, 11], [59, 12], [63, 16], [64, 22]], '#4a8ff0'),
-    P('umbrella_stripe', [[52, 11], [56, 11], [57, 22], [51, 22]], '#ffffff', { clip: 'umbrella' })] },
-  { id: 'bag', cat: 'acc', fit: 'top', layer: 'front', ko: '가방', en: 'Bag', make: () => [
-    P('bag_strap', [[23, 31], [26, 31], [46, 44], [43, 45]], '#a0673a'), R('bag', 42, 43, 9, 8, '#ff9f43'), R('bag_flap', 42, 43, 9, 3, '#ffd23f', { clip: 'bag' })] },
-  { id: 'wand', cat: 'acc', fit: 'hand', layer: 'front', ko: '요술봉', en: 'Magic wand', make: () => [
-    P('wand', [[47, 44], [49, 44], [55, 25], [53, 24]], '#a0673a'), P('wand_star', starPts(54.5, 21, 5, 2.2), '#ffd23f')] },
+  ...Object.entries(HAIR).map(([id, h]) => ({ id, cat: 'hair', ko: h.ko, en: h.en })),
+  // 모자
+  { id: 'cap', cat: 'hat', ko: '야구모자', en: 'Cap', make: () => [P('cap', [[22.8, 9], [24, 5.5], [28, 3], [32, 2.4], [36, 3], [40, 5.5], [41.2, 9]], '#4a8ff0'), R('cap_b', 36, 8, 10.5, 2, '#2f6fd0')] },
+  { id: 'beret', cat: 'hat', ko: '베레모', en: 'Beret', make: () => [E('beret', 31, 5.4, 9.6, 3.6, '#c94a43'), ink(30.5, 1.4, 1.2, 1.4)] },
+  { id: 'tiara', cat: 'hat', ko: '티아라', en: 'Tiara', make: () => [P('tiara', [[25, 6.5], [25, 3], [28, 5], [30, 1.3], [32, 4.5], [34, 1.3], [36, 5], [39, 3], [39, 6.5]], '#ffd23f'), E('tiara_gem', 32, 5.2, 1.1, 1.1, '#ff6b9a')] },
+  { id: 'sunhat', cat: 'hat', ko: '밀짚모자', en: 'Sun hat', make: () => [E('sunhat_b', 32, 7, 14, 2.4, '#f5d6a8'), P('sunhat', [[24, 7], [25, 3], [32, 1.4], [39, 3], [40, 7]], '#f5d6a8'), R('sunhat_r', 23, 5, 18, 1.9, '#ff6b9a', { clip: 'sunhat' })] },
+  { id: 'phat', cat: 'hat', ko: '고깔모자', en: 'Party hat', make: () => [P('phat', [[26, 7], [32, -3.5], [38, 7]], '#ff6b9a'), P('phat_st', [[28.6, 2.6], [35.4, 2.6], [37, 5.5], [27, 5.5]], '#ffd23f', { clip: 'phat' }), E('phat_p', 32, -3.4, 1.7, 1.7, '#ffd23f')] },
+  { id: 'bunny', cat: 'hat', ko: '토끼 머리띠', en: 'Bunny ears', make: () => [...sym(E('bunny', 28, -.5, 2.3, 6.8, '#ffffff')), ...sym(E('bunny_in', 28, -.3, 1.1, 4.6, '#ffb3c8')), E('bunny_bd', 32, 5.5, 9, 1.4, '#ff6b9a')] },
+  { id: 'hbow', cat: 'hat', ko: '리본 머리띠', en: 'Bow headband', make: () => [E('hbow_bd', 32, 5.5, 9, 1.3, '#ff6b9a'), P('hbow', [[26, 5], [21, 1.5], [21, 8.5]], '#ff6b9a'), P('hbow', [[26, 5], [31, 1.5], [31, 8.5]], '#ff6b9a'), R('hbow_k', 24.6, 3.6, 2.8, 2.8, '#ffd23f')] },
+  { id: 'swimcap', cat: 'hat', ko: '수영모', en: 'Swim cap', make: () => [E('swimcap', 32, 7.2, 9.4, 4.2, '#6cc7ff'), E('swimcap_d', 29, 6, 1.1, 1.1, '#ffffff'), E('swimcap_d', 35, 7.5, 1.1, 1.1, '#ffffff')] },
+  // 윗옷
+  { id: 'tshirt', cat: 'top', ko: '티셔츠', en: 'T-shirt', make: () => [...shortSl('tshirt', '#6cc7ff'), bodyTop('tshirt', '#6cc7ff'), P('tshirt_star', starPts(32, 30.5, 3.2, 1.4), '#ffffff')] },
+  { id: 'stripe', cat: 'top', ko: '줄무늬 티', en: 'Striped shirt', make: () => [...shortSl('stripe', '#ffffff'), bodyTop('stripe', '#ffffff'), ...[26, 30, 34].map(y => R('stripe_ln', 0, y, 64, 1.8, '#ff6b6b', { clip: 'stripe' }))] },
+  { id: 'shirt', cat: 'top', ko: '교복 셔츠', en: 'School shirt', make: () => [...longSl('shirt', '#ffffff'), bodyTop('shirt', '#ffffff'), P('shirt_col', [[28, 23.3], [32, 27.5], [36, 23.3], [37.5, 24.5], [32, 29], [26.5, 24.5]], '#eef1f7'),
+      P('shirt_tie', [[31, 25.5], [33, 25.5], [33.7, 33], [32, 34.8], [30.3, 33]], '#c94a43')] },
+  { id: 'hoodie', cat: 'top', ko: '후드티', en: 'Hoodie', make: () => [...longSl('hoodie', '#a26bff'), bodyTop('hoodie', '#a26bff', 38), E('hoodie_hd', 32, 24, 7.2, 3.4, '#8e55f0'), R('hoodie_pk', 27, 32.5, 10, 4.2, '#8e55f0'), ink(30.6, 26, .8, 5), ink(32.6, 26, .8, 5)] },
+  { id: 'sweater', cat: 'top', ko: '스웨터', en: 'Sweater', make: () => [...longSl('sweater', '#ff9f43'), bodyTop('sweater', '#ff9f43', 38), R('sweater_nk', 28, 23.3, 8, 1.8, '#ffd9a8'), R('sweater_ln', 0, 29, 64, 2, '#ffffff', { clip: 'sweater' }), R('sweater_ln', 0, 34, 64, 2, '#ffffff', { clip: 'sweater' })] },
+  { id: 'blouse', cat: 'top', ko: '블라우스', en: 'Blouse', make: () => [...sym(E('blouse_sl', 21.6, 27.2, 3.6, 3.9, '#ffd1e6')), bodyTop('blouse', '#ffd1e6'), ...sym(E('blouse_col', 29.6, 24.6, 2.7, 1.7, '#ffffff')), E('blouse_bt', 32, 29, .9, .9, '#ff6b9a'), E('blouse_bt', 32, 33, .9, .9, '#ff6b9a')] },
+  { id: 'jacket', cat: 'top', ko: '점퍼', en: 'Jacket', make: () => [...longSl('jacket', '#3a3a4a'), bodyTop('jacket', '#3a3a4a', 38), R('jacket_zip', 31.4, 24, 1.2, 14, '#c9cedb'), P('jacket_col', [[27, 23.3], [31, 23.3], [31, 26.5]], '#55556b'), P('jacket_col', [[33, 23.3], [37, 23.3], [33, 26.5]], '#55556b')] },
+  // 아래옷
+  { id: 'shorts', cat: 'bottom', ko: '반바지', en: 'Shorts', make: () => [P('shorts', [[23.4, 36.5], [40.6, 36.5], [41, 45], [33, 45], [32, 43], [31, 45], [23, 45]], '#4a8ff0')] },
+  { id: 'skirt', cat: 'bottom', ko: '치마', en: 'Skirt', make: () => [P('skirt', [[23.4, 36.5], [40.6, 36.5], [43.5, 47.5], [20.5, 47.5]], '#ff6b9a'), R('skirt_hem', 0, 45.5, 64, 2, '#ffffff', { clip: 'skirt' })] },
+  { id: 'pleat', cat: 'bottom', ko: '교복 치마', en: 'School skirt', make: () => [P('pleat', [[23.4, 36.5], [40.6, 36.5], [43.5, 47.5], [20.5, 47.5]], '#2f3a7a'), ...[26.5, 30.2, 33.8, 37.5].map(x => P('pleat_ln', [[x, 36.5], [x + .9, 36.5], [x + 1.6, 47.5], [x + .3, 47.5]], '#4a5ab0', { clip: 'pleat' }))] },
+  { id: 'jeans', cat: 'bottom', ko: '청바지', en: 'Jeans', make: () => [P('jeans', [[23.4, 36.5], [40.6, 36.5], [40.4, 57], [33.2, 57], [32, 45], [30.8, 57], [23.6, 57]], '#4a7bff'), R('jeans_pk', 25.5, 38.5, 4, 3, '#2f5fd8'), R('jeans_pk', 34.5, 38.5, 4, 3, '#2f5fd8')] },
+  { id: 'legg', cat: 'bottom', ko: '레깅스', en: 'Leggings', make: () => [P('legg', [[23.6, 36.5], [40.4, 36.5], [39.6, 57], [33.4, 57], [32, 45], [30.6, 57], [24.4, 57]], '#a26bff'), ...[[27, 42], [36, 47], [28, 52], [36, 40]].map(([x, y]) => E('legg_dot', x, y, 1.1, 1.1, '#ffffff', { clip: 'legg' }))] },
+  { id: 'tutu', cat: 'bottom', ko: '튀튀 치마', en: 'Tutu', make: () => [P('tutu', [[23.4, 36.5], [40.6, 36.5], [46, 46], [18, 46]], '#ffd1e6'), ...[20.5, 26, 32, 38, 43.5].map(x => E('tutu_f', x, 46, 3.4, 2.4, '#ffb3c8'))] },
+  // 원피스
+  { id: 'party', cat: 'dress', ko: '파티 드레스', en: 'Party dress', make: () => [...sym(E('party_sl', 21.6, 27.2, 3.6, 3.9, '#ff6b9a')), P('party', [[24, 23.5], [40, 23.5], [45.5, 50], [18.5, 50]], '#ff6b9a'), R('party_sash', 0, 33.5, 64, 2.6, '#ffd23f', { clip: 'party' }),
+      ...[[23, 46], [29, 44], [35, 46], [41, 44]].map(([x, y]) => E('party_dot', x, y, 1.3, 1.3, '#ffffff', { clip: 'party' }))] },
+  { id: 'sundress', cat: 'dress', ko: '여름 원피스', en: 'Sundress', make: () => [...sym(R('sundress_st', 26, 23, 2, 3, '#ffd23f')), P('sundress', [[25, 25], [39, 25], [44, 49.5], [20, 49.5]], '#ffd23f'),
+      ...[[27, 31], [36, 35], [30, 42], [38, 45], [24, 44]].map(([x, y]) => E('sundress_fl', x, y, 1.5, 1.5, '#ffffff', { clip: 'sundress' }))] },
+  { id: 'princess', cat: 'dress', ko: '공주 드레스', en: 'Princess dress', make: () => [...sym(E('princess_sl', 21.6, 27, 3.6, 3.8, '#c9a3ff')), P('princess', [[24, 23.5], [40, 23.5], [49, 56], [15, 56]], '#c9a3ff'), P('princess_top', [[24, 23.5], [40, 23.5], [41, 36.5], [23, 36.5]], '#a26bff'),
+      ...[[22, 48], [32, 44], [42, 50], [27, 53]].map(([x, y]) => P('princess_sp', starPts(x, y, 1.7, .8), '#ffffff', { clip: 'princess' }))] },
+  { id: 'swim', cat: 'dress', ko: '수영복', en: 'Swimsuit', make: () => [...sym(R('swim_st', 26.5, 23, 2, 3, '#ff6b9a')), P('swim', [[25, 25], [39, 25], [40.6, 42], [23.4, 42]], '#ff6b9a'), R('swim_ln', 0, 30, 64, 2, '#ffffff', { clip: 'swim' }), R('swim_ln', 0, 35, 64, 2, '#ffffff', { clip: 'swim' })] },
+  { id: 'raincoat', cat: 'dress', ko: '우비', en: 'Raincoat', make: () => [...longSl('raincoat', '#ffd23f'), P('raincoat', [[23, 23.3], [41, 23.3], [44, 50], [20, 50]], '#ffd23f'), E('raincoat_hd', 32, 24, 7.5, 3.4, '#f0c020'), ...[30, 36, 42].map(y => E('raincoat_bt', 32, y, 1.1, 1.1, '#ff5a5f'))] },
+  // 신발
+  { id: 'sneakers', cat: 'shoes', ko: '운동화', en: 'Sneakers', make: () => [...sym(E('sneakers', 28, 57.4, 4.1, 2.5, '#ff5a5f')), ...sym(R('sneakers_s', 25, 57.6, 6.2, 1, '#ffffff'))] },
+  { id: 'maryjane', cat: 'shoes', ko: '구두', en: 'Mary Janes', make: () => [...sym(E('maryjane', 28, 57.6, 3.9, 2.2, '#3a3a4a')), ...sym(R('maryjane_st', 25.4, 55.8, 5.2, .9, '#3a3a4a'))] },
+  { id: 'boots', cat: 'shoes', ko: '부츠', en: 'Boots', make: () => [...sym(R('boots', 25, 49.5, 6.2, 8, '#a0673a')), ...sym(E('boots', 28, 57.5, 4, 2.4, '#a0673a'))] },
+  { id: 'rainboots', cat: 'shoes', ko: '장화', en: 'Rain boots', make: () => [...sym(R('rainboots', 25, 49.5, 6.2, 8, '#ffd23f')), ...sym(E('rainboots', 28, 57.5, 4, 2.4, '#ffd23f')), ...sym(R('rainboots_t', 24.6, 49.3, 7, 1.4, '#ff9f43'))] },
+  { id: 'flipflop', cat: 'shoes', ko: '쪼리', en: 'Flip-flops', make: () => [...sym(E('flipflop', 28, 58.2, 3.9, 1.6, '#ffd23f')), ...sym(P('flipflop_v', [[28, 56.2], [26.4, 58.2], [29.6, 58.2]], '#ff6b9a'))] },
+  { id: 'ballet', cat: 'shoes', ko: '발레 슈즈', en: 'Ballet shoes', make: () => [...sym(E('ballet', 28, 57.6, 3.8, 2, '#ffb3c8')), ...sym(P('ballet_r', [[27.3, 51.5], [28.7, 51.5], [29.2, 56.5], [26.8, 56.5]], '#ffb3c8'))] },
+  // 소품
+  { id: 'glasses', cat: 'acc', layer: 'face', ko: '안경', en: 'Glasses', make: () => [...sym(E('glasses', 28.6, 13.4, 3.2, 2.7, '#dff4ff')), ink(31.2, 12.9, 1.6, .9)] },
+  { id: 'sunglasses', cat: 'acc', layer: 'face', ko: '선글라스', en: 'Sunglasses', make: () => [...sym(E('sunglasses', 28.6, 13.4, 3.3, 2.7, '#3a3a4a')), ink(31.2, 12.9, 1.6, .9)] },
+  { id: 'goggles', cat: 'acc', layer: 'face', ko: '물안경', en: 'Goggles', make: () => [R('goggles_s', 22.5, 12.7, 19, 1.3, '#ff6b9a'), ...sym(E('goggles', 28.6, 13.4, 3.5, 2.9, '#6cc7ff')), R('goggles_b', 31.3, 12.9, 1.4, 1, '#ff6b9a')] },
+  { id: 'backpack', cat: 'acc', layer: 'straps', ko: '책가방', en: 'Backpack', back: () => [R('backpack', 21.5, 25, 21, 15, '#ff9f43'), R('backpack_pk', 26, 33, 12, 6, '#ffb86b')], make: () => [...sym(R('backpack_st', 26, 23.5, 2.4, 13.5, '#ff9f43'))] },
+  { id: 'bag', cat: 'acc', layer: 'body', ko: '가방', en: 'Bag', make: () => [P('bag_st', [[26, 24], [28.5, 24], [43, 43], [40.5, 44]], '#a0673a'), R('bag', 39.5, 42, 8.5, 7, '#c94a43'), R('bag_fl', 39.5, 42, 8.5, 2.6, '#a83a35', { clip: 'bag' })] },
+  { id: 'balloon', cat: 'acc', layer: 'body', free: true, ko: '풍선', en: 'Balloon', make: () => [P('balloon_s', stickPoly(41.4, 46, 49.5, 25, .8), '#2b2d42', { fix: '#2b2d42' }), E('balloon', 50, 19, 5, 6.2, '#ff5a5f'), E('balloon_hl', 48.1, 16.6, 1.2, 1.8, '#ffffff')] },
+  { id: 'ring', cat: 'acc', layer: 'body', ko: '튜브', en: 'Swim ring', make: () => [E('ring', 32, 39.5, 15, 5.6, '#ff6b9a'), ...sym(R('ring_st', 21.5, 33, 3.4, 13, '#ffffff', { clip: 'ring' })), R('ring_st', 30.3, 33, 3.4, 13, '#ffffff', { clip: 'ring' })] },
+  { id: 'scarf', cat: 'acc', layer: 'body', ko: '목도리', en: 'Scarf', make: () => [R('scarf', 24, 20.3, 16, 3.8, '#ff5a5f'), R('scarf_t', 34, 23, 4.2, 8.5, '#ff5a5f'), R('scarf_ln', 24, 22, 16, 1, '#ffffff', { clip: 'scarf' })] },
+  { id: 'necklace', cat: 'acc', layer: 'body', ko: '목걸이', en: 'Necklace', make: () => [...[[28.5, 24.2], [30.3, 25.4], [32, 25.9], [33.7, 25.4], [35.5, 24.2]].map(([x, y]) => E('necklace', x, y, .9, .9, '#ffd23f')), P('necklace_h', [[31, 26.8], [33, 26.8], [32, 28.6]], '#ff6b9a')] },
+  { id: 'wand', cat: 'acc', layer: 'body', free: true, ko: '요술봉', en: 'Magic wand', make: () => [P('wand', stickPoly(41.3, 46, 47.6, 34.5, 1.6), '#a0673a'), P('wand_st', starPts(48.2, 31.6, 4, 1.8), '#ffd23f')] },
+  { id: 'cotton', cat: 'acc', layer: 'body', free: true, ko: '솜사탕', en: 'Cotton candy', make: () => [P('cotton_s', stickPoly(22.9, 46, 17.5, 36, .9), '#ffffff'), E('cotton', 16.5, 31.5, 4.6, 5, '#ffb3c8'), E('cotton', 14, 29, 2.5, 2.5, '#ffb3c8'), E('cotton', 19.6, 29.2, 2.3, 2.3, '#ffb3c8')] },
+  { id: 'lolly', cat: 'acc', layer: 'body', free: true, ko: '막대사탕', en: 'Lollipop', make: () => [P('lolly_s', stickPoly(41.1, 46, 45.5, 36, .9), '#ffffff'), E('lolly', 45.8, 33.5, 3.4, 3.4, '#ff6b9a'), E('lolly_c', 45.8, 33.5, 1.5, 1.5, '#ffffff')] },
+  { id: 'flower', cat: 'acc', layer: 'top', ko: '머리 꽃', en: 'Hair flower', make: () => [...[[-1.8, 0], [1.8, 0], [0, -1.8], [0, 1.8]].map(([dx, dy]) => E('flower', 24.6 + dx, 8.2 + dy, 1.5, 1.5, '#ff8cc6')), E('flower_c', 24.6, 8.2, 1.1, 1.1, '#ffd23f')] },
+  // 배경
+  { id: 'room', cat: 'bg', ko: '내 방', en: 'My room' }, { id: 'school', cat: 'bg', ko: '학교', en: 'School' },
+  { id: 'party_bg', cat: 'bg', ko: '파티장', en: 'Party' }, { id: 'park', cat: 'bg', ko: '놀이동산', en: 'Amusement park' }, { id: 'pool', cat: 'bg', ko: '수영장', en: 'Pool' },
 ];
 const itemById = id => ITEMS.find(i => i.id === id);
-const itemOfKey = k => itemById(k.split('_')[0]);
-const emptyWorn = () => ({ hat: null, top: null, bottom: null, shoes: null, acc: [] });
-const wornList = w => [w.hat, w.top, w.bottom, w.shoes, ...w.acc].filter(Boolean);
-
-// 겹치는 순서대로 쌓기
-function composeDef(parts, worn) {
-  const c = parts.ctx, W = wornList(worn).map(itemById);
-  const take = f => W.filter(f).flatMap(it => fitShapes(it.make(c), fitKind(it), c));
+const itemOfKey = k => { const p = k.split('_')[0]; return p.startsWith('hair') ? itemById(dress ? dress.worn.hair : 'long') : itemById(p); };
+const emptyWorn = () => ({ hair: 'long', hat: null, top: null, bottom: null, dress: null, shoes: null, acc: [], bg: 'room' });
+function composeDoll(worn) {
+  const W = [worn.hat, worn.top, worn.bottom, worn.dress, worn.shoes, ...worn.acc].filter(Boolean).map(itemById);
+  const kindOf = it => it.free ? null : (it.cat === 'hat' || it.cat === 'hair' || it.layer === 'face' || it.layer === 'top') ? 'head' : 'body';
+  const take = (f, fn = 'make') => W.filter(f).flatMap(it => it[fn] ? fitK(it[fn](), kindOf(it)) : []);
+  const hair = HAIR[worn.hair] || HAIR.long;
   return { w: 64, h: 64, pad: 4, shapes: [
-    ...parts.back, ...parts.body,
-    ...take(i => i.cat === 'bottom' && !i.late), ...take(i => i.cat === 'top'), ...take(i => i.cat === 'bottom' && i.late),
-    ...take(i => i.cat === 'shoes'), ...take(i => i.layer === 'hands'),
-    ...parts.head, ...take(i => i.layer === 'preface'), ...parts.face, ...take(i => i.layer === 'postface'),
-    ...take(i => i.cat === 'hat'), ...take(i => i.layer === 'neck'), ...take(i => i.layer === 'front'),
-  ]};
+    ...fitK(hair.back, 'head'), ...take(i => i.back, 'back'), ...DOLL.body,
+    ...take(i => i.cat === 'shoes'), ...take(i => i.cat === 'bottom'), ...take(i => i.cat === 'top'), ...take(i => i.cat === 'dress'),
+    ...take(i => i.layer === 'body'), ...take(i => i.layer === 'straps'),
+    ...DOLL.head, ...DOLL.face, ...take(i => i.layer === 'face'),
+    ...fitK(hair.front, 'head'), ...take(i => i.cat === 'hat'), ...take(i => i.layer === 'top'),
+  ] };
 }
-function wearOne(worn, it) {
-  const w = { ...worn, acc: [...worn.acc] };
-  if (it.cat === 'acc') { if (!w.acc.includes(it.id)) w.acc.push(it.id); } else w[it.cat] = it.id;
-  return w;
-}
-// 옷 버튼 그림: 회색 마네킹에 입혀서 그 옷 부분만 잘라 보여줘요
+const THEMES = [
+  { id: 'school', emo: '🏫', ko: '학교 가는 날! 교복 셔츠, 교복 치마, 운동화, 책가방을 챙겨요.', en: "Let's go to school!", need: ['shirt', 'pleat', 'sneakers', 'backpack'], bg: 'school' },
+  { id: 'party', emo: '🎉', ko: '파티에 가요! 파티 드레스, 티아라, 구두, 목걸이를 해요.', en: "Let's go to the party!", need: ['party', 'tiara', 'maryjane', 'necklace'], bg: 'party_bg' },
+  { id: 'park', emo: '🎡', ko: '놀이동산 가는 날! 야구모자, 티셔츠, 반바지, 운동화, 솜사탕을 챙겨요.', en: "Let's go to the amusement park!", need: ['cap', 'tshirt', 'shorts', 'sneakers', 'cotton'], bg: 'park' },
+  { id: 'pool', emo: '🏊', ko: '수영장 가는 날! 수영복, 수영모, 물안경, 튜브, 쪼리를 챙겨요.', en: "Let's go to the pool!", need: ['swim', 'swimcap', 'goggles', 'ring', 'flipflop'], bg: 'pool' },
+];
+let dress = null, dTab = 'top', dColor = null;
+const previewCache = {};
 function itemPreview(it) {
-  const S = 3, art = build(composeDef(MANNEQUIN, wearOne(emptyWorn(), it)), 'A', S);
+  const worn = emptyWorn(); if (it.cat !== 'hair') worn.hair = 'short';
+  if (it.cat === 'acc') worn.acc = [it.id]; else worn[it.cat] = it.id;
+  const S = 3, art = build(composeDoll(worn), 'A', S);
+  const pre = it.cat === 'hair' ? 'hair' : it.id;
   let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
   for (let i = 0; i < art.map.length; i++) {
     const r = art.regions[art.map[i]];
-    if (r.k === 'bg' || itemOfKey(r.k) !== it) continue;
+    if (r.k === 'bg' || !(r.k === pre || r.k.startsWith(pre + '_') || (pre === 'hair' && r.k.startsWith('hair')))) continue;
     const x = i % art.w, y = (i / art.w) | 0;
     if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y;
   }
   const cs = 6, full = document.createElement('canvas'); full.width = art.bw * cs; full.height = art.bh * cs;
   const cols = art.regions.map(r => r.k === 'bg' ? null : (r.fix || r.col));
-  draw(full.getContext('2d'), art, cols, cs, { thin: 1.6, thick: 2.2 });
+  draw(full.getContext('2d'), art, cols, cs, { thin: 1.6, thick: 2.2, soft: true });
   const bx0 = x0 / S, by0 = y0 / S, bx1 = (x1 + 1) / S, by1 = (y1 + 1) / S;
-  const side = Math.max(bx1 - bx0, by1 - by0) + 4, cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2;
+  const side = Math.max(bx1 - bx0, by1 - by0) + 5, cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2;
   const out = document.createElement('canvas'); out.width = out.height = 120;
   out.getContext('2d').drawImage(full, (cx - side / 2) * cs, (cy - side / 2) * cs, side * cs, side * cs, 0, 0, 120, 120);
   return out;
 }
-
-// ---------- 화면 ----------
-let dress = null, dTab = 'hat', dColor = null;
-const previewCache = {};
-function makeDressTiles() {
-  const g = $('dressGrid'); g.innerHTML = '';
-  ANIMALS.forEach(a => {
-    const t = document.createElement('button'); t.className = 'card tile';
-    const cv = document.createElement('canvas'); preview(cv, composeDef(animalParts(a.id), emptyWorn()), 6);
-    t.append(cv); t.insertAdjacentHTML('beforeend', `<span class="nm">${a.name}</span>`);
-    t.onclick = () => { sfx.tap(); startDress(a); };
-    g.appendChild(t);
-  });
-}
-function startDress(a) {
-  dress = { a, parts: animalParts(a.id), worn: emptyWorn(), over: {}, mission: null, mi: -1 };
-  $('dressTitle').textContent = `${a.name} 옷입히기`;
-  endMissionUI();
+function startDress() {
+  dress = { worn: emptyWorn(), over: {}, mission: null, mi: -1 };
+  endMissionUI(); setBg('room');
   renderDTabs(); renderDItems();
   go('dress');
-  sayEn(EN_ANIMALS[a.id]);
+  sayEn("Let's get dressed!");
 }
-function rebuildDress() {
-  dress.art = build(composeDef(dress.parts, dress.worn), 'A', scaleOf());
-  redrawDress();
-}
-function dressColors() {
-  return dress.art.regions.map(r => r.fix || dress.over[r.k] || (r.k === 'bg' ? (dress.mission ? dress.mission.bg : '#ffffff') : r.col));
-}
-function redrawDress() { if (dress.ctx) draw(dress.ctx, dress.art, dressColors(), dress.cs); }
+function setBg(id) { $('dressBoard').className = 'card board bg-' + id; }
+function rebuildDress() { dress.art = build(composeDoll(dress.worn), 'A', scaleOf()); redrawDress(); }
+const dressColors = () => dress.art.regions.map(r => r.fix || dress.over[r.k] || r.col);
+function redrawDress() { if (dress.ctx) draw(dress.ctx, dress.art, dressColors(), dress.cs, { soft: true }); }
 function renderDTabs() {
   const box = $('dTabs'); box.innerHTML = '';
   DCATS.forEach(([cat, emo, ko]) => {
@@ -1724,29 +1783,35 @@ function renderDTabs() {
     box.appendChild(b);
   });
 }
-function isWorn(it) { return it.cat === 'acc' ? dress.worn.acc.includes(it.id) : dress.worn[it.cat] === it.id; }
+const isWorn = it => it.cat === 'acc' ? dress.worn.acc.includes(it.id) : dress.worn[it.cat] === it.id;
 function renderDItems() {
   const box = $('dItems'); box.innerHTML = '';
   ITEMS.filter(it => it.cat === dTab).forEach(it => {
     const b = document.createElement('button'); b.className = 'card ditem' + (isWorn(it) ? ' on' : '');
-    const pv = previewCache[it.id] || (previewCache[it.id] = itemPreview(it));
-    const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.getContext('2d').drawImage(pv, 0, 0);
-    b.append(cv); b.insertAdjacentHTML('beforeend', `<span>${it.ko}</span>`);
+    if (it.cat === 'bg') b.insertAdjacentHTML('afterbegin', `<div class="bgsw bg-${it.id}"></div>`);
+    else {
+      const pv = previewCache[it.id] || (previewCache[it.id] = itemPreview(it));
+      const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.getContext('2d').drawImage(pv, 0, 0);
+      b.append(cv);
+    }
+    b.insertAdjacentHTML('beforeend', `<span>${it.ko}</span>`);
     b.onclick = () => toggleItem(it);
     box.appendChild(b);
   });
 }
-function colorWord(c) { const i = PALETTE.indexOf(c); return i >= 0 ? EN_COLORS[i] + ' ' : ''; }
 function toggleItem(it) {
   const w = dress.worn;
+  if (it.cat === 'bg') { w.bg = it.id; setBg(it.id); sfx.tap(); sayEn(it.en + '!'); renderDItems(); checkMission(); return; }
+  if (it.cat === 'hair') { w.hair = it.id; sfx.pop(); sayEn(it.en + '!'); rebuildDress(); renderDItems(); return; }
   if (isWorn(it)) {
     if (it.cat === 'acc') w.acc = w.acc.filter(x => x !== it.id); else w[it.cat] = null;
     tone(600, 0, .1, 'triangle', .2, 300);
   } else {
     if (it.cat === 'acc') w.acc.push(it.id); else w[it.cat] = it.id;
+    if (it.cat === 'dress') { w.top = null; w.bottom = null; }
+    if (it.cat === 'top' || it.cat === 'bottom') w.dress = null;
     if (dColor) dress.over[it.id] = dColor; else delete dress.over[it.id];
-    sfx.pop();
-    sayEn((dColor ? colorWord(dColor) : '') + it.en + '!');
+    sfx.pop(); sayEn((dColor ? colorWord(dColor) : '') + it.en + '!');
   }
   rebuildDress(); renderDItems(); checkMission();
 }
@@ -1754,42 +1819,31 @@ function makeDPalette() {
   const box = $('dPalette'); box.innerHTML = '';
   [null, ...PALETTE].forEach(c => {
     const b = document.createElement('button'); b.className = 'dsw';
-    if (c === null) { b.textContent = '↺'; b.title = '원래 색'; }
-    else b.style.background = c === 'rainbow' ? RAINBOW_CSS : c;
-    b.onclick = () => { dColor = c; sfx.tap(); syncDPalette(); if (c) sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
+    if (c === null) { b.textContent = '↺'; } else b.style.background = c === 'rainbow' ? RAINBOW_CSS : c;
     b.dataset.c = c || '';
+    b.onclick = () => { dColor = c; sfx.tap(); syncDPalette(); if (c) sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
     box.appendChild(b);
   });
   syncDPalette();
 }
 function syncDPalette() { document.querySelectorAll('#dPalette .dsw').forEach(b => b.classList.toggle('sel', b.dataset.c === (dColor || ''))); }
-// 캐릭터 위의 옷을 누르면: 고른 색으로 바꾸고 영어로 말해요
 $('dressCv').addEventListener('pointerdown', e => {
   if (!dress || !dress.art) return;
   const A = dress.art, r = e.currentTarget.getBoundingClientRect();
   const x = Math.floor((e.clientX - r.left) / r.width * A.w), y = Math.floor((e.clientY - r.top) / r.height * A.h);
   if (x < 0 || y < 0 || x >= A.w || y >= A.h) return;
-  const reg = A.regions[A.map[y * A.w + x]], it = reg.k === 'bg' ? null : itemOfKey(reg.k);
-  if (!it) { if (reg.k !== 'bg') sayEn(EN_ANIMALS[dress.a.id]); return; }
-  if (dColor) { dress.over[reg.k] = dColor; sfx.pop(); redrawDress(); }
-  else sfx.tap();
-  sayEn(colorWord(dress.over[it.id] || '') + it.en + '!');
+  const reg = A.regions[A.map[y * A.w + x]];
+  if (reg.k === 'bg' || reg.fix) return;
+  const it = itemOfKey(reg.k);
+  if (dColor) {
+    if (reg.k.startsWith('hair') && !reg.k.includes('_')) { dress.over.hair = dColor; dress.over.hairB = dColor; }
+    else dress.over[reg.k] = dColor;
+    sfx.pop(); redrawDress();
+  } else sfx.tap();
+  if (it) sayEn((dColor ? colorWord(dColor) : '') + it.en + '!');
 });
-$('undressBtn').onclick = () => { sfx.tap(); dress.worn = emptyWorn(); dress.over = {}; rebuildDress(); renderDItems(); checkMission(); };
-$('saveDress').onclick = () => saveArt(dress.art, dressColors(), `옷입히기_${dress.a.name}`);
-// 저장: 공유 창 대신, 그림을 띄워서 꾹 눌러 '사진 앱에 저장'
-function saveArt(art, colors, name) {
-  const cs = 12, cv = document.createElement('canvas'); cv.width = art.bw * cs; cv.height = art.bh * cs;
-  const ctx = cv.getContext('2d');
-  draw(ctx, art, colors, cs);
-  ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
-  const url = cv.toDataURL('image/png');
-  $('saveImg').src = url; $('saveDl').href = url; $('saveDl').download = `${name}.png`;
-  $('celebrate').classList.remove('show');
-  $('saveBox').classList.add('show');
-  sfx.ding();
-}
-$('saveClose').onclick = () => { sfx.tap(); $('saveBox').classList.remove('show'); };
+$('undressBtn').onclick = () => { sfx.tap(); const bg = dress.worn.bg, hair = dress.worn.hair; dress.worn = emptyWorn(); dress.worn.bg = bg; dress.worn.hair = hair; dress.over = {}; rebuildDress(); renderDItems(); checkMission(); };
+$('saveDress').onclick = () => saveArt(dress.art, dressColors(), '옷입히기', true);
 function layoutDress() {
   if (!dress) return;
   const m = $('dressMain'), W = m.clientWidth - 40, H = m.clientHeight - 30;
@@ -1799,50 +1853,27 @@ function layoutDress() {
   let size;
   if (land) { panel.style.maxHeight = (H + 10) + 'px'; size = Math.min(H - 20, W - panel.offsetWidth - 50); }
   else {
-    // 세로 화면: 캐릭터는 항상 보이게 크게 두고, 옷 고르는 칸은 아래에서 스크롤
     panel.style.maxHeight = '';
     size = Math.min(W - 20, H - panel.offsetHeight - 30);
     if (size < H * .5) { size = Math.min(W - 20, H * .52); panel.style.maxHeight = Math.max(160, H - size - 26) + 'px'; }
   }
   size = Math.floor(size);
-  if (!dress.art) dress.art = build(composeDef(dress.parts, dress.worn), 'A', scaleOf());
+  if (!dress.art) dress.art = build(composeDoll(dress.worn), 'A', scaleOf());
   dress.cs = Math.max(3, size) / dress.art.bw;
   dress.ctx = fitCanvas($('dressCv'), dress.cs * dress.art.bw, dress.cs * dress.art.bh);
   redrawDress();
-  if (dress.mission) setDressFx(dress.mission.fx);
 }
-
-// ---------- 날씨 미션 ----------
-const MISSIONS = [
-  { emo: '☔', ko: '비가 와요! 우비, 장화, 우산을 챙겨요.', en: "It's raining!", need: ['raincoat', 'boots', 'umbrella'], bg: '#d3e2f2', fx: 'rain' },
-  { emo: '⛄', ko: '눈이 와요! 스웨터, 털모자, 목도리, 장갑을 입어요.', en: "It's snowing!", need: ['sweater', 'beanie', 'scarf', 'mittens'], bg: '#eef5fc', fx: 'snow' },
-  { emo: '☀️', ko: '해가 쨍쨍해요! 밀짚모자, 선글라스, 반바지를 입어요.', en: "It's sunny!", need: ['sunhat', 'sunglasses', 'shorts'], bg: '#fff3c4', fx: 'sun' },
-  { emo: '🎉', ko: '오늘은 파티 날! 왕관, 구두, 요술봉을 챙겨요.', en: "It's party time!", need: ['crown', 'party', 'wand'], bg: '#ffe3f0', fx: 'party' },
-];
-function setDressFx(kind) {
-  const fx = $('dressFx'); fx.innerHTML = '';
-  const ch = { rain: '💧', snow: '❄️', party: '🎈', sun: '✨' }[kind];
-  if (!ch) return;
-  const h = $('dressBoard').clientHeight + 80;
-  for (let k = 0; k < 12; k++) {
-    const d = document.createElement('i'); d.textContent = ch;
-    d.style.left = (k / 12 * 100 + Math.random() * 6) + '%';
-    d.style.fontSize = 16 + Math.random() * 12 + 'px';
-    d.style.setProperty('--fall', h + 'px');
-    d.style.animationDuration = (kind === 'rain' ? 1 : 3.2) + Math.random() * 1.5 + 's';
-    d.style.animationDelay = -Math.random() * 3 + 's';
-    fx.appendChild(d);
-  }
-}
+// ---------- 테마 미션 ----------
 function startMission(next) {
-  dress.mi = next ? (dress.mi + 1) % MISSIONS.length : Math.floor(Math.random() * MISSIONS.length);
-  const m = MISSIONS[dress.mi];
-  dress.mission = m; dress.worn = emptyWorn(); dress.over = {}; dColor = null; syncDPalette();
+  dress.mi = next ? (dress.mi + 1) % THEMES.length : Math.floor(Math.random() * THEMES.length);
+  const m = THEMES[dress.mi];
+  dress.mission = m; const hair = dress.worn.hair; dress.worn = emptyWorn(); dress.worn.hair = hair; dress.worn.bg = m.bg; dress.over = {}; dColor = null; syncDPalette();
+  setBg(m.bg);
   $('celebrate').classList.remove('show');
   $('missionBtn').textContent = '✕ 미션 그만';
   $('missionBox').classList.add('show');
   $('missionEmo').textContent = m.emo;
-  rebuildDress(); renderDItems(); renderNeed(); setDressFx(m.fx);
+  rebuildDress(); renderDItems(); renderNeed();
   say([{ t: m.en, lang: 'en' }, { t: m.ko, lang: 'ko' }, { t: m.en, lang: 'en' }]);
 }
 function renderNeed() {
@@ -1862,19 +1893,13 @@ function checkMission() {
   if (dress.mission.need.every(id => isWorn(itemById(id)))) {
     const m = dress.mission;
     setTimeout(() => {
-      celebrate('미션 성공!', m.en.replace('!', '') + ' · 잘 입었어요', [
-        ['다음 미션', 'pink', () => startMission(true)],
-        ['그만하기', '', () => { endMission(); }],
-      ]);
-      setTimeout(() => sayEn('Great job!'), 700);
+      celebrate('미션 성공!', m.en.replace('!', '') + ' · 준비 끝!', [
+        ['다음 미션', 'pink', () => startMission(true)], ['그만하기', '', () => endMission()]]);
+      setTimeout(() => sayEn('Great job! You look great!'), 700);
     }, 400);
   }
 }
-function endMissionUI() {
-  $('missionBtn').textContent = '⭐ 미션 시작';
-  $('missionBox').classList.remove('show');
-  $('dressFx').innerHTML = '';
-}
+function endMissionUI() { $('missionBtn').textContent = '⭐ 미션 시작'; $('missionBox').classList.remove('show'); }
 function endMission() { dress.mission = null; endMissionUI(); $('celebrate').classList.remove('show'); redrawDress(); }
 $('missionBtn').onclick = () => { sfx.tap(); dress.mission ? endMission() : startMission(false); };
 $('missionEmo').onclick = () => { if (dress.mission) say([{ t: dress.mission.en, lang: 'en' }, { t: dress.mission.ko, lang: 'ko' }]); };
@@ -1883,70 +1908,55 @@ $('missionEmo').onclick = () => { if (dress.mission) say([{ t: dress.mission.en,
 //  아이스크림 가게
 // =====================================================================
 const ICE_ITEMS = [
-  { id: 'cone', cat: 'base', ko: '콘', en: 'Cone' },
-  { id: 'waffle', cat: 'base', ko: '와플콘', en: 'Waffle cone' },
-  { id: 'cup', cat: 'base', ko: '컵', en: 'Cup' },
-  { id: 's1', cat: 'scoop', ko: '한 스쿱', en: 'One scoop', n: 1 },
-  { id: 's2', cat: 'scoop', ko: '두 스쿱', en: 'Two scoops', n: 2 },
-  { id: 's3', cat: 'scoop', ko: '세 스쿱', en: 'Three scoops', n: 3 },
-  { id: 'choco', cat: 'syrup', ko: '초코 시럽', en: 'Chocolate syrup', c: '#7a4a2a' },
-  { id: 'berry', cat: 'syrup', ko: '딸기 시럽', en: 'Strawberry syrup', c: '#ff5a7a' },
-  { id: 'honey', cat: 'syrup', ko: '꿀 시럽', en: 'Honey', c: '#ffc43d' },
-  { id: 'dots', cat: 'sprinkle', ko: '스프링클', en: 'Sprinkles' },
-  { id: 'stars', cat: 'sprinkle', ko: '별 스프링클', en: 'Star sprinkles' },
-  { id: 'hearts', cat: 'sprinkle', ko: '하트 스프링클', en: 'Heart sprinkles' },
-  { id: 'cherry', cat: 'top', ko: '체리', en: 'Cherry' },
-  { id: 'cream', cat: 'top', ko: '생크림', en: 'Whipped cream' },
-  { id: 'wafer', cat: 'top', ko: '웨하스', en: 'Wafer' },
-  { id: 'stick', cat: 'top', ko: '초코 막대', en: 'Chocolate stick' },
-  { id: 'cookie', cat: 'top', ko: '쿠키', en: 'Cookie' },
-  { id: 'flag', cat: 'top', ko: '깃발', en: 'Flag' },
+  { id: 'cone', cat: 'base', ko: '콘', en: 'Cone' }, { id: 'waffle', cat: 'base', ko: '와플콘', en: 'Waffle cone' }, { id: 'cup', cat: 'base', ko: '컵', en: 'Cup' },
+  { id: 's1', cat: 'scoop', ko: '한 스쿱', en: 'One scoop', n: 1 }, { id: 's2', cat: 'scoop', ko: '두 스쿱', en: 'Two scoops', n: 2 }, { id: 's3', cat: 'scoop', ko: '세 스쿱', en: 'Three scoops', n: 3 },
+  { id: 'choco', cat: 'syrup', ko: '초코 시럽', en: 'Chocolate syrup', c: '#7a4a2a' }, { id: 'berry', cat: 'syrup', ko: '딸기 시럽', en: 'Strawberry syrup', c: '#ff5a7a' }, { id: 'honey', cat: 'syrup', ko: '꿀 시럽', en: 'Honey', c: '#ffc43d' },
+  { id: 'dots', cat: 'sprinkle', ko: '스프링클', en: 'Sprinkles' }, { id: 'stars', cat: 'sprinkle', ko: '별 스프링클', en: 'Star sprinkles' }, { id: 'hearts', cat: 'sprinkle', ko: '하트 스프링클', en: 'Heart sprinkles' },
+  { id: 'cherry', cat: 'top', ko: '체리', en: 'Cherry' }, { id: 'cream', cat: 'top', ko: '생크림', en: 'Whipped cream' }, { id: 'strawb', cat: 'top', ko: '딸기', en: 'Strawberry' },
+  { id: 'wafer', cat: 'top', ko: '웨하스', en: 'Wafer' }, { id: 'stick', cat: 'top', ko: '초코 막대', en: 'Chocolate stick' }, { id: 'cookie', cat: 'top', ko: '쿠키', en: 'Cookie' },
+  { id: 'lolly', cat: 'top', ko: '막대사탕', en: 'Lollipop' }, { id: 'face', cat: 'top', ko: '얼굴', en: 'Smiley face' }, { id: 'flag', cat: 'top', ko: '깃발', en: 'Flag' },
 ];
 const ICE_CATS = [['base', '🍦', '콘·컵'], ['scoop', '🍨', '아이스크림'], ['syrup', '🍯', '시럽'], ['sprinkle', '✨', '스프링클'], ['top', '🍒', '토핑']];
-const ICE_WORD = [['scoop', 'Ice cream'], ['cone', 'Cone'], ['waffle', 'Waffle cone'], ['cup', 'Cup'], ['syrup', 'Syrup'], ['spr', 'Sprinkles'],
-                  ['cherry', 'Cherry'], ['cream', 'Whipped cream'], ['wafer', 'Wafer'], ['stick', 'Chocolate stick'], ['cookie', 'Cookie'], ['flag', 'Flag']];
+const ICE_WORD = [['scoop', 'Ice cream'], ['cone', 'Cone'], ['waffle', 'Waffle cone'], ['cup', 'Cup'], ['syrup', 'Syrup'], ['spr', 'Sprinkles'], ['cherry', 'Cherry'],
+  ['cream', 'Whipped cream'], ['strawb', 'Strawberry'], ['wafer', 'Wafer'], ['stick', 'Chocolate stick'], ['cookie', 'Cookie'], ['lolly', 'Lollipop'], ['face', 'Smiley face'], ['flag', 'Flag']];
 const iceItem = id => ICE_ITEMS.find(i => i.id === id);
-const newIce = () => ({ base: 'cone', scoop: 's1', syrup: null, sprinkle: null, top: [] });
+const newIce = () => ({ base: 'cone', scoop: 's2', syrup: null, sprinkle: null, top: [] });
 function stickPoly(x0, y0, x1, y1, w) {
   const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), nx = -dy / L * w / 2, ny = dx / L * w / 2;
   return [[x0 + nx, y0 + ny], [x1 + nx, y1 + ny], [x1 - nx, y1 - ny], [x0 - nx, y0 - ny]];
 }
 function iceDef(st) {
   const n = iceItem(st.scoop).n, sh = [], has = id => st.top.includes(id);
-  const sc = [0, 1, 2].slice(0, n).map(i => ({ k: 'scoop' + (i + 1), cy: 35 - i * 9.5, rx: 12 - i, ry: 8.5 - i * .5 }));
+  const sc = [0, 1, 2].slice(0, n).map(i => ({ k: 'scoop' + (i + 1), cy: 37.5 - i * 9.5, rx: 12.5 - i, ry: 8.8 - i * .5 }));
   const T = sc[n - 1], topY = T.cy - T.ry, hasCream = has('cream');
   const flavors = ['#ff9ec0', '#fff1c9', '#9be8c8'];
-  // 뒤에 꽂는 토핑 (아이스크림 뒤에 숨는 부분이 있어요)
-  if (has('wafer')) sh.push(P('wafer', stickPoly(35, T.cy - 1, 43, topY - 11, 3.6), '#f2c47a'),
-    P('wafer_line', stickPoly(35.3, T.cy - 1, 43.3, topY - 11, 1), '#d9a35b', { clip: 'wafer' }));
-  if (has('stick')) sh.push(P('stick', stickPoly(29, T.cy - 1, 21.5, topY - 12, 2.2), '#7a4a2a'));
-  if (has('cookie')) sh.push(E('cookie', 22.5, topY + 1, 6, 6, '#d39a5a'),
-    ...[[20.5, topY - 1], [24.5, topY - 2.5], [22, topY + 2]].map(([x, y]) => E('cookie_chip', x, y, 1.1, 1.1, '#5a3a22', { clip: 'cookie' })));
-  if (has('flag')) sh.push(R('flag_pole', 40.5, topY - 13, 1.2, 12, '#a0673a'), P('flag', [[41.7, topY - 13], [49, topY - 10.5], [41.7, topY - 8]], '#ff5a5f'));
-  // 콘 · 컵
+  if (has('wafer')) sh.push(P('wafer', stickPoly(35, T.cy - 1, 43.5, topY - 11.5, 3.8), '#f2c47a'), P('wafer_line', stickPoly(35.3, T.cy - 1, 43.8, topY - 11.5, 1), '#d9a35b', { clip: 'wafer' }));
+  if (has('stick')) sh.push(P('stick', stickPoly(29, T.cy - 1, 21.5, topY - 12, 2.3), '#7a4a2a'));
+  if (has('cookie')) sh.push(E('cookie', 22.5, topY + 1, 6, 6, '#d39a5a'), ...[[20.5, topY - 1], [24.5, topY - 2.5], [22, topY + 2.5]].map(([x, y]) => E('cookie_chip', x, y, 1.1, 1.1, '#5a3a22', { clip: 'cookie' })));
+  if (has('flag')) sh.push(R('flag_pole', 40.5, topY - 13, 1.2, 12.5, '#a0673a'), P('flag', [[41.7, topY - 13], [49.5, topY - 10.5], [41.7, topY - 8]], '#ff5a5f'));
+  if (has('lolly')) sh.push(R('lolly_s', 40.6, topY - 9, 1, 10, '#ffffff'), E('lolly', 41.1, topY - 11, 3.4, 3.4, '#ff6b9a'), E('lolly_c', 41.1, topY - 11, 1.5, 1.5, '#ffffff'));
+  // 아이스크림을 먼저 그리고 그 위에 콘·컵을 그려서, 스쿱이 안에 쏙 들어가 앉은 것처럼 보여요
+  sc.forEach((s, i) => {
+    sh.push(E(s.k, 32, s.cy, s.rx, s.ry, flavors[i]));
+    [-.72, -.24, .24, .72].forEach(f => sh.push(E(s.k, 32 + f * s.rx, s.cy + s.ry * .72, 3.3, 2.7, flavors[i])));
+  });
   if (st.base === 'cone') {
-    sh.push(P('cone', [[21, 40], [43, 40], [32, 63]], '#e8b36a'));
-    for (let a = 12; a <= 50; a += 5) sh.push(P('cone_line', stickPoly(a, 38, a - 13, 64, 1.1), '#c98a4b', { clip: 'cone' }),
-      P('cone_line', stickPoly(a - 14, 38, a - 1, 64, 1.1), '#c98a4b', { clip: 'cone' }));
+    sh.push(P('cone', [[19.5, 40], [44.5, 40], [32, 63.5]], '#e8b36a'));
+    for (let a = 12; a <= 52; a += 5) sh.push(P('cone_line', stickPoly(a, 38, a - 13, 64, 1.1), '#c98a4b', { clip: 'cone' }), P('cone_line', stickPoly(a - 14, 38, a - 1, 64, 1.1), '#c98a4b', { clip: 'cone' }));
+    sh.push(R('cone_rim', 18.8, 39, 26.4, 2.4, '#f0c27b'));
   } else if (st.base === 'waffle') {
-    sh.push(P('waffle', [[18, 40], [46, 40], [41, 61], [23, 61]], '#f0c27b'));
+    sh.push(P('waffle', [[18, 40], [46, 40], [41, 61.5], [23, 61.5]], '#f0c27b'));
     [45, 50, 55].forEach(y => sh.push(R('waffle_line', 0, y, 64, 1.1, '#d39a52', { clip: 'waffle' })));
     [26, 32, 38].forEach(x => sh.push(R('waffle_line', x - .55, 40, 1.1, 22, '#d39a52', { clip: 'waffle' })));
     sh.push(R('waffle_rim', 16.5, 38.5, 31, 3.2, '#e0a85e'));
   } else {
     sh.push(P('cup', [[19, 42], [45, 42], [41, 62], [23, 62]], '#ff8cc6'), R('cup_band', 0, 50, 64, 4, '#ffffff', { clip: 'cup' }),
-      ...[[27, 57.5], [37, 57.5], [32, 46]].map(([x, y]) => E('cup_dot', x, y, 1.4, 1.4, '#ffffff', { clip: 'cup' })),
-      R('cup_rim', 18, 40, 28, 3, '#ffffff'));
+      ...[[27, 57.5], [37, 57.5], [32, 46]].map(([x, y]) => E('cup_dot', x, y, 1.4, 1.4, '#ffffff', { clip: 'cup' })), R('cup_rim', 18, 40, 28, 3, '#ffffff'));
   }
-  // 아이스크림 (한 스쿱씩 따로 칠할 수 있어요)
-  sc.forEach((s, i) => {
-    sh.push(E(s.k, 32, s.cy, s.rx, s.ry, flavors[i]));
-    [-.72, -.24, .24, .72].forEach(f => sh.push(E(s.k, 32 + f * s.rx, s.cy + s.ry * .72, 3.2, 2.6, flavors[i])));
-  });
   if (st.syrup) {
     const c = iceItem(st.syrup).c;
     sh.push(E('syrup', 32, T.cy - T.ry * .3, T.rx * .98, T.ry * .78, c, { clip: T.k }));
-    [[-.7, 4], [-.25, 6.5], [.2, 3.5], [.62, 5.5]].forEach(([f, L]) => sh.push(R('syrup', 32 + f * T.rx - 1.1, T.cy - 1, 2.2, L, c)));
+    [[-.7, 4], [-.25, 6.5], [.2, 3.5], [.62, 5.5]].forEach(([f, L]) => { const x = 32 + f * T.rx; sh.push(R('syrup', x - 1.1, T.cy - 1, 2.2, L, c), E('syrup', x, T.cy - 1 + L, 1.15, 1.15, c)); });
   }
   if (st.sprinkle) {
     const clip = [...sc.map(s => s.k), 'syrup'], cols = ['#ff5a5f', '#4a8ff0', '#ffd23f', '#3cb371', '#a26bff'];
@@ -1958,13 +1968,16 @@ function iceDef(st) {
       else sh.push(E(k, x - .6, y - .3, .8, .8, c, { clip }), E(k, x + .6, y - .3, .8, .8, c, { clip }), P(k, [[x - 1.35, y - .1], [x + 1.35, y - .1], [x, y + 1.4]], c, { clip }));
     } });
   }
-  // 위에 올리는 토핑
+  if (has('face')) sh.push(ink(28.4, T.cy - 2.5, 1.8, 2.6), ink(33.8, T.cy - 2.5, 1.8, 2.6), hl(28.6, T.cy - 2.3), hl(34, T.cy - 2.3),
+    E('face_m', 32, T.cy + 2, 1.8, 1.1, '#e86b8a', { fix: '#e86b8a' }), E('face_b', 26.5, T.cy + 1, 1.6, 1, '#ffb3c8', { fix: '#ffb3c8' }), E('face_b', 37.5, T.cy + 1, 1.6, 1, '#ffb3c8', { fix: '#ffb3c8' }));
   if (hasCream) sh.push(E('cream', 32, topY + .5, T.rx * .7, 3, '#ffffff'), E('cream', 32, topY - 2.5, T.rx * .5, 2.6, '#ffffff'), E('cream', 32, topY - 5, T.rx * .28, 2, '#ffffff'));
   if (has('cherry')) {
     const cy = topY - (hasCream ? 8.5 : 2.2);
-    sh.push(P('cherry_stem', [[31.6, cy - 2], [33.4, cy - 6.6], [34.6, cy - 6.3], [32.6, cy - 2]], '#3cb371'), E('cherry', 32, cy, 2.8, 2.8, '#e8303f'));
+    sh.push(P('cherry_stem', [[31.6, cy - 2], [33.4, cy - 6.6], [34.6, cy - 6.3], [32.6, cy - 2]], '#3cb371'), E('cherry', 32, cy, 2.9, 2.9, '#e8303f'));
   }
-  return { w: 64, h: 64, pad: 4, bg: '#fff0f6', shapes: sh };
+  if (has('strawb')) { const y = topY + 1.5; sh.push(P('strawb_l', [[22.5, y - 3.2], [25, y - 5], [27.5, y - 3.2], [25, y - 2]], '#3cb371'), E('strawb', 25, y, 3.1, 3.5, '#ff3b6b'),
+    ...[[24, y - .8], [26.2, y + .4], [24.6, y + 1.8]].map(([x, yy]) => E('strawb_sd', x, yy, .45, .6, '#fff3b0', { fix: '#fff3b0' }))); }
+  return { w: 64, h: 64, pad: 4, shapes: sh };
 }
 let ice = null, iTab = 'base', iColor = null;
 const icePrev = {};
@@ -1974,15 +1987,10 @@ function applyIce(st, it) {
   else if ((it.cat === 'syrup' || it.cat === 'sprinkle') && st[it.cat] === it.id) st[it.cat] = null;
   else st[it.cat] = it.id;
 }
-function startIce() {
-  ice = { st: newIce(), over: {} };
-  renderITabs(); renderIItems();
-  go('ice');
-  sayEn("Let's make ice cream!");
-}
+function startIce() { ice = { st: newIce(), over: {} }; renderITabs(); renderIItems(); go('ice'); sayEn("Let's make ice cream!"); }
 function rebuildIce() { ice.art = build(iceDef(ice.st), 'A', scaleOf()); redrawIce(); }
 const iceColors = () => ice.art.regions.map(r => r.fix || ice.over[r.k] || r.col);
-function redrawIce() { if (ice.ctx) draw(ice.ctx, ice.art, iceColors(), ice.cs); }
+function redrawIce() { if (ice.ctx) draw(ice.ctx, ice.art, iceColors(), ice.cs, { soft: true }); }
 function renderITabs() {
   const box = $('iTabs'); box.innerHTML = '';
   ICE_CATS.forEach(([cat, emo, ko]) => {
@@ -1997,9 +2005,9 @@ function renderIItems() {
   ICE_ITEMS.filter(it => it.cat === iTab).forEach(it => {
     const b = document.createElement('button'); b.className = 'card ditem' + (iceOn(it) ? ' on' : '');
     if (!icePrev[it.id]) {
-      const st = newIce(); if (it.cat === 'top' || it.cat === 'syrup' || it.cat === 'sprinkle') st.scoop = 's2';
+      const st = newIce(); if (it.cat !== 'base' && it.cat !== 'scoop') st.scoop = 's2';
       applyIce(st, it);
-      const pv = document.createElement('canvas'); preview(pv, iceDef(st), 3); icePrev[it.id] = pv;
+      const pv = document.createElement('canvas'); preview(pv, iceDef(st), 3, { soft: true }); icePrev[it.id] = pv;
     }
     const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.getContext('2d').drawImage(icePrev[it.id], 0, 0, 120, 120);
     b.append(cv); b.insertAdjacentHTML('beforeend', `<span>${it.ko}</span>`);
@@ -2034,18 +2042,16 @@ $('iceCv').addEventListener('pointerdown', e => {
   const x = Math.floor((e.clientX - r.left) / r.width * A.w), y = Math.floor((e.clientY - r.top) / r.height * A.h);
   if (x < 0 || y < 0 || x >= A.w || y >= A.h) return;
   const reg = A.regions[A.map[y * A.w + x]];
-  if (reg.fix) return;
+  if (reg.fix || reg.k === 'bg') return;
   if (iColor) { ice.over[reg.k] = iColor; sfx.pop(); redrawIce(); } else sfx.tap();
   const w = ICE_WORD.find(([p]) => reg.k.startsWith(p));
   if (w) sayEn((iColor ? colorWord(iColor) : '') + w[1] + '!');
 });
 $('iceReset').onclick = () => { sfx.tap(); ice.st = newIce(); ice.over = {}; rebuildIce(); renderIItems(); };
-$('iceSave').onclick = () => saveArt(ice.art, iceColors(), '아이스크림');
+$('iceSave').onclick = () => saveArt(ice.art, iceColors(), '아이스크림', true);
 $('iceDone').onclick = () => {
   celebrate('아이스크림 완성!', '정말 맛있어 보여요', [
-    ['계속 만들기', '', () => $('celebrate').classList.remove('show')],
-    ['저장하기', 'blue', () => saveArt(ice.art, iceColors(), '아이스크림')],
-  ]);
+    ['계속 만들기', '', () => $('celebrate').classList.remove('show')], ['저장하기', 'blue', () => saveArt(ice.art, iceColors(), '아이스크림', true)]]);
   setTimeout(() => sayEn('Yummy! My ice cream!'), 700);
 };
 function layoutIce() {
@@ -2069,12 +2075,35 @@ function layoutIce() {
 }
 
 // =====================================================================
-//  퍼즐 (12조각)
+//  퍼즐 (12조각, 진짜 퍼즐 모양)
 // =====================================================================
 const PLACE_EN = { farm: 'Farm', space: 'Space', winter: 'Snowy town', party: 'Birthday party', beach: 'Beach', garden: 'Garden' };
 const PZ_C = 4, PZ_R = 3;
 let pz = null;
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+// 한 변: s=0 평평, +1 볼록(바깥), -1 오목. 시계 방향으로 돌 때 왼쪽이 바깥쪽
+function knobSide(path, x0, y0, x1, y1, s, k) {
+  if (!s) { path.lineTo(x1, y1); return; }
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, nx = uy, ny = -ux, v = s * k;
+  const pt = (t, o) => [x0 + ux * L * t + nx * o, y0 + uy * L * t + ny * o];
+  const B = (a, b, c) => path.bezierCurveTo(...pt(...a), ...pt(...b), ...pt(...c));
+  path.lineTo(...pt(.38, 0));
+  B([.45, 0], [.43, .6 * v], [.37, .85 * v]);
+  B([.26, 1.25 * v], [.3, 2.1 * v], [.5, 2.1 * v]);
+  B([.7, 2.1 * v], [.74, 1.25 * v], [.63, .85 * v]);
+  B([.57, .6 * v], [.55, 0], [.62, 0]);
+  path.lineTo(x1, y1);
+}
+function piecePath(i, cw, ch, ox = 0, oy = 0) {
+  const r = (i / PZ_C) | 0, c = i % PZ_C, k = Math.min(cw, ch) * .1, p = new Path2D();
+  const top = r === 0 ? 0 : -pz.V[r - 1][c], right = c === PZ_C - 1 ? 0 : pz.H[r][c], bottom = r === PZ_R - 1 ? 0 : pz.V[r][c], left = c === 0 ? 0 : -pz.H[r][c - 1];
+  const x = ox + c * cw, y = oy + r * ch;
+  p.moveTo(x, y);
+  knobSide(p, x, y, x + cw, y, top, k); knobSide(p, x + cw, y, x + cw, y + ch, right, k);
+  knobSide(p, x + cw, y + ch, x, y + ch, bottom, k); knobSide(p, x, y + ch, x, y, left, k);
+  p.closePath();
+  return p;
+}
 function makePuzzleTiles() {
   const g = $('pzGrid'); g.innerHTML = '';
   PLACES.forEach(def => {
@@ -2085,11 +2114,10 @@ function makePuzzleTiles() {
     g.appendChild(t);
   });
 }
-// 그림 위에 퍼즐 조각 선을 그려서 보여줘요
 function puzzlePreview(cv, def, cs) {
-  preview(cv, def, cs);
+  preview(cv, def, cs, { soft: true });
   const c = cv.getContext('2d'), W = cv.width, H = cv.height;
-  c.strokeStyle = '#ffffff'; c.lineWidth = Math.max(2, cs * .8); c.beginPath();
+  c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = Math.max(2, cs * .7); c.beginPath();
   for (let i = 1; i < PZ_C; i++) { c.moveTo(W / PZ_C * i, 0); c.lineTo(W / PZ_C * i, H); }
   for (let j = 1; j < PZ_R; j++) { c.moveTo(0, H / PZ_R * j); c.lineTo(W, H / PZ_R * j); }
   c.stroke();
@@ -2097,22 +2125,29 @@ function puzzlePreview(cv, def, cs) {
 function startPuzzle(def) {
   const art = build(def, 'A', scaleOf()), cs = 10, img = document.createElement('canvas');
   img.width = 96 * cs; img.height = 64 * cs;
-  draw(img.getContext('2d'), art, defaultColors(art), cs, { thin: cs * .3 });
-  pz = { def, img, placed: new Array(PZ_C * PZ_R).fill(false), sel: null, order: shuffle([...Array(PZ_C * PZ_R).keys()]), done: false, miss: 0 };
+  draw(img.getContext('2d'), art, defaultColors(art), cs, { thin: cs * .3, soft: true });
+  const rnd = () => Math.random() < .5 ? 1 : -1;
+  pz = { def, img, placed: new Array(PZ_C * PZ_R).fill(false), sel: null, order: shuffle([...Array(PZ_C * PZ_R).keys()]), done: false, miss: 0,
+         H: Array.from({ length: PZ_R }, () => Array.from({ length: PZ_C - 1 }, rnd)), V: Array.from({ length: PZ_R - 1 }, () => Array.from({ length: PZ_C }, rnd)) };
   $('pzTitle').textContent = `${def.name} 퍼즐`;
   const ex = $('pzEx'); ex.width = img.width / 2; ex.height = img.height / 2; ex.getContext('2d').drawImage(img, 0, 0, ex.width, ex.height);
-  renderTray();
+  $('exImg').src = img.toDataURL('image/png');
   go('puzzle');
+  renderTray();
   sayEn(PLACE_EN[def.id] + '!');
 }
-function pieceRect(i) { const w = pz.img.width / PZ_C, h = pz.img.height / PZ_R; return [(i % PZ_C) * w, ((i / PZ_C) | 0) * h, w, h]; }
 function renderTray() {
   const t = $('pzTray'); t.innerHTML = '';
+  const iw = pz.img.width / PZ_C, ih = pz.img.height / PZ_R, m = Math.min(iw, ih) * .25, sc = pz.pw / (iw + 2 * m);
   pz.order.forEach(i => {
     if (pz.placed[i]) return;
     const b = document.createElement('button'); b.className = 'piece' + (pz.sel === i ? ' sel' : '');
-    const cv = document.createElement('canvas'), [x, y, w, h] = pieceRect(i);
-    cv.width = w / 2; cv.height = h / 2; cv.getContext('2d').drawImage(pz.img, x, y, w, h, 0, 0, cv.width, cv.height);
+    const cv = document.createElement('canvas'); cv.width = Math.round((iw + 2 * m) * sc); cv.height = Math.round((ih + 2 * m) * sc);
+    const c = cv.getContext('2d'); c.scale(sc, sc); c.translate(m - (i % PZ_C) * iw, m - ((i / PZ_C) | 0) * ih);
+    const path = piecePath(i, iw, ih);
+    c.save(); c.clip(path); c.drawImage(pz.img, 0, 0); c.restore();
+    c.lineWidth = 3 / sc; c.strokeStyle = 'rgba(43,45,66,.85)'; c.stroke(path);
+    c.lineWidth = 1.2 / sc; c.strokeStyle = 'rgba(255,255,255,.7)'; c.stroke(path);
     b.append(cv);
     b.onclick = () => { pz.sel = pz.sel === i ? null : i; pz.miss = 0; sfx.tap(); renderTray(); };
     t.appendChild(b);
@@ -2120,24 +2155,24 @@ function renderTray() {
 }
 function drawBoard(flash, good) {
   if (!pz.ctx) return;
-  const ctx = pz.ctx, W = pz.bw, H = pz.bh, cw = W / PZ_C, ch = H / PZ_R;
+  const ctx = pz.ctx, W = pz.bw, H = pz.bh, iw = pz.img.width / PZ_C, ih = pz.img.height / PZ_R, sc = W / pz.img.width;
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#eef1f7'; ctx.fillRect(0, 0, W, H);
-  ctx.globalAlpha = .16; ctx.drawImage(pz.img, 0, 0, W, H); ctx.globalAlpha = 1;
+  ctx.fillStyle = '#f3f5fa'; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.scale(sc, sc);
+  for (let i = 0; i < PZ_C * PZ_R; i++) if (!pz.placed[i]) {
+    const p = piecePath(i, iw, ih);
+    ctx.fillStyle = '#e6eaf3'; ctx.fill(p);
+    ctx.lineWidth = 2.2 / sc; ctx.strokeStyle = '#b9c0d1'; ctx.stroke(p);
+  }
   for (let i = 0; i < PZ_C * PZ_R; i++) if (pz.placed[i]) {
-    const [x, y, w, h] = pieceRect(i);
-    ctx.drawImage(pz.img, x, y, w, h, (i % PZ_C) * cw, ((i / PZ_C) | 0) * ch, cw, ch);
+    const p = piecePath(i, iw, ih);
+    ctx.save(); ctx.clip(p); ctx.drawImage(pz.img, 0, 0); ctx.restore();
+    if (!pz.done) { ctx.lineWidth = 1.6 / sc; ctx.strokeStyle = 'rgba(43,45,66,.5)'; ctx.stroke(p); }
   }
-  if (!pz.done) {
-    ctx.strokeStyle = '#9aa3b5'; ctx.lineWidth = 2; ctx.setLineDash([7, 6]); ctx.beginPath();
-    for (let i = 1; i < PZ_C; i++) { ctx.moveTo(cw * i, 0); ctx.lineTo(cw * i, H); }
-    for (let j = 1; j < PZ_R; j++) { ctx.moveTo(0, ch * j); ctx.lineTo(W, ch * j); }
-    ctx.stroke(); ctx.setLineDash([]);
-  }
-  [[flash, 'rgba(255,59,107,.35)'], [good, 'rgba(60,179,113,.45)']].forEach(([s, col]) => {
-    if (s == null) return;
-    ctx.fillStyle = col; ctx.fillRect((s % PZ_C) * cw, ((s / PZ_C) | 0) * ch, cw, ch);
+  [[flash, 'rgba(255,59,107,.4)'], [good, 'rgba(60,179,113,.5)']].forEach(([s, col]) => {
+    if (s == null) return; ctx.fillStyle = col; ctx.fill(piecePath(s, iw, ih));
   });
+  ctx.restore();
 }
 $('pzBoard').addEventListener('pointerdown', e => {
   if (!pz || pz.done) return;
@@ -2152,18 +2187,18 @@ $('pzBoard').addEventListener('pointerdown', e => {
     if (pz.placed.every(Boolean)) {
       pz.done = true; drawBoard();
       setTimeout(() => {
-        celebrate('퍼즐 완성!', `${pz.def.name} 그림을 다 맞췄어요`, [
-          ['다시 하기', '', () => startPuzzle(pz.def)], ['다른 그림', 'pink', () => go('puzzlePick')]]);
+        celebrate('퍼즐 완성!', `${pz.def.name} 그림을 다 맞췄어요`, [['다시 하기', '', () => startPuzzle(pz.def)], ['다른 그림', 'pink', () => go('puzzlePick')]]);
         setTimeout(() => sayEn('Great job! ' + PLACE_EN[pz.def.id] + '!'), 700);
       }, 350);
     }
   } else {
     sfx.boop(); pz.miss++;
-    // 두 번 틀리면 맞는 자리를 초록색으로 살짝 알려줘요
     drawBoard(slot, pz.miss >= 2 ? pz.sel : null);
     setTimeout(() => drawBoard(), pz.miss >= 2 ? 900 : 350);
   }
 });
+$('pzExCard').onclick = () => { sfx.tap(); $('exBox').classList.add('show'); };
+$('exBox').onclick = () => $('exBox').classList.remove('show');
 function layoutPuzzle() {
   if (!pz) return;
   const m = $('pzMain'), W = m.clientWidth - 40, H = m.clientHeight - 30, gap = 18, pa = 1.125;
@@ -2171,29 +2206,31 @@ function layoutPuzzle() {
   m.classList.toggle('land', land);
   let bw, exW, pw;
   if (land) {
-    const colW = Math.min(330, Math.max(240, W * .3));
-    exW = colW - 20; const exH = exW / 1.5;
+    const colW = Math.min(400, Math.max(260, W * .34));
+    exW = colW - 16; const exH = exW / 1.5;
     pw = Math.floor(Math.min((colW - 20 - 16) / 3, (H - exH - gap - 40 - 24) / 4 * pa));
     bw = Math.min(W - colW - gap - 12, (H - 12) * 1.5);
     $('pzCol').style.width = colW + 'px';
     $('pzTray').style.gridTemplateColumns = `repeat(3, ${pw}px)`;
   } else {
-    exW = Math.min(W * .42, 260);
-    pw = Math.floor(Math.min((W - 20 - 5 * 8) / 6, 110));
-    const trayH = 2 * pw / pa + 8 + 24;
+    // 세로 화면: 예시는 오른쪽 위, 조각은 아래에서 옆으로 밀어 봐요
+    exW = Math.min(W * .5, 300);
+    pw = Math.floor(Math.min(120, Math.max(72, H * .15)));
+    const trayH = pw / pa + 20;
     bw = Math.min(W - 12, (H - exW / 1.5 - trayH - gap * 2 - 24) * 1.5);
     $('pzCol').style.width = '';
-    $('pzTray').style.gridTemplateColumns = `repeat(6, ${pw}px)`;
+    $('pzTray').style.gridTemplateColumns = `repeat(${PZ_C * PZ_R}, ${pw}px)`;
   }
   $('pzEx').style.width = exW + 'px'; $('pzEx').style.height = exW / 1.5 + 'px';
   m.style.setProperty('--pw', pw + 'px'); m.style.setProperty('--ph', pw / pa + 'px');
+  pz.pw = pw;
   pz.bw = Math.floor(bw); pz.bh = Math.floor(bw / 1.5);
   pz.ctx = fitCanvas($('pzBoard'), pz.bw, pz.bh);
-  drawBoard();
+  drawBoard(); renderTray();
 }
 
 // =====================================================================
-//  한글 맞추기
+//  한글 놀이 (네온 미로 + 냠냠이)
 // =====================================================================
 const HAN_WORDS = [['하늘', 'Sky', '🌤️'], ['나무', 'Tree', '🌳'], ['우유', 'Milk', '🥛'], ['바다', 'Sea', '🌊'], ['포도', 'Grapes', '🍇'],
   ['기차', 'Train', '🚂'], ['오리', 'Duck', '🦆'], ['모자', 'Hat', '🧢'], ['나비', 'Butterfly', '🦋'], ['토끼', 'Rabbit', '🐰'],
@@ -2219,13 +2256,46 @@ function makeHanTiles() {
     g.appendChild(t);
   });
 }
+// 미로 만들기: 칸마다 벽 4개, 길을 파고 나서 벽을 조금 더 뚫어 돌아갈 길을 만들어요
+function genMaze(C, R) {
+  const W = Array.from({ length: R }, () => Array.from({ length: C }, () => ({ t: 1, r: 1, b: 1, l: 1 })));
+  const vis = Array.from({ length: R }, () => new Array(C).fill(false));
+  const stack = [[0, 0]]; vis[0][0] = true;
+  const D = [[-1, 0, 't', 'b'], [1, 0, 'b', 't'], [0, -1, 'l', 'r'], [0, 1, 'r', 'l']];
+  while (stack.length) {
+    const [r, c] = stack[stack.length - 1];
+    const opts = D.filter(([dr, dc]) => r + dr >= 0 && r + dr < R && c + dc >= 0 && c + dc < C && !vis[r + dr][c + dc]);
+    if (!opts.length) { stack.pop(); continue; }
+    const [dr, dc, a, b] = opts[Math.floor(Math.random() * opts.length)];
+    W[r][c][a] = 0; W[r + dr][c + dc][b] = 0; vis[r + dr][c + dc] = true; stack.push([r + dr, c + dc]);
+  }
+  for (let n = 0; n < Math.floor(C * R * .22); n++) {
+    const r = Math.floor(Math.random() * R), c = Math.floor(Math.random() * C), [dr, dc, a, b] = D[Math.floor(Math.random() * 4)];
+    if (r + dr >= 0 && r + dr < R && c + dc >= 0 && c + dc < C) { W[r][c][a] = 0; W[r + dr][c + dc][b] = 0; }
+  }
+  return W;
+}
+function bfsPath(W, from, to) {
+  const R = W.length, C = W[0].length, prev = new Map(), q = [from], key = ([r, c]) => r * C + c;
+  prev.set(key(from), null);
+  while (q.length) {
+    const cur = q.shift(); if (cur[0] === to[0] && cur[1] === to[1]) break;
+    const [r, c] = cur, w = W[r][c];
+    [[!w.t, r - 1, c], [!w.b, r + 1, c], [!w.l, r, c - 1], [!w.r, r, c + 1]].forEach(([ok, nr, nc]) => {
+      if (ok && !prev.has(nr * C + nc)) { prev.set(nr * C + nc, cur); q.push([nr, nc]); }
+    });
+  }
+  const path = []; let k = to;
+  while (k) { path.unshift(k); k = prev.get(key(k)); }
+  return path;
+}
 function startHan(i) {
   const [ko, en, emo] = HAN_WORDS[i], syls = [...ko];
   const seq = syls.flatMap((s, si) => jamoOfSyl(s).map(j => ({ j, si })));
   const pool = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣㅑㅕ'.split('');
   const total = Math.min(12, Math.max(10, seq.length + 4));
   const extra = shuffle(pool.filter(j => !seq.some(s => s.j === j))).slice(0, total - seq.length);
-  han = { i, ko, en, emo, syls, seq, pos: 0, busy: false, miss: 0, done: false,
+  han = { i, ko, en, emo, syls, seq, pos: 0, busy: false, miss: 0, done: false, maze: null,
           tiles: shuffle([...seq.map(s => s.j), ...extra]).map(j => ({ j, used: false })) };
   $('hanEmo').textContent = emo; $('hanEn').textContent = ''; $('hanEn').classList.remove('show');
   $('hanSyls').innerHTML = syls.map(s => `<div class="syl"><span class="ghost">${s}</span><span class="fill"></span></div>`).join('');
@@ -2248,7 +2318,32 @@ function updateHanWord() {
     el.classList.toggle('now', si === cur);
   });
 }
-function placePac(x, y) { const p = $('pac'); p.style.left = x + 'px'; p.style.top = y + 'px'; }
+function cellXY(r, c) { const z = han.mz; return [z.ox + (c + .5) * z.cs, z.oy + (r + .5) * z.cs]; }
+function placeAt(el, r, c, size) { const [x, y] = cellXY(r, c); el.style.left = (x - size / 2) + 'px'; el.style.top = (y - size / 2) + 'px'; }
+function drawMaze() {
+  const z = han.mz, ctx = z.ctx, W = z.W, cs = z.cs;
+  ctx.clearRect(0, 0, z.fw, z.fh);
+  const g = ctx.createLinearGradient(0, 0, 0, z.fh); g.addColorStop(0, '#1a1f4f'); g.addColorStop(1, '#2a2457');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, z.fw, z.fh);
+  ctx.fillStyle = 'rgba(255,255,255,.35)';
+  z.stars.forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x * z.fw, y * z.fh, r, 0, 7); ctx.fill(); });
+  ctx.save();
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(3, cs * .11);
+  ctx.shadowColor = '#5aa0ff'; ctx.shadowBlur = cs * .35; ctx.strokeStyle = '#4f86ff';
+  ctx.beginPath();
+  for (let r = 0; r < z.R; r++) for (let c = 0; c < z.C; c++) {
+    const w = W[r][c], x = z.ox + c * cs, y = z.oy + r * cs;
+    if (w.t) { ctx.moveTo(x, y); ctx.lineTo(x + cs, y); }
+    if (w.l) { ctx.moveTo(x, y); ctx.lineTo(x, y + cs); }
+    if (w.b && r === z.R - 1) { ctx.moveTo(x, y + cs); ctx.lineTo(x + cs, y + cs); }
+    if (w.r && c === z.C - 1) { ctx.moveTo(x + cs, y); ctx.lineTo(x + cs, y + cs); }
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0; ctx.lineWidth = Math.max(1, cs * .04); ctx.strokeStyle = '#bcd4ff'; ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#ffe9a8';
+  z.dots.forEach(k => { const [x, y] = cellXY((k / z.C) | 0, k % z.C); ctx.beginPath(); ctx.arc(x, y, Math.max(2, cs * .07), 0, 7); ctx.fill(); });
+}
 function tapJamo(t) {
   if (!han || han.busy || han.done || t.used) return;
   const need = han.seq[han.pos];
@@ -2259,22 +2354,30 @@ function tapJamo(t) {
     return;
   }
   han.busy = true; han.miss = 0;
-  const pac = $('pac'), tx = t.el.offsetLeft + t.el.offsetWidth / 2, ty = t.el.offsetTop + t.el.offsetHeight / 2;
-  const px = pac.offsetLeft + pac.offsetWidth / 2;
-  pac.querySelector('.face').style.transform = tx < px ? 'scaleX(-1)' : '';
-  placePac(tx - pac.offsetWidth / 2, ty - pac.offsetHeight / 2);
-  setTimeout(() => {
-    t.used = true; t.el.classList.add('eaten');
-    tone(330, 0, .07, 'square', .12); tone(220, .09, .07, 'square', .12);
-    const si = need.si;
-    han.pos++; updateHanWord();
-    const sylDone = han.pos === han.seq.length || han.seq[han.pos].si !== si;
-    const el = $('hanSyls').children[si];
-    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-    han.busy = false;
-    if (han.pos === han.seq.length) finishHan();
-    else if (sylDone && han.syls.length > 1) say([{ t: han.syls[si], lang: 'ko' }]);
-  }, 480);
+  const z = han.mz, path = bfsPath(z.W, z.at, t.cell), mun = $('muncher');
+  let k = 1;
+  const step = () => {
+    if (k >= path.length) {
+      t.used = true; t.el.classList.add('eaten');
+      tone(330, 0, .07, 'square', .12); tone(220, .09, .07, 'square', .12);
+      const si = need.si;
+      han.pos++; updateHanWord();
+      const sylDone = han.pos === han.seq.length || han.seq[han.pos].si !== si;
+      const el = $('hanSyls').children[si];
+      el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+      han.busy = false;
+      if (han.pos === han.seq.length) finishHan();
+      else if (sylDone && han.syls.length > 1) say([{ t: han.syls[si], lang: 'ko' }]);
+      return;
+    }
+    const [r, c] = path[k], [pr, pc] = path[k - 1];
+    mun.classList.toggle('flip', c < pc);
+    placeAt(mun, r, c, z.cs * .8); z.at = [r, c];
+    const idx = z.dots.indexOf(r * z.C + c);
+    if (idx >= 0) { z.dots.splice(idx, 1); tone(880 + (k % 2) * 120, 0, .05, 'sine', .08); drawMaze(); }
+    k++; setTimeout(step, 150);
+  };
+  step();
 }
 function finishHan() {
   han.done = true;
@@ -2282,43 +2385,59 @@ function finishHan() {
   sfx.ding();
   say([{ t: han.ko, lang: 'ko' }, { t: han.en, lang: 'en' }]);
   setTimeout(() => {
-    celebrate('참 잘했어요!', `${han.ko} · ${han.en}`, [
-      ['다음 단어', 'pink', () => startHan((han.i + 1) % HAN_WORDS.length)], ['다른 단어', '', () => go('hanPick')]]);
+    celebrate('참 잘했어요!', `${han.ko} · ${han.en}`, [['다음 단어', 'pink', () => startHan((han.i + 1) % HAN_WORDS.length)], ['다른 단어', '', () => go('hanPick')]]);
   }, 1800);
 }
 $('hanSay').onclick = () => { if (han) say([{ t: han.ko, lang: 'ko' }, { t: han.en, lang: 'en' }]); };
 function layoutHan() {
   if (!han) return;
-  const m = $('hanMain'), W = m.clientWidth - 40, H = m.clientHeight - 30, gap = 22;
-  const land = W > H * 1.1;
+  const m = $('hanMain'), Wm = m.clientWidth - 40, Hm = m.clientHeight - 30, gap = 22;
+  const land = Wm > Hm * 1.1;
   m.classList.toggle('land', land);
   const wc = $('hanWordCard'), f = $('hanField');
   let ww, wh, fw, fh;
-  if (land) { ww = Math.min(W * .4, 420); wh = Math.min(H, 520); fw = W - ww - gap; fh = Math.min(H, fw * .8); }
-  else { ww = W; wh = Math.min(H * .4, 360); fw = W; fh = H - wh - gap; }
+  if (land) { ww = Math.min(Wm * .36, 380); wh = Math.min(Hm, 520); fw = Wm - ww - gap; fh = Math.min(Hm, fw * .72); }
+  else { ww = Wm; wh = Math.min(Hm * .36, 320); fw = Wm; fh = Hm - wh - gap; }
   wc.style.width = ww + 'px'; wc.style.height = wh + 'px';
   f.style.width = fw + 'px'; f.style.height = fh + 'px';
   $('hanEmo').style.fontSize = Math.floor(Math.min(ww, wh) * .3) + 'px';
-  const box = Math.floor(Math.min((ww - 40) / han.syls.length - 10, wh * .28, 120));
+  const box = Math.floor(Math.min((ww - 40) / han.syls.length - 10, wh * .3, 120));
   m.style.setProperty('--syl', box + 'px');
-  // 자음·모음을 칸에 흩어 놓기 (위치는 단어마다 한 번만 정해요)
-  const cols = fw > fh ? 5 : 4, rows = Math.ceil(15 / cols) > 3 ? 4 : 3;
-  const cw = (fw - 24) / cols, ch = (fh - 24) / rows, ts = Math.floor(Math.min(cw, ch) * .72);
-  m.style.setProperty('--tile', ts + 'px');
-  if (!han.cells || han.cells.cols !== cols) {
-    const cells = shuffle([...Array(cols * rows).keys()]);
-    han.cells = { cols, list: cells, jit: cells.map(() => [Math.random() - .5, Math.random() - .5]) };
+  // 미로 칸 수: 가로로 긴 화면이면 11x7, 세로면 7x9
+  const C = fw > fh ? 11 : 7, R = fw > fh ? 7 : 9;
+  const cs = Math.floor(Math.min((fw - 16) / C, (fh - 16) / R));
+  const ox = Math.floor((fw - cs * C) / 2), oy = Math.floor((fh - cs * R) / 2);
+  let z = han.mz;
+  if (!z || z.C !== C || z.R !== R) {
+    const W = genMaze(C, R), start = [(R / 2) | 0, (C / 2) | 0];
+    const cells = shuffle([...Array(C * R).keys()]).filter(k => Math.abs(((k / C) | 0) - start[0]) + Math.abs(k % C - start[1]) >= 2);
+    han.tiles.forEach((t, i) => t.cell = [(cells[i] / C) | 0, cells[i] % C]);
+    const taken = new Set([start[0] * C + start[1], ...han.tiles.map(t => t.cell[0] * C + t.cell[1])]);
+    z = han.mz = { C, R, W, at: start, dots: [...Array(C * R).keys()].filter(k => !taken.has(k)),
+      stars: Array.from({ length: 30 }, () => [Math.random(), Math.random(), .6 + Math.random() * 1.2]) };
   }
-  han.tiles.forEach((t, k) => {
-    const c = han.cells.list[k], [jx, jy] = han.cells.jit[k];
-    t.el.style.left = 12 + (c % cols) * cw + (cw - ts) / 2 + jx * (cw - ts) * .6 + 'px';
-    t.el.style.top = 12 + ((c / cols) | 0) * ch + (ch - ts) / 2 + jy * (ch - ts) * .6 + 'px';
-  });
-  const pc = han.cells.list[han.tiles.length] ?? 0;
-  const pac = $('pac'); pac.style.transition = 'none';
-  placePac(12 + (pc % cols) * cw + (cw - ts) / 2, 12 + ((pc / cols) | 0) * ch + (ch - ts) / 2);
-  void pac.offsetWidth; pac.style.transition = '';
+  Object.assign(z, { cs, ox, oy, fw, fh });
+  z.ctx = fitCanvas($('mazeCv'), fw, fh);
+  m.style.setProperty('--tile', Math.floor(cs * .74) + 'px');
+  han.tiles.forEach(t => placeAt(t.el, t.cell[0], t.cell[1], cs * .74));
+  const mun = $('muncher'); mun.style.transition = 'none'; mun.style.width = mun.style.height = cs * .8 + 'px';
+  placeAt(mun, z.at[0], z.at[1], cs * .8); void mun.offsetWidth; mun.style.transition = '';
+  drawMaze();
 }
+
+// 저장: 공유 창 대신, 그림을 띄워서 꾹 눌러 '사진 앱에 저장'
+function saveArt(art, colors, name, soft) {
+  const cs = 12, cv = document.createElement('canvas'); cv.width = art.bw * cs; cv.height = art.bh * cs;
+  const ctx = cv.getContext('2d');
+  draw(ctx, art, colors, cs, { soft: !!soft });
+  ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
+  const url = cv.toDataURL('image/png');
+  $('saveImg').src = url; $('saveDl').href = url; $('saveDl').download = `${name}.png`;
+  $('celebrate').classList.remove('show');
+  $('saveBox').classList.add('show');
+  sfx.ding();
+}
+$('saveClose').onclick = () => { sfx.tap(); $('saveBox').classList.remove('show'); };
 
 // =====================================================================
 //  축하 화면
@@ -2350,13 +2469,13 @@ document.addEventListener('dblclick', e => e.preventDefault());
 function renderPreviews() {
   preview($('pvColor'), ANIMALS[1], 6);
   preview($('pvSpot'), PLACES[0], 5);
-  preview($('pvDress'), composeDef(animalParts('rabbit'), { hat: 'sunhat', top: 'stripe', bottom: 'shorts', shoes: 'sneakers', acc: ['sunglasses'] }), 6);
+  preview($('pvDress'), composeDoll({ hair: 'twin', hat: 'hbow', top: null, bottom: null, dress: 'party', shoes: 'maryjane', acc: ['necklace'], bg: 'room' }), 6, { soft: true });
   makeTiles();
-  makeDressTiles();
   makePuzzleTiles();
-  preview($('pvIce'), iceDef({ base: 'cone', scoop: 's2', syrup: 'choco', sprinkle: 'dots', top: ['cherry', 'wafer'] }), 5);
+  preview($('pvIce'), iceDef({ base: 'cone', scoop: 's2', syrup: 'choco', sprinkle: 'dots', top: ['cherry', 'wafer'] }), 5, { soft: true });
   puzzlePreview($('pvPuzzle'), PLACES[1], 4);
-  if (dress) { dress.art = null; }
+  if (dress) dress.art = null; if (ice) ice.art = null;
+  for (const k in previewCache) delete previewCache[k]; for (const k in icePrev) delete icePrev[k];
   layout();
 }
 function syncStyle() {
@@ -2380,6 +2499,7 @@ makeDPalette();
 makeIPalette();
 makeHanTiles();
 $('goIce').onclick = () => { sfx.tap(); startIce(); };
+$('goDress').onclick = () => { sfx.tap(); startDress(); };
 </script>
 </body>
 </html>
