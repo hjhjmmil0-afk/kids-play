@@ -83,19 +83,15 @@
   .seg button.on { background: var(--blue); color: #fff; text-shadow: 1px 1px 0 var(--ink); }
 
   /* 홈 */
-  #home { align-items: center; justify-content: center; padding-bottom: 90px; gap: 14px; }
+  #home { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .home-in { margin: auto 0; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 18px 12px 100px; }
   .stars { display: flex; gap: 8px; align-items: flex-end; }
   .stars span:nth-child(2) { transform: translateY(-6px); }
-  .choices { display: flex; gap: 34px; margin-top: 26px; max-width: 100%; overflow-x: auto; overflow-y: hidden;
-    padding: 6px 24px 22px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .choices::-webkit-scrollbar { display: none; }
-  .choice { flex: none; display: flex; flex-direction: column; align-items: center; gap: 16px; scroll-snap-align: center; }
-  .choice:first-child { margin-left: auto; } .choice:last-child { margin-right: auto; }
-  .swipe-hint { display: none; font-size: 12px; font-weight: 700; color: var(--ink); background: rgba(255,255,255,.75); padding: 4px 10px; margin-top: -10px; }
-  .swipe-hint.show { display: block; }
-  .choice .card { padding: 12px; }
-  .choice .pv { height: 150px; display: grid; place-items: center; }
-  .choice .pv canvas { height: 150px; width: auto; }
+  .choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 24px; margin-top: 18px; max-width: 840px; }
+  .choice { flex: none; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .choice .card { padding: 10px; }
+  .choice .pv { width: 130px; height: 130px; display: grid; place-items: center; }
+  .choice .pv canvas { max-width: 130px; max-height: 130px; width: auto; height: auto; }
   .choice:active .card { transform: translateY(3px); }
 
   /* 고르기 */
@@ -149,7 +145,7 @@
   /* 영어 놀이 */
   .pbtn.green { background: #3cb371; color: #fff; text-shadow: 1px 1px 0 var(--ink); }
   .emoji { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
-  .pv-eng { width: 150px; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
+  .pv-eng { width: 130px; height: 130px; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
     background: linear-gradient(#cfeeff, #ffffff); }
   .pv-eng .e { font-size: 80px; line-height: 1.1; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
   .pv-eng .w { font-size: 16px; font-weight: 700; color: var(--blue); }
@@ -189,7 +185,9 @@
   .pbtn.orange { background: #ff9f43; color: #fff; text-shadow: 1px 1px 0 var(--ink); }
   #dressBoard { position: relative; overflow: hidden; }
   #dressBoard .fx { inset: 10px; }
-  .dpanel { padding: 14px; display: flex; flex-direction: column; gap: 12px; align-items: center; width: 372px; }
+  .dpanel { padding: 14px; display: flex; flex-direction: column; gap: 12px; align-items: center; width: 372px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+  .dpanel > * { flex: none; }
   .color-main:not(.land) .dpanel { width: min(100%, 640px); }
   .dtabs { display: flex; gap: 6px; width: 100%; }
   .dtab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; font-weight: 700;
@@ -218,10 +216,84 @@
   .need b { position: absolute; right: -6px; top: -8px; background: #3cb371; color: #fff; font-size: 12px; width: 20px; height: 20px;
     display: grid; place-items: center; border-radius: 50%; box-shadow: 0 0 0 2px #fff; }
   @media (max-width: 560px) {
-    .color-main:not(.land) .ditems { grid-template-columns: repeat(3, 1fr); }
+    .color-main:not(.land) .ditems { grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .dpanel { padding: 10px; gap: 9px; }
     .mission { left: 10px; top: 10px; padding: 6px 8px; } .need { width: 36px; height: 36px; } .memo { font-size: 30px; }
   }
+
+  /* 색칠 예시 */
+  #colorBoard { position: relative; }
+  .example { position: absolute; left: 16px; top: 16px; width: 24%; background: #fff; padding: 0; z-index: 2;
+    box-shadow: 0 0 0 3px var(--ink), 0 5px 0 rgba(43,45,66,.2); transition: width .2s; }
+  .example.big { width: 55%; }
+  .example canvas { width: 100%; height: auto; display: block; }
+  .example span { position: absolute; left: 0; top: 0; background: var(--pink); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 7px; }
+
+  /* 새 버튼 색 */
+  .pbtn.purple { background: #a26bff; color: #fff; text-shadow: 1px 1px 0 var(--ink); }
+  .pbtn.mint { background: #2bbfa8; color: #fff; text-shadow: 1px 1px 0 var(--ink); }
+  .pbtn.yellow { background: var(--yellow); color: var(--ink); }
+  .pv-han .e { font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-weight: 800; color: var(--pink); font-size: 72px; }
+  .pv-han .w { font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-weight: 700; color: var(--ink); }
+
+  /* 아이스크림 */
+  #iceBoard { position: relative; }
+
+  /* 퍼즐 */
+  .pz-main { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 4px 20px 22px; }
+  .pz-main.land { flex-direction: row-reverse; }
+  .pz-col { display: flex; flex-direction: column; gap: 18px; align-items: center; }
+  .pz-main:not(.land) .pz-col { display: contents; }
+  .pz-main:not(.land) .pz-ex { order: 1; } .pz-main:not(.land) .pz-board { order: 2; } .pz-main:not(.land) .pz-tray { order: 3; }
+  .pz-ex { position: relative; padding: 8px; }
+  .pz-ex canvas { display: block; }
+  .pz-ex .tag { position: absolute; left: 8px; top: 8px; background: var(--pink); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 7px; z-index: 1; }
+  .pz-board { padding: 6px; }
+  .pz-board canvas { touch-action: none; }
+  .pz-tray { padding: 10px; display: grid; gap: 8px; align-content: start; min-height: calc(var(--ph) + 20px); }
+  .piece { width: var(--pw); height: var(--ph); padding: 0; box-shadow: 0 0 0 2px var(--ink), 0 4px 0 rgba(43,45,66,.2); background: #fff; }
+  .piece canvas { width: 100%; height: 100%; display: block; }
+  .piece.sel { transform: translateY(-5px) scale(1.06); box-shadow: 0 0 0 3px var(--ink), 0 0 0 7px var(--yellow), 0 8px 0 rgba(43,45,66,.25); z-index: 1; }
+
+  /* 한글 */
+  .hanw { font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-size: 18px !important; font-weight: 800; }
+  .han-main { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 4px 20px 22px; }
+  .han-main.land { flex-direction: row; }
+  .han-word { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 14px;
+    background: linear-gradient(#fff7d6, #ffffff 70%); }
+  .han-emo { line-height: 1.05; }
+  .syls { display: flex; gap: 10px; }
+  .syl { position: relative; width: var(--syl); height: var(--syl); display: grid; place-items: center; background: #fff;
+    box-shadow: 0 0 0 3px #d9dce6; font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-weight: 800; font-size: calc(var(--syl) * .72); line-height: 1; }
+  .syl span { grid-area: 1 / 1; }
+  .syl .ghost { color: #e1e4ec; }
+  .syl .fill { color: var(--ink); }
+  .syl.now { box-shadow: 0 0 0 3px var(--pink); animation: nowpulse 1.2s ease-in-out infinite; }
+  @keyframes nowpulse { 50% { box-shadow: 0 0 0 6px rgba(255,107,154,.45); } }
+  .syl.pop .fill { animation: starpop .4s ease-out; display: inline-block; }
+  .han-en { font-size: 22px; font-weight: 700; color: var(--blue); min-height: 1.2em; opacity: 0; transform: translateY(8px); transition: .3s; }
+  .han-en.show { opacity: 1; transform: none; }
+  .han-field { position: relative; overflow: hidden; background: #ffffff; }
+  .jamo { position: absolute; width: var(--tile); height: var(--tile); border-radius: 50%; background: #fff;
+    font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-weight: 800; font-size: calc(var(--tile) * .58); line-height: 1; color: var(--ink);
+    box-shadow: 0 0 0 3px var(--ink), inset 0 -5px 0 rgba(0,0,0,.08), 0 5px 0 rgba(43,45,66,.2); transition: transform .25s, opacity .25s; }
+  .jamo:nth-child(5n+1) { background: #ffe1ec; } .jamo:nth-child(5n+2) { background: #dff1ff; } .jamo:nth-child(5n+3) { background: #fff3c4; }
+  .jamo:nth-child(5n+4) { background: #e3f9df; } .jamo:nth-child(5n) { background: #efe4ff; }
+  .jamo.eaten { transform: scale(0); opacity: 0; pointer-events: none; }
+  .jamo.hint { animation: hintglow .5s ease-in-out 3; }
+  @keyframes hintglow { 50% { box-shadow: 0 0 0 3px var(--ink), 0 0 0 9px #ffd23f; transform: scale(1.12); } }
+  .pac { position: absolute; width: var(--tile); height: var(--tile); z-index: 3; pointer-events: none; transition: left .45s ease-in-out, top .45s ease-in-out; }
+  .pac svg { width: 100%; height: 100%; display: block; }
+  .pac .mouth { transform-origin: 30px 30px; animation: chomp .22s ease-in-out infinite alternate; }
+  @keyframes chomp { from { transform: scaleY(1); } to { transform: scaleY(.06); } }
+
+  /* 저장 */
+  #saveBox { position: fixed; inset: 0; display: none; place-items: center; background: rgba(43,45,66,.45); z-index: 30; padding: 16px; }
+  #saveBox.show { display: grid; }
+  #saveBox .card { padding: 20px 22px; display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 100%; animation: popin .3s ease-out; }
+  #saveImg { max-height: min(56vh, 520px); max-width: 100%; box-shadow: 0 0 0 3px var(--ink);
+    -webkit-touch-callout: default !important; -webkit-user-select: auto; user-select: auto; pointer-events: auto; }
+  #saveDl { text-decoration: none; color: var(--ink); }
 
   /* 축하 */
   #celebrate { position: fixed; inset: 0; display: none; place-items: center; background: rgba(43,45,66,.35); z-index: 20; }
@@ -243,8 +315,9 @@
     .palette { padding: 12px 10px; }
   }
   @media (max-width: 700px) {
-    .choices { gap: 18px; }
-    .choice .pv, .choice .pv canvas { height: 110px; }
+    .choices { gap: 14px 16px; }
+    .choice .pv { width: 120px; height: 120px; } .choice .pv canvas { max-width: 120px; max-height: 120px; }
+    .choice .pbtn { font-size: 13px; padding: 8px 12px; }
     .title { font-size: 26px; }
   }
 </style>
@@ -256,6 +329,7 @@
 
 <!-- 1. 첫 화면 -->
 <section id="home" class="screen active">
+ <div class="home-in">
   <div class="stars"><span data-pix="star" data-px="3"></span><span data-pix="star" data-px="4"></span><span data-pix="star" data-px="3"></span></div>
   <div class="ribbon">오늘은 뭐 하고 놀까?</div>
   <h1 class="title">꼬마 놀이터</h1>
@@ -277,8 +351,20 @@
       <div class="card"><div class="pv"><canvas id="pvDress"></canvas></div></div>
       <span class="pbtn orange">옷입히기</span>
     </button>
+    <button class="choice" id="goIce">
+      <div class="card"><div class="pv"><canvas id="pvIce"></canvas></div></div>
+      <span class="pbtn purple">아이스크림 가게</span>
+    </button>
+    <button class="choice" data-go="puzzlePick">
+      <div class="card"><div class="pv"><canvas id="pvPuzzle"></canvas></div></div>
+      <span class="pbtn mint">퍼즐</span>
+    </button>
+    <button class="choice" data-go="hanPick">
+      <div class="card"><div class="pv pv-eng pv-han"><span class="e">가</span><span class="w">ㄱ + ㅏ</span></div></div>
+      <span class="pbtn yellow">한글 놀이</span>
+    </button>
   </div>
-  <div class="swipe-hint" id="swipeHint">◀ 옆으로 밀어서 골라요 ▶</div>
+ </div>
 </section>
 
 <!-- 2-3. 영어 주제 고르기 -->
@@ -309,6 +395,62 @@
       <div class="dpal-label">색을 고르고 옷을 누르면 색이 바뀌어요</div>
       <div class="dpal" id="dPalette"></div>
       <div class="tools"><button class="pbtn sm" id="undressBtn">다 벗기</button><button class="pbtn sm blue" id="saveDress">저장하기</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 아이스크림 가게 -->
+<section id="ice" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">아이스크림 가게</div>
+    <div class="bar-r"><button class="pbtn sm pink" id="iceDone">🍦 완성!</button></div></div>
+  <div class="color-main" id="iceMain">
+    <div class="card board" id="iceBoard"><canvas id="iceCv"></canvas></div>
+    <div class="card dpanel" id="icePanel">
+      <div class="dtabs" id="iTabs"></div>
+      <div class="ditems" id="iItems"></div>
+      <div class="dpal-label">색을 고르고 아이스크림을 누르면 색이 바뀌어요</div>
+      <div class="dpal" id="iPalette"></div>
+      <div class="tools"><button class="pbtn sm" id="iceReset">처음부터</button><button class="pbtn sm blue" id="iceSave">저장하기</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 퍼즐 고르기 -->
+<section id="puzzlePick" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">무슨 퍼즐 할까?</div><div class="bar-r"><div class="seg"></div></div></div>
+  <div class="pick-main"><div class="grid" id="pzGrid"></div></div>
+</section>
+
+<!-- 퍼즐 -->
+<section id="puzzle" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="puzzlePick">◀ 뒤로</button><div class="ribbon" id="pzTitle"></div><div class="bar-r"></div></div>
+  <div class="pz-main" id="pzMain">
+    <div class="pz-col" id="pzCol">
+      <div class="card pz-ex"><span class="tag">완성 그림</span><canvas id="pzEx"></canvas></div>
+      <div class="card pz-tray" id="pzTray"></div>
+    </div>
+    <div class="card pz-board"><canvas id="pzBoard"></canvas></div>
+  </div>
+</section>
+
+<!-- 한글 단어 고르기 -->
+<section id="hanPick" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">무슨 글자 만들까?</div><div class="bar-r"></div></div>
+  <div class="pick-main"><div class="grid" id="hanGrid"></div></div>
+</section>
+
+<!-- 한글 맞추기 -->
+<section id="han" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="hanPick">◀ 뒤로</button><div class="ribbon">한글 놀이</div><div class="bar-r"></div></div>
+  <div class="han-main" id="hanMain">
+    <div class="card han-word" id="hanWordCard">
+      <div class="han-emo emoji" id="hanEmo"></div>
+      <div class="syls" id="hanSyls"></div>
+      <div class="han-en" id="hanEn"></div>
+      <button class="pbtn sm blue" id="hanSay">🔊 듣기</button>
+    </div>
+    <div class="card han-field" id="hanField">
+      <div class="pac" id="pac"><svg class="face" viewBox="0 0 60 60"><circle cx="30" cy="30" r="27" fill="#ffd23f" stroke="#2b2d42" stroke-width="3"/><polygon class="mouth" points="30,30 64,6 64,54" fill="#ffffff"/><circle cx="31" cy="15" r="3.6" fill="#2b2d42"/></svg></div>
     </div>
   </div>
 </section>
@@ -351,7 +493,7 @@
   <div class="bar"><button class="pbtn sm" data-go="colorPick">◀ 뒤로</button><div class="ribbon" id="colorTitle"></div>
     <div class="bar-r"><button class="pbtn sm" id="resetBtn">처음부터</button></div></div>
   <div class="color-main" id="colorMain">
-    <div class="card board"><canvas id="colorCv"></canvas></div>
+    <div class="card board" id="colorBoard"><canvas id="colorCv"></canvas><button class="example" id="exampleBtn"><span>예시</span><canvas id="exampleCv"></canvas></button></div>
     <div class="card palette">
       <div class="now"><span id="nowSwatch"></span>이 색으로 칠해요</div>
       <div class="swatches" id="swatches"></div>
@@ -370,6 +512,13 @@
     <div class="card pic" id="picB"><canvas id="cvB"></canvas></div>
   </div>
 </section>
+
+<div id="saveBox"><div class="card">
+  <p class="ctext">그림을 꾹 눌러 주세요</p>
+  <p class="csub">나오는 메뉴에서 ‘사진 앱에 저장’을 누르면 사진첩에 저장돼요</p>
+  <img id="saveImg" alt="저장할 그림">
+  <div class="cbtns"><a class="pbtn" id="saveDl">파일로 받기</a><button class="pbtn blue" id="saveClose">닫기</button></div>
+</div></div>
 
 <div id="celebrate"><div class="card">
   <div class="stars"><span data-pix="star" data-px="4"></span><span data-pix="star" data-px="5"></span><span data-pix="star" data-px="4"></span></div>
@@ -420,27 +569,32 @@ function bounds(s) {
 }
 
 // S = 1 이면 픽셀 그림, S가 크면 같은 도형을 촘촘하게 그려서 부드러운 그림
-function build(def, variant = 'A', S = 1) {
-  const w = def.w * S, h = def.h * S;
+// def.pad: 그림 둘레에 여백을 줘서 모자·지느러미가 잘리지 않게
+// active: 틀린그림에서 이번 판에 쓸 틀린 곳 번호들 (나머지는 양쪽 똑같이)
+function build(def, variant = 'A', S = 1, active = null) {
+  const pad = def.pad || 0, bw = def.w + pad * 2, bh = def.h + pad * 2;
+  const w = bw * S, h = bh * S;
   const map = new Uint16Array(w * h);
   const regions = [{ k: 'bg', col: def.bg || null, fix: null, nl: false }];
   const idx = { bg: 0 }, dbox = {};
   for (const s of def.shapes) {
-    const active = !s.only || s.only === variant;
-    if (active && !(s.k in idx)) { idx[s.k] = regions.length; regions.push({ k: s.k, col: s.c, fix: s.fix || null, nl: !!s.nl }); }
+    const useD = s.d !== undefined && (!active || active.has(s.d));
+    const v = s.d !== undefined && !useD ? 'A' : variant;
+    const on = !s.only || s.only === v;
+    if (on && !(s.k in idx)) { idx[s.k] = regions.length; regions.push({ k: s.k, col: s.c, fix: s.fix || null, nl: !!s.nl }); }
     const ri = idx[s.k];
-    if (active && variant === 'B' && s.cB) regions[ri].col = s.cB;
+    if (on && v === 'B' && s.cB) regions[ri].col = s.cB;
     const clip = s.clip ? [].concat(s.clip).map(k => idx[k]) : null;
     const [x0, y0, x1, y1] = bounds(s);
     const round = S > 1 && !s.nl;
-    for (let y = Math.max(0, Math.floor(y0 * S)); y <= Math.min(h - 1, Math.ceil(y1 * S)); y++)
-      for (let x = Math.max(0, Math.floor(x0 * S)); x <= Math.min(w - 1, Math.ceil(x1 * S)); x++) {
-        if (!hit(s, (x + .5) / S, (y + .5) / S, round)) continue;
-        if (s.d !== undefined) {
+    for (let y = Math.max(0, Math.floor((y0 + pad) * S)); y <= Math.min(h - 1, Math.ceil((y1 + pad) * S)); y++)
+      for (let x = Math.max(0, Math.floor((x0 + pad) * S)); x <= Math.min(w - 1, Math.ceil((x1 + pad) * S)); x++) {
+        if (!hit(s, (x + .5) / S - pad, (y + .5) / S - pad, round)) continue;
+        if (useD) {
           const b = dbox[s.d] || (dbox[s.d] = { x0: x, y0: y, x1: x, y1: y });
           b.x0 = Math.min(b.x0, x); b.y0 = Math.min(b.y0, y); b.x1 = Math.max(b.x1, x); b.y1 = Math.max(b.y1, y);
         }
-        if (!active) continue;
+        if (!on) continue;
         const i = y * w + x;
         if (clip && !clip.includes(map[i])) continue;
         map[i] = ri;
@@ -454,18 +608,28 @@ function build(def, variant = 'A', S = 1) {
     if (x < w - 1 && ok(a, map[i + 1])) edges.push(x + 1, y, 0, a === 0 || map[i + 1] === 0 ? 1 : 0);
     if (y < h - 1 && ok(a, map[i + w])) edges.push(x, y + 1, 1, a === 0 || map[i + w] === 0 ? 1 : 0);
   }
-  // 칸마다 위치 범위 (무지개 칠할 때 사용)
-  const rb = regions.map(() => [w, h, 0, 0]);
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const b = rb[map[y * w + x]];
-    if (x < b[0]) b[0] = x; if (y < b[1]) b[1] = y; if (x > b[2]) b[2] = x; if (y > b[3]) b[3] = y;
+  // 떨어져 있는 조각마다 따로 번호 (무지개를 조각마다 꽉 차게 칠하려고)
+  const comp = new Int32Array(w * h).fill(-1), cbox = [], stack = [];
+  for (let i0 = 0; i0 < map.length; i0++) {
+    if (comp[i0] >= 0) continue;
+    const id = cbox.length, r = map[i0], b = [w, h, 0, 0];
+    comp[i0] = id; stack.push(i0);
+    while (stack.length) {
+      const i = stack.pop(), x = i % w, y = (i / w) | 0;
+      if (x < b[0]) b[0] = x; if (y < b[1]) b[1] = y; if (x > b[2]) b[2] = x; if (y > b[3]) b[3] = y;
+      if (x > 0 && comp[i - 1] < 0 && map[i - 1] === r) { comp[i - 1] = id; stack.push(i - 1); }
+      if (x < w - 1 && comp[i + 1] < 0 && map[i + 1] === r) { comp[i + 1] = id; stack.push(i + 1); }
+      if (y > 0 && comp[i - w] < 0 && map[i - w] === r) { comp[i - w] = id; stack.push(i - w); }
+      if (y < h - 1 && comp[i + w] < 0 && map[i + w] === r) { comp[i + w] = id; stack.push(i + w); }
+    }
+    cbox.push(b);
   }
-  const diffs = Object.keys(dbox).sort().map(k => {
+  const diffs = Object.keys(dbox).map(Number).sort((a, b) => a - b).map(k => {
     const b = dbox[k];
-    return { x: (b.x0 + b.x1 + 1) / 2 / S, y: (b.y0 + b.y1 + 1) / 2 / S,
-             r: Math.min(10, Math.max(5, Math.max(b.x1 - b.x0 + 1, b.y1 - b.y0 + 1) / S / 2 + 2)) };
+    return { d: k, x: (b.x0 + b.x1 + 1) / 2 / S - pad, y: (b.y0 + b.y1 + 1) / 2 / S - pad,
+             r: Math.min(13, Math.max(5, Math.max(b.x1 - b.x0 + 1, b.y1 - b.y0 + 1) / S / 2 + 2)) };
   });
-  return { w, h, S, map, regions, edges, diffs, rb };
+  return { w, h, S, bw, bh, pad, map, regions, edges, diffs, comp, cbox };
 }
 const defaultColors = art => art.regions.map(r => r.fix || r.col);
 
@@ -480,17 +644,14 @@ function draw(ctx, art, colors, cs, opt = {}) {
   const off = document.createElement('canvas'); off.width = w; off.height = h;
   const octx = off.getContext('2d'), img = octx.createImageData(w, h), d = img.data;
   const cols = colors.map(c => c && c !== 'rainbow' ? rgb(c) : null);
-  const rbBand = colors.map((c, ri) => {
-    if (c !== 'rainbow') return 0;
-    const b = art.rb[ri];
-    return Math.max(1, Math.round((b[2] - b[0] + b[3] - b[1] + 2) / 12));
-  });
+  const isRb = colors.map(c => c === 'rainbow');
   for (let i = 0; i < map.length; i++) {
     const ri = map[i];
     let c = cols[ri];
-    if (rbBand[ri]) {
-      const b = art.rb[ri], x = i % w, y = (i / w) | 0;
-      c = rgb(RAINBOW[Math.floor((x - b[0] + y - b[1]) / rbBand[ri]) % 7]);
+    if (isRb[ri]) {
+      const b = art.cbox[art.comp[i]], x = i % w, y = (i / w) | 0;
+      const band = Math.max(1, (b[2] - b[0] + b[3] - b[1] + 2) / 8.5);
+      c = rgb(RAINBOW[Math.floor((x - b[0] + y - b[1]) / band) % 7]);
     }
     if (!c) continue;
     d[i * 4] = c[0]; d[i * 4 + 1] = c[1]; d[i * 4 + 2] = c[2]; d[i * 4 + 3] = 255;
@@ -521,7 +682,7 @@ try { STYLE = localStorage.getItem('kidsplay-style') || 'smooth'; } catch (e) {}
 const scaleOf = () => STYLE === 'smooth' ? 6 : 1;
 function preview(cv, def, cs) {
   const art = build(def, 'A', scaleOf());
-  cv.width = def.w * cs; cv.height = def.h * cs;
+  cv.width = art.bw * cs; cv.height = art.bh * cs;
   draw(cv.getContext('2d'), art, defaultColors(art), cs, { thin: cs * .3, thick: cs * .45 });
 }
 
@@ -529,7 +690,7 @@ function preview(cv, def, cs) {
 //  색칠 도안 (64 x 64 칸)
 // =====================================================================
 const ANIMALS = [
-  { id: 'shark', name: '상어', w: 64, h: 64, shapes: [
+  { id: 'shark', name: '상어', w: 64, h: 64, pad: 4, shapes: [
     P('tail', [[40, 50], [50, 49], [57, 44], [60, 47], [56, 53], [61, 58], [57, 61], [49, 56], [40, 56]], '#6fa8e8'),
     E('body', 32, 31, 16, 20, '#6fa8e8'),
     E('belly', 32, 34, 10, 11, '#eaf4ff', { clip: 'body' }),
@@ -541,12 +702,12 @@ const ANIMALS = [
     ...sym(P('arms', [[18, 37], [7, 45], [9, 48], [19, 43]], '#6fa8e8')),
     P('cap', [[19, 17], [20, 12], [24, 8], [32, 6], [40, 8], [44, 12], [45, 17]], '#ff6b6b'),
     R('brim', 37, 15, 15, 3, '#ffd23f'),
-    P('fin', [[27, 9], [33, -1], [37, 8]], '#6fa8e8'),
+    P('fin', [[27, 13], [33, -1], [37, 13]], '#6fa8e8'),
     ...sym(ink(23, 21, 3, 4)), ...sym(hl(23, 21)),
     ...sym(E('cheeks', 21, 27, 2.6, 1.6, '#ffb3c8')),
     ink(28, 28, 8, 1), ...sym(ink(27, 27, 1, 1)),
   ]},
-  { id: 'fox', name: '여우', w: 64, h: 64, shapes: [
+  { id: 'fox', name: '여우', w: 64, h: 64, pad: 4, shapes: [
     P('tail', [[40, 50], [48, 40], [54, 30], [58, 27], [61, 33], [59, 44], [52, 52], [44, 54]], '#ff9f43'),
     P('tailtip', [[50, 34], [54, 29], [58, 27], [61, 33], [60, 37], [55, 36]], '#ffffff', { clip: 'tail' }),
     ...sym(E('arms', 19, 42, 3.5, 6, '#ff9f43')),
@@ -565,7 +726,7 @@ const ANIMALS = [
     ink(31, 21, 2, 2), ink(31, 23, 2, 1), ...sym(ink(29, 24, 2, 1)),
     ...sym(E('cheeks', 21, 23, 2.6, 1.6, '#ffb3c8')),
   ]},
-  { id: 'cat', name: '고양이', w: 64, h: 64, shapes: [
+  { id: 'cat', name: '고양이', w: 64, h: 64, pad: 4, shapes: [
     P('tail', [[42, 50], [50, 48], [55, 42], [57, 34], [55, 27], [52, 28], [53, 36], [51, 42], [46, 45], [42, 46]], '#ffcf8a'),
     R('tailtip', 50, 26, 8, 5, '#ffffff', { clip: 'tail' }),
     ...sym(R('legs', 25, 50, 5, 7, '#ffcf8a')),
@@ -588,7 +749,7 @@ const ANIMALS = [
     R('knot', 42, 8, 4, 4, '#ffd23f'),
   ]},
   // 강아지: 줄무늬 티 + 멜빵바지
-  { id: 'dog', name: '강아지', w: 64, h: 64, shapes: [
+  { id: 'dog', name: '강아지', w: 64, h: 64, pad: 4, shapes: [
     P('tail', [[42, 46], [50, 40], [54, 33], [57, 35], [53, 44], [45, 50]], '#e8b77a'),
     ...sym(E('arms', 19, 41, 3.5, 6, '#e8b77a')),
     E('shirt', 32, 40, 11, 10, '#ff6b6b'),
@@ -608,7 +769,7 @@ const ANIMALS = [
     ...sym(E('cheeks', 21, 24, 2.6, 1.6, '#ffb3c8')),
   ]},
   // 도깨비: 뿔 + 조끼 + 호랑이무늬 바지 + 방망이
-  { id: 'dokkaebi', name: '도깨비', w: 64, h: 64, shapes: [
+  { id: 'dokkaebi', name: '도깨비', w: 64, h: 64, pad: 4, shapes: [
     P('club', [[44, 47], [47, 44], [56, 30], [59, 26], [63, 29], [61, 33], [49, 49]], '#c98a4b'),
     ...[[58.5, 29.5], [55, 35], [51.5, 40.5]].map(([x, y]) => E('studs', x, y, 1.4, 1.4, '#ffd23f', { clip: 'club' })),
     ...sym(E('arms', 19, 41, 3.5, 6, '#ff8f8f')),
@@ -630,7 +791,7 @@ const ANIMALS = [
     ...sym(E('cheeks', 20, 24, 2.4, 1.5, '#ffd1e6')),
   ]},
   // 유령: 마법사 모자 + 나비넥타이 + 별 지팡이
-  { id: 'ghost', name: '유령', w: 64, h: 64, shapes: [
+  { id: 'ghost', name: '유령', w: 64, h: 64, pad: 4, shapes: [
     P('wand', [[51, 36], [53, 36], [58, 21], [56, 20]], '#a0673a'),
     P('wandstar', starPts(57.5, 17, 5, 2.2), '#ffd23f'),
     ...sym(P('arms', [[18, 33], [9, 29], [8, 34], [17, 40]], '#f4f6ff')),
@@ -647,7 +808,7 @@ const ANIMALS = [
     R('knot', 30, 37, 4, 4, '#ffd23f'),
   ]},
   // 괴물: 눈 세 개 + 뿔 + 반바지 + 리본
-  { id: 'monster', name: '괴물', w: 64, h: 64, shapes: [
+  { id: 'monster', name: '괴물', w: 64, h: 64, pad: 4, shapes: [
     ...sym(P('horns', [[19, 15], [15, 3], [25, 11]], '#ffd23f')),
     ...sym(P('arms', [[15, 31], [5, 39], [8, 43], [16, 37]], '#a26bff')),
     ...sym(R('feet', 19, 53, 10, 6, '#a26bff')),
@@ -664,7 +825,7 @@ const ANIMALS = [
     R('bowknot', 15, 7, 4, 4, '#ffffff'),
   ]},
   // 악어: 멜빵바지 + 나비넥타이
-  { id: 'croc', name: '악어', w: 64, h: 64, shapes: [
+  { id: 'croc', name: '악어', w: 64, h: 64, pad: 4, shapes: [
     P('tail', [[40, 47], [52, 49], [62, 56], [62, 58], [50, 57], [41, 54]], '#5fbf5a'),
     ...sym(E('arms', 19, 41, 3.5, 6, '#5fbf5a')),
     E('body', 32, 40, 12, 11, '#5fbf5a'),
@@ -686,7 +847,7 @@ const ANIMALS = [
     R('knot', 30, 32, 4, 4, '#ffd23f'),
   ]},
   // 토끼: 우비 + 장화 + 당근 + 꽃
-  { id: 'rabbit', name: '토끼', w: 64, h: 64, shapes: [
+  { id: 'rabbit', name: '토끼', w: 64, h: 64, pad: 4, shapes: [
     ...sym(E('ears', 26, 8, 4, 10, '#f7f2ee')),
     ...sym(E('inner', 26, 9, 2, 7, '#ffd1e6', { clip: 'ears' })),
     ...sym(E('arms', 19, 41, 3.5, 6, '#ffd23f')),
@@ -711,155 +872,142 @@ const ANIMALS = [
 const LOCKED_ANIMALS = [];
 
 // =====================================================================
-//  틀린그림 장면 (96 x 64 칸)  only:'A' = 오른쪽 그림에서 없어짐, only:'B' = 새로 생김, cB = 색 바뀜
+//  틀린그림 장면 (96 x 64 칸)  only:'A' = 오른쪽에서 없어짐, only:'B' = 새로 생김, cB = 색 바뀜
+//  장면마다 틀린 곳 후보가 8개 있고, 한 판마다 그중 5개를 골라 써요
 // =====================================================================
+const cloudS = (k, x, y, s = 1, o = {}) => [E(k, x - 5 * s, y + s, 5 * s, 3 * s, '#ffffff', o), E(k, x, y - .5 * s, 5.5 * s, 4 * s, '#ffffff', o), E(k, x + 5 * s, y + s, 4.5 * s, 3 * s, '#ffffff', o)];
+const flowerS = (k, x, y, c, o = {}, r = 1.9) => [R(k + 'S', x - .6, y + 1, 1.2, 6, '#2f8f4e', o),
+  ...[[-2, 0], [2, 0], [0, -2], [0, 2]].map(([dx, dy]) => E(k + 'P', x + dx, y + dy, r, r, c, o)), E(k + 'C', x, y, r * .7, r * .7, '#ffd23f', o)];
+const skyS = (c1, c2, c3, y1, y2) => [R('sk1', 0, 0, 96, y1, c1, { nl: 1 }), R('sk2', 0, y1, 96, y2 - y1, c2, { nl: 1 }), R('sk3', 0, y2, 96, 64 - y2, c3, { nl: 1 })];
 const PLACES = [
-  { id: 'forest', name: '숲속', w: 96, h: 64, shapes: [
-    R('sky1', 0, 0, 96, 12, '#8fd3fb', { nl: 1 }), R('sky2', 0, 12, 96, 10, '#a7ddfc', { nl: 1 }), R('sky3', 0, 22, 96, 20, '#c2e9fd', { nl: 1 }),
-    E('sun', 44, 9, 5.5, 5.5, '#ffd23f'),
-    E('cloud1', 15, 9, 5, 3, '#ffffff'), E('cloud1', 21, 7, 5, 4, '#ffffff'), E('cloud1', 27, 9, 5, 3, '#ffffff'),
-    E('cloud2', 58, 12, 5, 3, '#ffffff', { only: 'A', d: 0 }), E('cloud2', 64, 10, 5, 4, '#ffffff', { only: 'A', d: 0 }), E('cloud2', 69, 12, 4, 3, '#ffffff', { only: 'A', d: 0 }),
-    E('hill1', 20, 42, 30, 13, '#a8de8f'), E('hill2', 74, 42, 32, 14, '#93d47c'),
-    R('grass', 0, 40, 96, 24, '#7ccf5e'),
-    P('path', [[42, 64], [58, 64], [52, 40], [48, 40]], '#ecd09a'),
-    R('trunk1', 10, 30, 5, 17, '#a0673a'),
-    E('leaf1', 12, 22, 10, 9, '#3cb371'), E('leaf1', 5, 27, 5, 4, '#3cb371'), E('leaf1', 19, 27, 5, 4, '#3cb371'),
-    E('apple', 9, 21, 1.7, 1.7, '#ff5a5f'), E('apple', 15, 25, 1.7, 1.7, '#ff5a5f'), E('apple', 14, 17, 1.7, 1.7, '#ff5a5f'),
-    R('trunk2', 79, 28, 6, 19, '#a0673a'),
-    E('leaf2', 82, 19, 11, 10, '#2fa35e'), E('leaf2', 73, 25, 6, 5, '#2fa35e'), E('leaf2', 91, 25, 6, 5, '#2fa35e'),
-    R('stem1', 29, 49, 4, 6, '#fff3dd'),
-    P('cap1', [[24, 50], [25, 47], [28, 45], [31, 44], [34, 45], [37, 47], [38, 50]], '#ff5a5f', { cB: '#4a8ff0', d: 1 }),
-    R('dot1', 28, 46, 2, 1, '#ffffff', { clip: 'cap1' }), R('dot1', 33, 47, 2, 1, '#ffffff', { clip: 'cap1' }),
-    R('stem2', 65, 53, 3, 4, '#fff3dd'),
-    P('cap2', [[61, 54], [62, 51], [66, 49], [70, 51], [71, 54]], '#ff9f43'),
-    E('bird', 58, 26, 4, 3, '#ffd23f', { cB: '#ff8cc6', d: 2 }),
-    P('wing', [[55, 25], [58, 21], [60, 25]], '#ffb627', { cB: '#ff5fa2', d: 2 }),
-    P('beak', [[62, 25], [65, 26], [62, 27]], '#ff9f43'),
-    ink(59, 25, 1, 1),
-    R('fstem2', 20, 55, 1, 6, '#2f8f4e'),
-    ...[[18.5, 54.5], [22.5, 54.5], [20.5, 52.5], [20.5, 56.5]].map(([x, y]) => E('fpet2', x, y, 1.8, 1.8, '#ffd23f')),
-    E('fc2', 20.5, 54.5, 1.3, 1.3, '#ff9f43'),
-    R('fstem', 88, 55, 1, 6, '#2f8f4e', { only: 'A', d: 3 }),
-    ...[[86.5, 54.5], [90.5, 54.5], [88.5, 52.5], [88.5, 56.5]].map(([x, y]) => E('fpet', x, y, 1.8, 1.8, '#ff8cc6', { only: 'A', d: 3 })),
-    E('fc', 88.5, 54.5, 1.3, 1.3, '#ffd23f', { only: 'A', d: 3 }),
-    E('bfly', 37.5, 31, 2.4, 3, '#a26bff', { only: 'B', d: 4 }), E('bfly', 42.5, 31, 2.4, 3, '#a26bff', { only: 'B', d: 4 }),
-    ink(40, 28, 1, 6, { only: 'B', d: 4 }),
-    E('rock', 72, 60, 3.5, 2.2, '#b8bccb'),
+  { id: 'farm', name: '농장', w: 96, h: 64, shapes: [
+    ...skyS('#8fd3fb', '#a7ddfc', '#c2e9fd', 12, 24),
+    E('sun', 86, 9, 5.5, 5.5, '#ffd23f', { only: 'A', d: 0 }),
+    ...cloudS('cl1', 20, 9), ...cloudS('cl2', 58, 8, .9, { only: 'A', d: 1 }),
+    E('hill', 70, 40, 40, 14, '#a8de8f'),
+    R('grass', 0, 36, 96, 28, '#86d16a'),
+    R('barn', 8, 22, 26, 20, '#e5534b', { cB: '#4a8ff0', d: 2 }),
+    P('roof', [[5, 23], [21, 11], [37, 23]], '#8a5530'),
+    R('loft', 18, 15, 6, 5, '#ffd23f', { only: 'A', d: 3 }),
+    R('door', 15, 29, 12, 13, '#ffffff'), R('doorin', 16.5, 30.5, 9, 11.5, '#c94a43', { cB: '#3a6fd0', d: 2 }),
+    R('rail', 38, 38, 32, 2, '#ffffff'), R('rail', 38, 42, 32, 2, '#ffffff'),
+    ...[40, 48, 64].map(x => R('post', x, 35, 3, 10, '#ffffff')), R('post5', 56, 35, 3, 10, '#ffffff', { only: 'A', d: 4 }),
+    E('cowl', 47, 56, 1.2, 3.5, '#ffffff'), E('cowl', 51, 56.5, 1.2, 3.5, '#ffffff'), E('cowl', 55, 56.5, 1.2, 3.5, '#ffffff'), E('cowl', 58.5, 56, 1.2, 3.5, '#ffffff'),
+    E('cow', 52, 51, 8.5, 5.5, '#ffffff'),
+    E('spot', 48, 49.5, 2.4, 2, '#3a3a4a', { clip: 'cow' }),
+    E('spot2', 55.5, 51.5, 2.8, 2.3, '#3a3a4a', { clip: 'cow', only: 'A', d: 5 }),
+    E('cowear', 59, 45, 1.8, 1.1, '#ffffff'), E('cowh', 62, 47.5, 4, 3.5, '#ffffff'), E('cowm', 64.5, 49, 2.4, 1.8, '#ffb3c8'), ink(62, 46, 1, 1),
+    R('pigl', 73.5, 56, 1.8, 4, '#ffb3c8', { cB: '#c9a3ff', d: 6 }), R('pigl', 80, 56, 1.8, 4, '#ffb3c8', { cB: '#c9a3ff', d: 6 }),
+    E('pig', 77, 54, 6, 4.5, '#ffb3c8', { cB: '#c9a3ff', d: 6 }), E('pig', 83.5, 52, 3.6, 3.3, '#ffb3c8', { cB: '#c9a3ff', d: 6 }),
+    P('pigear', [[82, 48.5], [84, 46.5], [85, 49.5]], '#ff8cc6'), E('snout', 86.5, 52.8, 1.6, 1.3, '#ff8cc6'), ink(84, 51, 1, 1),
+    E('hen', 34, 54, 3.5, 3, '#ffffff', { only: 'B', d: 7 }), E('hen', 37, 51, 2.2, 2.2, '#ffffff', { only: 'B', d: 7 }),
+    E('comb', 37, 48.7, 1.3, 1, '#ff5a5f', { only: 'B', d: 7 }), P('hbeak', [[38.8, 50.6], [41, 51.2], [38.8, 52]], '#ffb627', { only: 'B', d: 7 }),
+    ink(37, 50, 1, 1, { only: 'B', d: 7 }),
+    ...flowerS('fa', 6, 52, '#ff8cc6'), ...flowerS('fb', 24, 55, '#ffd23f'), ...flowerS('fc', 91, 55, '#a26bff'),
   ]},
-  { id: 'sea', name: '바닷속', w: 96, h: 64, shapes: [
-    R('w1', 0, 0, 96, 14, '#86d8f7', { nl: 1 }), R('w2', 0, 14, 96, 16, '#62c4ef', { nl: 1 }),
-    R('w3', 0, 30, 96, 16, '#46ade2', { nl: 1 }), R('w4', 0, 46, 96, 18, '#3797d2', { nl: 1 }),
-    P('sand', [[0, 54], [16, 51], [34, 53], [52, 50], [70, 53], [96, 51], [96, 64], [0, 64]], '#f5d6a8'),
-    E('rock1', 80, 55, 6, 4, '#8a8fa8'),
-    P('sw1', [[7, 56], [5, 48], [8, 42], [6, 34], [9, 28], [11, 33], [9, 41], [11, 48], [10, 56]], '#3cb371'),
-    P('sw2', [[15, 56], [13, 49], [16, 43], [14, 38], [17, 35], [19, 39], [17, 44], [19, 49], [18, 56]], '#2fa35e'),
-    P('sw3', [[90, 56], [88, 47], [91, 40], [89, 32], [92, 27], [94, 31], [92, 39], [94, 46], [93, 56]], '#3cb371', { only: 'A', d: 4 }),
-    P('f1tail', [[33, 22], [25, 15], [25, 29]], '#ff9f43', { cB: '#a26bff', d: 0 }),
-    E('f1', 40, 22, 9, 6, '#ff9f43', { cB: '#a26bff', d: 0 }),
-    P('f1fin', [[37, 17], [41, 12], [44, 17]], '#ffbf73', { cB: '#c9a3ff', d: 0 }),
-    R('f1st', 41, 16, 2, 12, '#ffffff', { clip: 'f1' }),
-    ink(45, 20, 2, 2), hl(45, 20), ink(48, 23, 1, 1),
-    P('f2tail', [[76, 14], [80, 10], [80, 18]], '#ffd23f'),
-    E('f2', 72, 14, 5, 3.5, '#ffd23f'),
-    ink(69, 13, 1, 1),
-    P('f3tail', [[33, 40], [28, 36], [28, 44]], '#ff5a5f', { only: 'B', d: 2 }),
-    E('f3', 36, 40, 4, 3, '#ff5a5f', { only: 'B', d: 2 }),
-    ink(38, 39, 1, 1, { only: 'B', d: 2 }),
-    E('oct', 58, 40, 7, 6, '#ff8cc6', { cB: '#8ae66b', d: 3 }),
-    ...[52, 55, 58, 61].map((x, i) => R('oct', x, 44, 2, i % 3 ? 9 : 8, '#ff8cc6', { cB: '#8ae66b', d: 3 })),
-    ink(55, 38, 2, 2), ink(60, 38, 2, 2), hl(55, 38), hl(60, 38), ink(57, 42, 2, 1),
-    P('star', starPts(30, 57, 5, 2.2), '#ff5a5f', { only: 'A', d: 1 }),
-    P('shell', [[42, 59], [43, 55], [46, 53], [49, 55], [50, 59]], '#ffd1e6'),
-    E('bub', 48, 8, 1.6, 1.6, '#e8f8ff'), E('bub', 51, 4, 1.1, 1.1, '#e8f8ff'),
-    E('bub', 66, 30, 1.6, 1.6, '#e8f8ff'), E('bub', 68, 26, 1.1, 1.1, '#e8f8ff'),
+  { id: 'space', name: '우주', w: 96, h: 64, shapes: [
+    R('space', 0, 0, 96, 40, '#1f2457', { nl: 1 }), R('space2', 0, 40, 96, 24, '#2a2f6b', { nl: 1 }),
+    ...[[30, 6], [56, 10], [8, 44], [50, 58], [92, 30], [28, 60], [62, 30]].map(([x, y]) => P('stars', starPts(x, y, 2, .9), '#ffe27a')),
+    P('bigstar', starPts(14, 10, 4.5, 2), '#ffe27a', { only: 'A', d: 0 }),
+    E('ring', 72, 21, 15, 3.4, '#ffd23f', { cB: '#ff8cc6', d: 1 }),
+    E('planet', 72, 20, 8.5, 8.5, '#ff9f43'), R('pstripe', 62, 17, 20, 2.5, '#ffbf73', { clip: 'planet' }),
+    E('moon', 86, 50, 6.5, 6.5, '#fff3b0'), E('crater', 84, 48, 1.6, 1.6, '#e6d98a'), E('crater2', 88.5, 52, 2, 2, '#e6d98a', { only: 'A', d: 2 }),
+    P('fin', [[34, 38], [28, 48], [34, 46]], '#ff5a5f', { cB: '#3cb371', d: 4 }), P('fin', [[44, 38], [50, 48], [44, 46]], '#ff5a5f', { cB: '#3cb371', d: 4 }),
+    P('flame', [[35, 46], [39, 56], [43, 46]], '#ffb627'),
+    P('rocket', [[34, 46], [34, 28], [39, 17], [44, 28], [44, 46]], '#ffffff'),
+    R('rstripe', 34, 40, 10, 2, '#ff5a5f', { clip: 'rocket', cB: '#3cb371', d: 4 }),
+    E('rwin', 39, 31, 2.8, 2.8, '#6cc7ff', { only: 'A', d: 3 }),
+    E('ufod', 62, 41.5, 4, 3.5, '#a7ddfc', { only: 'B', d: 5 }), E('ufo', 62, 44.5, 9, 2.8, '#9aa3b5', { only: 'B', d: 5 }),
+    ...[56.5, 62, 67.5].map(x => E('ufol', x, 45, 1, 1, '#ffe27a', { only: 'B', d: 5 })),
+    P('comet', [[8, 31], [22, 24], [10, 34]], '#a7ddfc', { only: 'A', d: 6 }), E('cometh', 8.5, 32, 2.6, 2.6, '#ffffff', { only: 'A', d: 6 }),
+    E('planet2', 18, 54, 5.5, 5.5, '#8ae66b', { cB: '#ff8cc6', d: 7 }), E('p2spot', 16.5, 52.5, 1.4, 1.4, '#3cb371', { clip: 'planet2' }),
   ]},
-  { id: 'sky', name: '하늘 위', w: 96, h: 64, shapes: [
-    R('s1', 0, 0, 96, 20, '#8fd3fb', { nl: 1 }), R('s2', 0, 20, 96, 20, '#a7ddfc', { nl: 1 }), R('s3', 0, 40, 96, 24, '#c2e9fd', { nl: 1 }),
-    E('rb1', 30, 66, 27, 23, '#ff6b6b'), E('rb2', 30, 66, 24, 20, '#ffd23f'), E('rb3', 30, 66, 21, 17, '#5fd35b'),
-    E('rb4', 30, 66, 18, 14, '#3fb6ff'), E('rbin', 30, 66, 15, 11, '#c2e9fd', { nl: 1 }),
-    ...[[8, 62, 12, 6], [26, 64, 12, 6], [46, 64, 13, 7], [68, 62, 12, 6], [88, 63, 12, 7]].map(([x, y, a, b]) => E('clouds', x, y, a, b, '#ffffff')),
-    E('sun', 86, 10, 6, 6, '#ffd23f'), ink(84, 9, 1, 2), ink(88, 9, 1, 2), ink(85, 12, 3, 1),
-    E('mc', 26, 31, 5, 3, '#ffffff', { only: 'A', d: 4 }), E('mc', 31, 29, 5, 4, '#ffffff', { only: 'A', d: 4 }), E('mc', 36, 31, 4, 3, '#ffffff', { only: 'A', d: 4 }),
-    P('bird1', [[14, 12], [19, 15], [24, 12], [24, 14.5], [19, 17.5], [14, 14.5]], '#3a3a4a', { only: 'A', d: 1 }),
-    P('bird2', [[50, 8], [54, 10.5], [58, 8], [58, 10], [54, 12.5], [50, 10]], '#3a3a4a'),
-    ink(40, 18, 1, 8, { only: 'B', d: 2 }),
-    P('kite', [[40, 3], [45, 10], [40, 17], [35, 10]], '#ff8cc6', { only: 'B', d: 2 }),
-    R('kitex', 39, 3, 2, 14, '#ffffff', { only: 'B', d: 2, clip: 'kite' }),
-    ink(59, 28, 1, 5), ink(68, 28, 1, 5),
-    E('balloon', 64, 20, 8, 9.5, '#ff5a5f', { cB: '#4a8ff0', d: 0 }),
-    R('bstripe', 62, 10, 4, 20, '#ffd23f', { clip: 'balloon' }),
-    R('basket', 59, 32, 10, 5, '#a0673a'),
-    P('ptail', [[73, 33], [72, 26], [76, 32]], '#ff5a5f', { cB: '#3cb371', d: 3 }),
-    E('plane', 82, 33, 9, 2.6, '#ffffff'),
-    P('pwing', [[79, 33], [84, 33], [80, 39]], '#ff5a5f', { cB: '#3cb371', d: 3 }),
-    ...[78, 82, 86].map(x => R('pwin', x, 32, 2, 1, '#6cc7ff', { clip: 'plane' })),
+  { id: 'winter', name: '겨울 마을', w: 96, h: 64, shapes: [
+    ...skyS('#b8d8f5', '#cfe5f8', '#e3f0fb', 14, 30),
+    ...[[40, 6], [58, 12], [10, 12], [88, 8], [52, 26]].map(([x, y]) => P('flake', [[x, y - 1.6], [x + 1.6, y], [x, y + 1.6], [x - 1.6, y]], '#ffffff')),
+    P('snow', [[0, 40], [30, 37], [60, 41], [96, 38], [96, 64], [0, 64]], '#ffffff'),
+    E('smoke', 27, 15, 2, 1.5, '#e6e9f2', { only: 'A', d: 1 }), E('smoke', 29.5, 11.5, 2.5, 1.8, '#e6e9f2', { only: 'A', d: 1 }), E('smoke', 32.5, 8, 3, 2, '#e6e9f2', { only: 'A', d: 1 }),
+    R('chim', 24.5, 19, 3.5, 7, '#8a5530'),
+    R('wall1', 8, 30, 22, 16, '#ff9f43'), P('roof1', [[5, 31], [19, 19], [33, 31]], '#a0673a'), P('rsnow1', [[12, 25], [19, 18.5], [26, 25]], '#ffffff'),
+    R('win1', 11, 34, 7, 5, '#ffe27a', { cB: '#6cc7ff', d: 0 }), R('door1', 21, 36, 6, 10, '#8a5530', { cB: '#ff5a5f', d: 5 }),
+    P('pine1', [[41, 41], [46, 22], [51, 41]], '#2f8f4e'), R('pt1', 45, 41, 2, 4, '#8a5530'),
+    R('wall2', 62, 32, 22, 14, '#6cc7ff'), P('roof2', [[59, 33], [73, 22], [87, 33]], '#c94a43'), P('rsn2', [[66, 28], [73, 22], [80, 28]], '#ffffff'),
+    R('door2', 70, 37, 6, 9, '#ffd23f', { cB: '#3cb371', d: 2 }), R('win2', 64, 35, 4, 4, '#ffe27a'), R('win3', 78, 35, 4, 4, '#ffe27a'),
+    E('rbird', 76, 25, 2.4, 1.8, '#ff5a5f', { only: 'A', d: 7 }), P('rbeak', [[78, 24.5], [80, 25], [78, 25.8]], '#ffb627', { only: 'A', d: 7 }),
+    P('pine2', [[87, 44], [91, 27], [95, 44]], '#3a9a5c', { only: 'A', d: 3 }), R('pt2', 90, 44, 2, 3, '#8a5530', { only: 'A', d: 3 }),
+    P('smarm', [[46, 51], [40, 47], [40.6, 46.2], [46.5, 50]], '#8a5530'), P('smarm', [[58, 51], [64, 47], [63.4, 46.2], [57.5, 50]], '#8a5530'),
+    E('sm', 52, 54, 6, 5.5, '#ffffff'), E('sm', 52, 45, 4.2, 4, '#ffffff'),
+    R('smhat', 49, 37.5, 6, 4.5, '#3a3a4a'), R('smhat', 47.5, 41.3, 9, 1.6, '#3a3a4a'),
+    P('nose', [[52, 45.4], [56.5, 46.3], [52, 47.2]], '#ff9f43', { only: 'A', d: 4 }),
+    ink(50, 44, 1, 1), ink(53, 44, 1, 1), ink(51.5, 52, 1, 1), ink(51.5, 55, 1, 1),
+    R('smscarf', 47.5, 48.3, 9, 2.2, '#ff5a5f'), R('smscarf', 54, 49, 2.4, 4.5, '#ff5a5f'),
+    P('sled', [[23, 53], [36, 53], [37, 56.5], [22, 56.5]], '#ff5a5f', { only: 'B', d: 6 }), R('runner', 22, 57.5, 16, 1.4, '#3a3a4a', { only: 'B', d: 6 }),
   ]},
-  { id: 'swamp', name: '늪지대', w: 96, h: 64, shapes: [
-    R('sw1', 0, 0, 96, 12, '#bfe6e0', { nl: 1 }), R('sw2', 0, 12, 96, 14, '#d6efe6', { nl: 1 }),
-    ...[[10, 22, 12, 8], [30, 20, 10, 9], [52, 22, 12, 7], [74, 20, 11, 9], [92, 22, 10, 8]].map(([x, y, a, b]) => E('bgtrees', x, y, a, b, '#5c9a6a')),
-    R('bank', 0, 24, 96, 7, '#7fb069'),
-    R('water', 0, 30, 96, 34, '#6fb7a8'),
-    ...[[46, 40, 6], [20, 58, 7], [82, 56, 6]].map(([x, y, a]) => R('ripple', x - a / 2, y, a, 1, '#9fd8cb')),
-    R('log', 8, 38, 30, 6, '#a0673a'), E('logend', 38, 41, 2.6, 3, '#e6c08a'),
-    E('shell', 21, 36, 5, 3.5, '#3cb371', { only: 'A', d: 1 }), E('turtle', 27.5, 36.5, 2.2, 1.8, '#8ae66b', { only: 'A', d: 1 }),
-    ink(27, 36, 1, 1, { only: 'A', d: 1 }),
-    E('pad1', 60, 51, 8, 3, '#3cb371'), E('pad2', 80, 41, 6, 2.5, '#3cb371'), E('pad3', 30, 56, 6, 2.5, '#3cb371'),
-    P('lotus', [[76, 40], [77, 34], [80, 37], [83, 34], [84, 40]], '#ff8cc6', { only: 'B', d: 3 }),
-    E('frog', 60, 46, 5, 4, '#8ae66b', { cB: '#ff9f43', d: 0 }),
-    E('frog', 57, 42, 2, 2, '#8ae66b', { cB: '#ff9f43', d: 0 }), E('frog', 63, 42, 2, 2, '#8ae66b', { cB: '#ff9f43', d: 0 }),
-    ink(56, 41, 2, 2), ink(62, 41, 2, 2), ink(58, 47, 4, 1),
-    ...[3, 7, 89, 93].map(x => R('reed', x, 24, 1, 22, '#6b8f3a')),
-    R('cattail', 2, 20, 3, 7, '#8a5530'), R('cattail', 6, 24, 3, 7, '#8a5530'),
-    R('cattail', 88, 18, 3, 7, '#8a5530', { only: 'A', d: 4 }), R('cattail', 92, 22, 3, 7, '#8a5530'),
-    E('dwing', 46, 12, 2, 2.6, '#e8f8ff'), E('dwing', 50, 12, 2, 2.6, '#e8f8ff'),
-    E('dfly', 48, 14, 4.5, 1.2, '#4a7bff', { cB: '#ff5a5f', d: 2 }),
+  { id: 'party', name: '생일 파티', w: 96, h: 64, shapes: [
+    R('wall', 0, 0, 96, 44, '#ffe3f0', { nl: 1 }), R('floor', 0, 44, 96, 20, '#f5d6a8'),
+    ink(0, 3.5, 96, 1),
+    ...['#ff5a5f', '#ffd23f', '#4a8ff0', '#8ae66b', '#a26bff', '#ff9f43', '#6cc7ff', '#ff8cc6'].map((c, i) =>
+      P('flag' + i, [[3 + i * 12, 4], [11 + i * 12, 4], [7 + i * 12, 11]], c, i === 2 ? { cB: '#3cb371', d: 0 } : {})),
+    R('frame', 70, 12, 16, 12, '#ffd23f'), R('pic', 72, 14, 12, 8, '#a7ddfc'),
+    ink(12, 25, 1, 17), ink(20, 23, 1, 19), ink(27, 27, 1, 15, { only: 'A', d: 2 }),
+    E('bal1', 12, 20, 4.5, 5.5, '#ff5a5f'), E('bal2', 20, 17.5, 4.5, 5.5, '#4a8ff0', { cB: '#a26bff', d: 1 }),
+    E('bal3', 27, 22, 4.5, 5.5, '#ffd23f', { only: 'A', d: 2 }),
+    R('tleg', 33, 42, 2, 14, '#a0673a'), R('tleg', 65, 42, 2, 14, '#a0673a'),
+    R('table', 30, 40, 40, 3, '#a0673a'),
+    R('cake', 39, 31, 22, 9, '#ffd1e6', { cB: '#c8f5e6', d: 4 }), R('icing', 39, 31, 22, 2.2, '#ffffff', { clip: 'cake' }),
+    R('cake2', 43, 25, 14, 6, '#ffffff'),
+    E('berry', 50, 23.5, 2.2, 2.2, '#ff5a5f', { only: 'A', d: 3 }),
+    R('candle', 44.5, 19.5, 1.5, 5.5, '#4a8ff0'), R('candle', 54, 19.5, 1.5, 5.5, '#4a8ff0'),
+    E('fire', 45.25, 18, 1, 1.6, '#ffb627'), E('fire', 54.75, 18, 1, 1.6, '#ffb627'),
+    R('cup', 62.5, 33.5, 4.5, 6.5, '#a26bff', { only: 'B', d: 7 }), R('straw', 65, 29.5, 1, 4, '#ff5a5f', { only: 'B', d: 7 }),
+    R('gift1', 74, 48, 11, 10, '#4a8ff0'), R('rib1', 78.5, 48, 2, 10, '#ffd23f', { cB: '#ff5a5f', d: 5 }), R('rib1', 74, 51.5, 11, 2, '#ffd23f', { cB: '#ff5a5f', d: 5 }),
+    P('bow1', [[79.5, 48], [76, 45], [76, 48]], '#ffd23f', { cB: '#ff5a5f', d: 5 }), P('bow1', [[79.5, 48], [83, 45], [83, 48]], '#ffd23f', { cB: '#ff5a5f', d: 5 }),
+    R('gift2', 87, 51, 8, 7, '#3cb371', { only: 'A', d: 6 }), R('rib2', 90, 51, 2, 7, '#ffffff', { only: 'A', d: 6 }),
+    R('gift3', 8, 50, 9, 8, '#ff9f43'), R('rib3', 11.5, 50, 2, 8, '#ffffff'),
   ]},
-  { id: 'playground', name: '놀이터', w: 96, h: 64, shapes: [
-    R('p1', 0, 0, 96, 14, '#8fd3fb', { nl: 1 }), R('p2', 0, 14, 96, 14, '#a7ddfc', { nl: 1 }), R('p3', 0, 28, 96, 14, '#c2e9fd', { nl: 1 }),
-    E('sun', 9, 8, 5, 5, '#ffd23f'),
-    E('cl', 30, 9, 5, 3, '#ffffff', { only: 'A', d: 4 }), E('cl', 35, 7, 5, 4, '#ffffff', { only: 'A', d: 4 }), E('cl', 40, 9, 4, 3, '#ffffff', { only: 'A', d: 4 }),
-    E('cl2', 82, 10, 5, 3, '#ffffff'), E('cl2', 87, 8, 4, 3, '#ffffff'),
-    R('grass', 0, 40, 96, 24, '#8fd36a'),
-    E('sandpit', 74, 55, 19, 7, '#f5d6a8'),
-    R('ladder', 10, 26, 2, 22, '#4a8ff0'), R('ladder', 18, 26, 2, 22, '#4a8ff0'),
-    ...[31, 36, 41].map(y => R('ladder', 12, y, 6, 1.5, '#4a8ff0')),
-    R('plat', 8, 23, 16, 3, '#ff9f43'),
-    P('slide', [[22, 25], [27, 25], [41, 48], [35, 48]], '#ff5a5f', { cB: '#ffd23f', d: 0 }),
-    R('frame', 44, 14, 28, 3, '#a0673a'),
-    P('frame', [[44, 14], [47, 14], [43, 48], [40, 48]], '#a0673a'), P('frame', [[69, 14], [72, 14], [76, 48], [73, 48]], '#a0673a'),
-    ink(50, 17, 1, 18), ink(56, 17, 1, 18), R('seat1', 48, 35, 10, 2, '#ff5a5f'),
-    ink(60, 17, 1, 18, { only: 'A', d: 1 }), ink(66, 17, 1, 18, { only: 'A', d: 1 }), R('seat2', 58, 35, 10, 2, '#3cb371', { only: 'A', d: 1 }),
-    E('ball', 28, 56, 4.5, 4.5, '#ff6b6b', { cB: '#4a8ff0', d: 2 }),
-    R('ballst', 23, 55, 10, 2, '#ffffff', { clip: 'ball' }),
-    P('bucket', [[62, 50], [69, 50], [68, 57], [63, 57]], '#ffd23f'),
-    R('shovel', 72, 47, 1, 7, '#a0673a'), E('shead', 72.5, 55, 2, 2.2, '#4a8ff0'),
-    R('castle', 79, 50, 9, 6, '#e8c690', { only: 'B', d: 3 }), R('castle', 79, 47, 3, 3, '#e8c690', { only: 'B', d: 3 }),
-    R('castle', 85, 47, 3, 3, '#e8c690', { only: 'B', d: 3 }),
-    ink(83, 41, 1, 9, { only: 'B', d: 3 }), P('flag', [[84, 41], [88, 43], [84, 45]], '#ff5a5f', { only: 'B', d: 3 }),
+  { id: 'beach', name: '해변', w: 96, h: 64, shapes: [
+    ...skyS('#8fd3fb', '#a7ddfc', '#c2e9fd', 10, 20),
+    E('sun', 10, 8, 5.5, 5.5, '#ffd23f'),
+    ...cloudS('cl1', 42, 8, 1, { only: 'A', d: 0 }), ...cloudS('cl2', 88, 12, .8),
+    P('gull', [[56, 11], [60, 13.5], [64, 11], [64, 13], [60, 15.5], [56, 13]], '#3a3a4a', { only: 'A', d: 1 }),
+    R('sea', 0, 24, 96, 20, '#46ade2'), R('wave', 0, 30, 96, 1.2, '#9fdcf5'), R('wave', 0, 36, 96, 1.2, '#9fdcf5'),
+    R('mast', 76.5, 18, 1.2, 15, '#3a3a4a'),
+    P('sail', [[77.8, 18], [77.8, 31], [86, 31]], '#ffffff', { cB: '#ff5a5f', d: 2 }),
+    P('hull', [[68, 32], [87, 32], [84, 37], [71, 37]], '#a0673a'),
+    P('sand', [[0, 44], [30, 41], [60, 44], [96, 41], [96, 64], [0, 64]], '#f5d6a8'),
+    R('pole', 21.5, 32, 1.4, 22, '#ffffff'),
+    P('para', [[9, 37], [12, 31], [17, 28], [22, 27], [27, 28], [32, 31], [35, 37]], '#ff5a5f'),
+    P('pstr', [[19.5, 26], [25, 26], [26, 38], [18.5, 38]], '#ffffff', { clip: 'para', cB: '#ffd23f', d: 3 }),
+    R('towel', 26, 52, 15, 7, '#4a8ff0'), R('tstripe', 26, 54.5, 15, 2, '#ffffff', { clip: 'towel' }),
+    E('ball', 48, 55, 3.8, 3.8, '#ff6b6b', { cB: '#8ae66b', d: 4 }), R('bstripe', 44, 54, 8, 2, '#ffffff', { clip: 'ball' }),
+    R('castle', 64, 51, 13, 6, '#e8c690'), R('castle', 64, 47, 3.5, 4, '#e8c690'), R('castle', 73.5, 47, 3.5, 4, '#e8c690'),
+    ink(70, 41, 1, 10, { only: 'B', d: 5 }), P('cflag', [[71, 41], [75, 43], [71, 45]], '#ff5a5f', { only: 'B', d: 5 }),
+    E('crab', 87, 57, 4, 2.6, '#ff5a5f', { only: 'B', d: 6 }), E('crab', 82, 54, 1.6, 1.6, '#ff5a5f', { only: 'B', d: 6 }), E('crab', 92, 54, 1.6, 1.6, '#ff5a5f', { only: 'B', d: 6 }),
+    ink(85.5, 55, 1, 1, { only: 'B', d: 6 }), ink(88, 55, 1, 1, { only: 'B', d: 6 }),
+    P('shell', [[6, 60], [7, 56], [10, 54.5], [13, 56], [14, 60]], '#ffd1e6', { only: 'A', d: 7 }),
   ]},
-  { id: 'kinder', name: '유치원', w: 96, h: 64, shapes: [
-    R('wall', 0, 0, 96, 44, '#fff1d6', { nl: 1 }), R('wains', 0, 36, 96, 8, '#ffd9a8'),
-    R('floor', 0, 44, 96, 20, '#e0a96d'),
-    R('plank', 0, 52, 96, 1, '#c98a4b'), R('plank', 0, 59, 96, 1, '#c98a4b'),
-    R('wframe', 5, 5, 24, 20, '#ffffff'), R('glass', 7, 7, 20, 16, '#a7ddfc'),
-    E('wsun', 22, 11, 2.6, 2.6, '#ffd23f', { clip: 'glass' }),
-    R('wframe', 16, 7, 2, 16, '#ffffff'), R('wframe', 7, 14, 20, 2, '#ffffff'),
-    R('board', 34, 5, 32, 21, '#a0673a'), R('chalk', 36, 7, 28, 17, '#3c7a5a'),
-    P('chouse', [[40, 21], [40, 16], [44, 12], [48, 16], [48, 21]], '#ffffff'),
-    E('csun', 57, 13, 3, 3, '#ffffff', { only: 'A', d: 0 }),
-    E('rim', 81, 13, 8, 8, '#ff5a5f', { cB: '#3cb371', d: 1 }), E('face', 81, 13, 6, 6, '#ffffff'),
-    ink(81, 8, 1, 5), ink(81, 13, 4, 1),
-    R('desktop', 30, 38, 36, 3, '#c98a4b'), R('desklegs', 32, 41, 2, 10, '#c98a4b'), R('desklegs', 62, 41, 2, 10, '#c98a4b'),
-    R('cr1', 37, 32, 3, 6, '#ff5a5f'), R('cr2', 42, 32, 3, 6, '#4a8ff0', { only: 'A', d: 2 }), R('cr3', 47, 32, 3, 6, '#ffd23f'),
-    R('paper', 52, 35, 11, 3, '#ffffff'),
-    R('blk1', 6, 50, 7, 7, '#ff5a5f'), R('blk2', 13, 50, 7, 7, '#4a8ff0'),
-    R('blk3', 9, 43, 7, 7, '#ffd23f', { cB: '#3cb371', d: 3 }),
-    R('pot', 70, 48, 6, 6, '#ff9f43'), E('plant', 73, 44, 4.5, 4, '#3cb371'),
-    E('bear', 86, 39, 2, 2, '#c98a4b'), E('bear', 92, 39, 2, 2, '#c98a4b'),
-    E('bear', 89, 53, 6, 6, '#c98a4b'), E('bear', 89, 43, 5, 4.5, '#c98a4b'),
-    E('bmuz', 89, 45, 2.2, 1.6, '#f3d9b1'),
-    ink(87, 42, 1, 1), ink(90, 42, 1, 1), ink(88, 44, 2, 1),
-    P('bbow', [[89, 49], [85, 47], [85, 51]], '#ff5a5f', { only: 'B', d: 4 }), P('bbow', [[89, 49], [93, 47], [93, 51]], '#ff5a5f', { only: 'B', d: 4 }),
+  { id: 'garden', name: '꽃밭', w: 96, h: 64, shapes: [
+    ...skyS('#8fd3fb', '#a7ddfc', '#c2e9fd', 12, 24),
+    E('sun', 88, 8, 5, 5, '#ffd23f'),
+    ...Array.from({ length: 14 }, (_, i) => R('pick', 1 + i * 7, 25, 3.5, 13, '#ffffff')),
+    R('fence', 0, 29, 96, 2, '#ffffff'),
+    R('grass', 0, 36, 96, 28, '#8fd36a'),
+    R('bpole', 69.5, 22, 1.6, 15, '#a0673a'),
+    R('bhouse', 65.5, 14, 10, 9, '#ff5a5f'), P('broof', [[64, 15], [70.5, 8.5], [77, 15]], '#a0673a'),
+    E('bhole', 70.5, 18.5, 1.6, 1.6, '#3a3a4a', { only: 'A', d: 7 }),
+    R('sfs', 13.4, 28, 1.6, 24, '#2f8f4e'), E('sfl', 10.5, 42, 3, 1.5, '#3cb371'),
+    ...Array.from({ length: 8 }, (_, i) => E('sfp', 14 + Math.cos(i * Math.PI / 4) * 3.6, 25 + Math.sin(i * Math.PI / 4) * 3.6, 2.1, 2.1, '#ffd23f', { cB: '#ff8cc6', d: 0 })),
+    E('sfc', 14, 25, 3, 3, '#a0673a'),
+    ...flowerS('t1', 28, 47, '#ff5a5f'), ...flowerS('t2', 37, 51, '#a26bff', { cB: '#ffd23f', d: 1 }), ...flowerS('t3', 46, 47, '#ff8cc6'),
+    E('lady', 58, 57, 3.2, 2.5, '#ff5a5f', { cB: '#ffd23f', d: 2 }), E('ladyh', 61.3, 57, 1.5, 1.5, '#3a3a4a'),
+    E('ldot', 57, 56.2, .9, .9, '#3a3a4a', { clip: 'lady' }), E('ldot', 59, 58, .9, .9, '#3a3a4a', { clip: 'lady' }),
+    P('snailb', [[3, 61], [15, 61], [15, 59.3], [5, 59.3]], '#c9a3ff', { only: 'B', d: 3 }),
+    E('snailsh', 10, 57, 3.2, 3.2, '#ff9f43', { only: 'B', d: 3 }), ink(4, 56.5, .8, 3, { only: 'B', d: 3 }),
+    E('bfly', 50, 16, 2.4, 3, '#a26bff', { only: 'A', d: 4 }), E('bfly', 54.5, 16, 2.4, 3, '#a26bff', { only: 'A', d: 4 }), ink(52, 13.5, 1, 5, { only: 'A', d: 4 }),
+    E('beew', 29, 15.5, 1.8, 1.4, '#e8f8ff', { only: 'B', d: 5 }), E('beew', 32, 15.5, 1.8, 1.4, '#e8f8ff', { only: 'B', d: 5 }),
+    E('bee', 30.5, 18, 3.2, 2.2, '#ffd23f', { only: 'B', d: 5 }), R('beest', 30, 16, 1.2, 4.4, '#3a3a4a', { clip: 'bee', only: 'B', d: 5 }),
+    P('can', [[80, 50], [74, 45], [75, 44], [80, 48.5]], '#4a8ff0', { cB: '#3cb371', d: 6 }),
+    R('can', 80, 47, 10, 9, '#4a8ff0', { cB: '#3cb371', d: 6 }), R('canh', 83, 44.5, 5, 1.6, '#4a8ff0', { cB: '#3cb371', d: 6 }),
   ]},
 ];
 const LOCKED_PLACES = [];
@@ -958,7 +1106,7 @@ let current = 'home';
 function go(id) {
   current = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'dressPick'].includes(id));
+  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'dressPick', 'puzzlePick', 'hanPick'].includes(id));
   $('celebrate').classList.remove('show');
   if (id !== 'eng' && canSpeak) speechSynthesis.cancel();
   layout();
@@ -968,7 +1116,6 @@ document.addEventListener('click', e => {
   if (b) { sfx.tap(); go(b.dataset.go); }
 });
 function layout() {
-  if (current === 'home') { const c = document.querySelector('.choices'); $('swipeHint').classList.toggle('show', c.scrollWidth > c.clientWidth + 4); }
   if (current === 'colorPick') layoutGrid($('animalGrid'), 3, 3, 1);
   if (current === 'spotPick') layoutGrid($('placeGrid'), 3, 2, 1.5);
   if (current === 'color') layoutColor();
@@ -977,6 +1124,11 @@ function layout() {
   if (current === 'eng') layoutEng();
   if (current === 'dressPick') layoutGrid($('dressGrid'), 3, 3, 1);
   if (current === 'dress') layoutDress();
+  if (current === 'ice') layoutIce();
+  if (current === 'puzzlePick') layoutGrid($('pzGrid'), 3, 2, 1.5);
+  if (current === 'puzzle') layoutPuzzle();
+  if (current === 'hanPick') { const nar = innerWidth < 600; layoutGrid($('hanGrid'), nar ? 4 : 5, nar ? 5 : 4, 1); }
+  if (current === 'han') layoutHan();
 }
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { drawGround(); layout(); }, 120); });
 
@@ -1007,7 +1159,7 @@ function layoutGrid(grid, cols, rows, aspect) {
   const box = grid.parentElement, W = box.clientWidth - 40, H = box.clientHeight - 106, gap = 18, label = 34;
   const byW = (W - gap * (cols - 1)) / cols - 16;
   const byH = ((H - gap * (rows - 1)) / rows - label - 18) * aspect;
-  const tw = Math.max(70, Math.floor(Math.min(byW, byH, aspect > 1 ? 280 : 190)));
+  const tw = Math.max(44, Math.floor(Math.min(byW, byH, aspect > 1 ? 280 : 190)));
   grid.style.gridTemplateColumns = `repeat(${cols}, ${tw + 16}px)`;
   grid.querySelectorAll('.q').forEach(q => q.style.height = tw / aspect + 'px');
   grid.querySelectorAll('.emo').forEach(q => { q.style.height = tw + 'px'; q.style.fontSize = Math.floor(tw * .55) + 'px'; });
@@ -1036,6 +1188,7 @@ function startColor(def) {
   paint = { def, art, colors: art.regions.map(r => r.fix || '#ffffff'), history: [], done: false };
   syncUndo();
   $('colorTitle').textContent = `${def.name} 색칠하기`;
+  preview($('exampleCv'), def, 4); $('exampleBtn').classList.remove('big');
   go('color');
 }
 function layoutColor() {
@@ -1045,8 +1198,8 @@ function layoutColor() {
   m.classList.toggle('land', land);
   const palH = document.querySelector('#colorMain .palette').offsetHeight || 190;
   const size = Math.floor(land ? Math.min(H - 20, W - 260) : Math.min(W - 20, H - palH - 30));
-  paint.cs = Math.max(3, size) / 64;
-  paint.ctx = fitCanvas($('colorCv'), paint.cs * 64, paint.cs * 64);
+  paint.cs = Math.max(3, size) / paint.art.bw;
+  paint.ctx = fitCanvas($('colorCv'), paint.cs * paint.art.bw, paint.cs * paint.art.bh);
   redrawColor();
 }
 function redrawColor() { draw(paint.ctx, paint.art, paint.colors, paint.cs); }
@@ -1071,6 +1224,7 @@ $('colorCv').addEventListener('pointerdown', e => {
     ]), 300);
   }
 });
+$('exampleBtn').onclick = () => { sfx.tap(); $('exampleBtn').classList.toggle('big'); };
 $('resetBtn').onclick = () => { if (!paint) return; sfx.tap(); startColor(paint.def); };
 // 되돌리기: 방금 칠한 것부터 하나씩 이전 색으로
 function syncUndo() { $('undoBtn').disabled = !paint || !paint.history.length; }
@@ -1082,23 +1236,18 @@ $('undoBtn').onclick = () => {
   redrawColor(); syncUndo();
 };
 $('saveColor').onclick = () => saveColor();
-async function saveColor() {
-  const cs = 12, cv = document.createElement('canvas'); cv.width = cv.height = 64 * cs;
-  draw(cv.getContext('2d'), paint.art, paint.colors, cs);
-  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
-  const file = new File([blob], `색칠_${paint.def.name}_${Date.now()}.png`, { type: 'image/png' });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === 'AbortError') return; }
-  }
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
-}
+function saveColor() { saveArt(paint.art, paint.colors, `색칠_${paint.def.name}`); }
 
 // =====================================================================
 //  틀린그림찾기
 // =====================================================================
 let spot = null;
 function startSpot(def) {
-  const A = build(def, 'A', scaleOf()), B = build(def, 'B', scaleOf());
+  // 이번 판에 쓸 틀린 곳 5개를 무작위로 골라요
+  const all = [...new Set(def.shapes.filter(x => x.d !== undefined).map(x => x.d))];
+  for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
+  const active = new Set(all.slice(0, 5));
+  const A = build(def, 'A', scaleOf(), active), B = build(def, 'B', scaleOf(), active);
   spot = { def, A, B, diffs: A.diffs, found: new Set() };
   $('spotTitle').textContent = `${def.name} 틀린그림찾기`;
   renderProgress();
@@ -1145,10 +1294,11 @@ function spotTap(e) {
   if (!spot) return;
   const cv = e.currentTarget, r = cv.getBoundingClientRect();
   const gx = (e.clientX - r.left) / r.width * 96, gy = (e.clientY - r.top) / r.height * 64;
-  const i = spot.diffs.findIndex((d, k) => !spot.found.has(k) && Math.hypot(gx - d.x, gy - d.y) <= d.r + 1.5);
+  let i = -1, best = 1e9;
+  spot.diffs.forEach((d, k) => { const g = Math.hypot(gx - d.x, gy - d.y); if (!spot.found.has(k) && g <= d.r + 1.5 && g < best) { best = g; i = k; } });
   if (i >= 0) {
     spot.found.add(i); sfx.ding(); redrawSpot(); renderProgress(true);
-    const word = (EN_SPOT[spot.def.id] || [])[i];
+    const word = (EN_SPOT[spot.def.id] || [])[spot.diffs[i].d];
     if (word) setTimeout(() => sayEn(word), 350);
     if (spot.found.size === spot.diffs.length) setTimeout(() => celebrate('다 찾았어요!', '눈이 정말 좋구나', [
       ['다시 하기', '', () => startSpot(spot.def)],
@@ -1232,9 +1382,12 @@ const TOPICS = [
 ];
 const EN_ANIMALS = { shark: 'Shark', fox: 'Fox', cat: 'Cat', dog: 'Dog', dokkaebi: 'Goblin', ghost: 'Ghost', monster: 'Monster', croc: 'Crocodile', rabbit: 'Rabbit' };
 const EN_SPOT = {
-  forest: ['Cloud', 'Mushroom', 'Bird', 'Flower', 'Butterfly'], sea: ['Fish', 'Starfish', 'Fish', 'Octopus', 'Seaweed'],
-  sky: ['Balloon', 'Bird', 'Kite', 'Airplane', 'Cloud'], swamp: ['Frog', 'Turtle', 'Dragonfly', 'Flower', 'Plant'],
-  playground: ['Slide', 'Swing', 'Ball', 'Sandcastle', 'Cloud'], kinder: ['Sun', 'Clock', 'Crayon', 'Block', 'Ribbon'],
+  farm: ['Sun', 'Cloud', 'Barn', 'Window', 'Fence', 'Cow', 'Pig', 'Chicken'],
+  space: ['Star', 'Ring', 'Moon', 'Window', 'Rocket', 'UFO', 'Comet', 'Planet'],
+  winter: ['Window', 'Smoke', 'Door', 'Tree', 'Nose', 'Door', 'Sled', 'Bird'],
+  party: ['Flag', 'Balloon', 'Balloon', 'Strawberry', 'Cake', 'Ribbon', 'Present', 'Cup'],
+  beach: ['Cloud', 'Seagull', 'Sail', 'Umbrella', 'Ball', 'Flag', 'Crab', 'Shell'],
+  garden: ['Sunflower', 'Flower', 'Ladybug', 'Snail', 'Butterfly', 'Bee', 'Watering can', 'Birdhouse'],
 };
 const EN_COLORS = ['Red', 'Orange', 'Yellow', 'Light green', 'Green', 'Sky blue', 'Blue', 'Purple', 'Pink', 'Light pink',
                    'Brown', 'Beige', 'Gray', 'Black', 'White', 'Mint', 'Lavender', 'Hot pink', 'Rainbow'];
@@ -1383,16 +1536,43 @@ function stdBody(skin, belly) {
   ];
 }
 const stdLegs = skin => sym(R('legs', 25.5, 49, 5, 9, skin));
+// 동물마다 몸 크기가 달라서, 옷을 그 몸에 맞게 늘리고 옮겨요
+const FIT_STD = { head: { top: 7, hw: 15 }, torso: { top: 31, bot: 51, hw: 10.5 }, hips: { y: 45, hw: 11 }, neck: { y: 29, hw: 13 }, feet: 25.75 };
+const FITS = {
+  shark:    { head: { top: 11, hw: 16 }, torso: { top: 31, bot: 51, hw: 15 }, hips: { y: 42, hw: 14.5 }, neck: { y: 31.5, hw: 14.5 } },
+  cat:      { head: { top: 8, hw: 15 } },
+  dog:      { head: { top: 8, hw: 15 } },
+  dokkaebi: { head: { top: 6, hw: 17 }, neck: { y: 31, hw: 13 } },
+  ghost:    { head: { top: 10, hw: 16 }, torso: { top: 33, bot: 54, hw: 16 }, hips: { y: 45, hw: 16.5 }, neck: { y: 31, hw: 16 } },
+  monster:  { head: { top: 5, hw: 14 }, torso: { top: 37, bot: 53, hw: 17 }, hips: { y: 45, hw: 15.5 }, neck: { y: 37, hw: 17 }, feet: 24 },
+  croc:     { head: { top: 3, hw: 12 }, neck: { y: 30, hw: 13 } },
+  rabbit:   { head: { top: 10, hw: 14 }, neck: { y: 30, hw: 12.5 } },
+};
+const fitOf = aid => ({ ...FIT_STD, ...(FITS[aid] || {}) });
+function fitShapes(shapes, kind, c) {
+  if (!kind) return shapes;
+  const F = c.fit; let fx, fy, sx, sy;
+  if (kind === 'hat') { sx = sy = F.head.hw / 15; fx = x => 32 + (x - 32) * sx; fy = y => F.head.top + (y - 7) * sy; }
+  else if (kind === 'top') { sx = F.torso.hw / 10.5; sy = (F.torso.bot - F.torso.top) / 20; fx = x => 32 + (x - 32) * sx; fy = y => F.torso.top + (y - 31) * sy; }
+  else if (kind === 'bottom') { sx = F.hips.hw / 11; sy = (58 - F.hips.y) / 13; fx = x => 32 + (x - 32) * sx; fy = y => F.hips.y + (y - 45) * sy; }
+  else if (kind === 'neck') { sx = F.neck.hw / 13; sy = 1; fx = x => 32 + (x - 32) * sx; fy = y => F.neck.y + (y - 29); }
+  else if (kind === 'shoes') { sx = (32 - F.feet) / (32 - 25.75); sy = 1; fx = x => 32 + (x - 32) * sx; fy = y => y; }
+  else if (kind === 'hand') { sx = sy = 1; const dx = Math.min(3, (64 - c.hand[0]) - 45), dy = Math.max(-8, c.hand[1] - 46); fx = x => x + dx; fy = y => y + dy; }
+  return shapes.map(s => s.t === 'r' ? { ...s, x: fx(s.x), y: fy(s.y), w: s.w * sx, h: s.h * sy }
+    : s.t === 'e' ? { ...s, x: fx(s.x), y: fy(s.y), rx: s.rx * (kind === 'top' ? Math.min(sx, 1.1) : sx), ry: s.ry * sy }
+    : { ...s, pts: s.pts.map(([x, y]) => [fx(x), fy(y)]) });
+}
+const fitKind = it => it.fit || { hat: 'hat', top: 'top', bottom: it.late ? 'top' : 'bottom', shoes: 'shoes' }[it.cat] || null;
 function animalParts(aid) {
   const A = ANIMALS.find(a => a.id === aid), C = DRESS[aid];
   const pick = keys => A.shapes.filter(s => keys.includes(s.k));
   const body = C.own ? pick(C.own) : stdBody(C.skin, C.belly);
   if (C.own ? C.legs : true) body.unshift(...stdLegs(C.skin));
   return { back: pick(C.back), body, head: pick(C.head), face: pick(C.face),
-           ctx: { T: C.T || ['torso', 'belly'], ey: C.ey, hand: C.hand || [19, 46] } };
+           ctx: { T: C.T || ['torso', 'belly'], ey: C.ey, hand: C.hand || [19, 46], fit: fitOf(aid) } };
 }
 const MANNEQUIN = { back: [], body: [...stdLegs('#e6e9f2'), ...stdBody('#e6e9f2')], head: [E('head', 32, 19, 14, 12, '#e6e9f2')], face: [],
-                    ctx: { T: ['torso'], ey: 18, hand: [19, 46] } };
+                    ctx: { T: ['torso'], ey: 18, hand: [19, 46], fit: FIT_STD } };
 
 // 옷: cat = hat/top/bottom/shoes 는 하나씩, acc(소품)는 여러 개
 const DCATS = [['hat', '🎩', '모자'], ['top', '👕', '윗옷'], ['bottom', '👖', '바지'], ['shoes', '👟', '신발'], ['acc', '🎒', '소품']];
@@ -1451,17 +1631,17 @@ const ITEMS = [
     ...sym(E('glasses', 25, c.ey, 4.4, 3.8, '#e6f7ff')), R('glasses_bridge', 29, c.ey - 1, 6, 1.4, '#3a3a4a')] },
   { id: 'sunglasses', cat: 'acc', layer: 'postface', ko: '선글라스', en: 'Sunglasses', make: c => [
     ...sym(E('sunglasses', 25, c.ey, 4.6, 3.6, '#3a3a4a')), R('sunglasses_bridge', 29, c.ey - 1, 6, 1.4, '#3a3a4a')] },
-  { id: 'scarf', cat: 'acc', layer: 'neck', ko: '목도리', en: 'Scarf', make: () => [
+  { id: 'scarf', cat: 'acc', fit: 'neck', layer: 'neck', ko: '목도리', en: 'Scarf', make: () => [
     R('scarf', 19, 29, 26, 5, '#ff5a5f'), R('scarf_end', 36, 33, 6, 10, '#ff5a5f'), R('scarf_line', 19, 31, 26, 1.4, '#ffffff', { clip: 'scarf' })] },
   { id: 'mittens', cat: 'acc', layer: 'hands', ko: '장갑', en: 'Mittens', make: c => [
     ...sym(E('mittens', c.hand[0], c.hand[1], 3.8, 3.2, '#ff5a5f'))] },
-  { id: 'umbrella', cat: 'acc', layer: 'front', ko: '우산', en: 'Umbrella', make: () => [
+  { id: 'umbrella', cat: 'acc', fit: 'hand', layer: 'front', ko: '우산', en: 'Umbrella', make: () => [
     R('umbrella_stick', 53, 21, 1.4, 24, '#3a3a4a'),
     P('umbrella', [[43, 22], [45, 16], [49, 12], [54, 11], [59, 12], [63, 16], [64, 22]], '#4a8ff0'),
     P('umbrella_stripe', [[52, 11], [56, 11], [57, 22], [51, 22]], '#ffffff', { clip: 'umbrella' })] },
-  { id: 'bag', cat: 'acc', layer: 'front', ko: '가방', en: 'Bag', make: () => [
+  { id: 'bag', cat: 'acc', fit: 'top', layer: 'front', ko: '가방', en: 'Bag', make: () => [
     P('bag_strap', [[23, 31], [26, 31], [46, 44], [43, 45]], '#a0673a'), R('bag', 42, 43, 9, 8, '#ff9f43'), R('bag_flap', 42, 43, 9, 3, '#ffd23f', { clip: 'bag' })] },
-  { id: 'wand', cat: 'acc', layer: 'front', ko: '요술봉', en: 'Magic wand', make: () => [
+  { id: 'wand', cat: 'acc', fit: 'hand', layer: 'front', ko: '요술봉', en: 'Magic wand', make: () => [
     P('wand', [[47, 44], [49, 44], [55, 25], [53, 24]], '#a0673a'), P('wand_star', starPts(54.5, 21, 5, 2.2), '#ffd23f')] },
 ];
 const itemById = id => ITEMS.find(i => i.id === id);
@@ -1472,8 +1652,8 @@ const wornList = w => [w.hat, w.top, w.bottom, w.shoes, ...w.acc].filter(Boolean
 // 겹치는 순서대로 쌓기
 function composeDef(parts, worn) {
   const c = parts.ctx, W = wornList(worn).map(itemById);
-  const take = f => W.filter(f).flatMap(it => it.make(c));
-  return { w: 64, h: 64, shapes: [
+  const take = f => W.filter(f).flatMap(it => fitShapes(it.make(c), fitKind(it), c));
+  return { w: 64, h: 64, pad: 4, shapes: [
     ...parts.back, ...parts.body,
     ...take(i => i.cat === 'bottom' && !i.late), ...take(i => i.cat === 'top'), ...take(i => i.cat === 'bottom' && i.late),
     ...take(i => i.cat === 'shoes'), ...take(i => i.layer === 'hands'),
@@ -1496,7 +1676,7 @@ function itemPreview(it) {
     const x = i % art.w, y = (i / art.w) | 0;
     if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y;
   }
-  const cs = 6, full = document.createElement('canvas'); full.width = full.height = 64 * cs;
+  const cs = 6, full = document.createElement('canvas'); full.width = art.bw * cs; full.height = art.bh * cs;
   const cols = art.regions.map(r => r.k === 'bg' ? null : (r.fix || r.col));
   draw(full.getContext('2d'), art, cols, cs, { thin: 1.6, thick: 2.2 });
   const bx0 = x0 / S, by0 = y0 / S, bx1 = (x1 + 1) / S, by1 = (y1 + 1) / S;
@@ -1582,7 +1762,7 @@ function makeDPalette() {
   });
   syncDPalette();
 }
-function syncDPalette() { document.querySelectorAll('.dsw').forEach(b => b.classList.toggle('sel', b.dataset.c === (dColor || ''))); }
+function syncDPalette() { document.querySelectorAll('#dPalette .dsw').forEach(b => b.classList.toggle('sel', b.dataset.c === (dColor || ''))); }
 // 캐릭터 위의 옷을 누르면: 고른 색으로 바꾸고 영어로 말해요
 $('dressCv').addEventListener('pointerdown', e => {
   if (!dress || !dress.art) return;
@@ -1597,26 +1777,37 @@ $('dressCv').addEventListener('pointerdown', e => {
 });
 $('undressBtn').onclick = () => { sfx.tap(); dress.worn = emptyWorn(); dress.over = {}; rebuildDress(); renderDItems(); checkMission(); };
 $('saveDress').onclick = () => saveArt(dress.art, dressColors(), `옷입히기_${dress.a.name}`);
-async function saveArt(art, colors, name) {
-  const cs = 12, cv = document.createElement('canvas'); cv.width = cv.height = 64 * cs;
-  draw(cv.getContext('2d'), art, colors, cs);
-  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
-  const file = new File([blob], `${name}_${Date.now()}.png`, { type: 'image/png' });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === 'AbortError') return; }
-  }
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+// 저장: 공유 창 대신, 그림을 띄워서 꾹 눌러 '사진 앱에 저장'
+function saveArt(art, colors, name) {
+  const cs = 12, cv = document.createElement('canvas'); cv.width = art.bw * cs; cv.height = art.bh * cs;
+  const ctx = cv.getContext('2d');
+  draw(ctx, art, colors, cs);
+  ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
+  const url = cv.toDataURL('image/png');
+  $('saveImg').src = url; $('saveDl').href = url; $('saveDl').download = `${name}.png`;
+  $('celebrate').classList.remove('show');
+  $('saveBox').classList.add('show');
+  sfx.ding();
 }
+$('saveClose').onclick = () => { sfx.tap(); $('saveBox').classList.remove('show'); };
 function layoutDress() {
   if (!dress) return;
   const m = $('dressMain'), W = m.clientWidth - 40, H = m.clientHeight - 30;
   const land = W > H * 1.15;
   m.classList.toggle('land', land);
   const panel = document.querySelector('#dressMain .dpanel');
-  const size = Math.floor(land ? Math.min(H - 20, W - panel.offsetWidth - 50) : Math.min(W - 20, H - panel.offsetHeight - 30));
-  dress.cs = Math.max(3, size) / 64;
-  dress.ctx = fitCanvas($('dressCv'), dress.cs * 64, dress.cs * 64);
+  let size;
+  if (land) { panel.style.maxHeight = (H + 10) + 'px'; size = Math.min(H - 20, W - panel.offsetWidth - 50); }
+  else {
+    // 세로 화면: 캐릭터는 항상 보이게 크게 두고, 옷 고르는 칸은 아래에서 스크롤
+    panel.style.maxHeight = '';
+    size = Math.min(W - 20, H - panel.offsetHeight - 30);
+    if (size < H * .5) { size = Math.min(W - 20, H * .52); panel.style.maxHeight = Math.max(160, H - size - 26) + 'px'; }
+  }
+  size = Math.floor(size);
   if (!dress.art) dress.art = build(composeDef(dress.parts, dress.worn), 'A', scaleOf());
+  dress.cs = Math.max(3, size) / dress.art.bw;
+  dress.ctx = fitCanvas($('dressCv'), dress.cs * dress.art.bw, dress.cs * dress.art.bh);
   redrawDress();
   if (dress.mission) setDressFx(dress.mission.fx);
 }
@@ -1689,6 +1880,447 @@ $('missionBtn').onclick = () => { sfx.tap(); dress.mission ? endMission() : star
 $('missionEmo').onclick = () => { if (dress.mission) say([{ t: dress.mission.en, lang: 'en' }, { t: dress.mission.ko, lang: 'ko' }]); };
 
 // =====================================================================
+//  아이스크림 가게
+// =====================================================================
+const ICE_ITEMS = [
+  { id: 'cone', cat: 'base', ko: '콘', en: 'Cone' },
+  { id: 'waffle', cat: 'base', ko: '와플콘', en: 'Waffle cone' },
+  { id: 'cup', cat: 'base', ko: '컵', en: 'Cup' },
+  { id: 's1', cat: 'scoop', ko: '한 스쿱', en: 'One scoop', n: 1 },
+  { id: 's2', cat: 'scoop', ko: '두 스쿱', en: 'Two scoops', n: 2 },
+  { id: 's3', cat: 'scoop', ko: '세 스쿱', en: 'Three scoops', n: 3 },
+  { id: 'choco', cat: 'syrup', ko: '초코 시럽', en: 'Chocolate syrup', c: '#7a4a2a' },
+  { id: 'berry', cat: 'syrup', ko: '딸기 시럽', en: 'Strawberry syrup', c: '#ff5a7a' },
+  { id: 'honey', cat: 'syrup', ko: '꿀 시럽', en: 'Honey', c: '#ffc43d' },
+  { id: 'dots', cat: 'sprinkle', ko: '스프링클', en: 'Sprinkles' },
+  { id: 'stars', cat: 'sprinkle', ko: '별 스프링클', en: 'Star sprinkles' },
+  { id: 'hearts', cat: 'sprinkle', ko: '하트 스프링클', en: 'Heart sprinkles' },
+  { id: 'cherry', cat: 'top', ko: '체리', en: 'Cherry' },
+  { id: 'cream', cat: 'top', ko: '생크림', en: 'Whipped cream' },
+  { id: 'wafer', cat: 'top', ko: '웨하스', en: 'Wafer' },
+  { id: 'stick', cat: 'top', ko: '초코 막대', en: 'Chocolate stick' },
+  { id: 'cookie', cat: 'top', ko: '쿠키', en: 'Cookie' },
+  { id: 'flag', cat: 'top', ko: '깃발', en: 'Flag' },
+];
+const ICE_CATS = [['base', '🍦', '콘·컵'], ['scoop', '🍨', '아이스크림'], ['syrup', '🍯', '시럽'], ['sprinkle', '✨', '스프링클'], ['top', '🍒', '토핑']];
+const ICE_WORD = [['scoop', 'Ice cream'], ['cone', 'Cone'], ['waffle', 'Waffle cone'], ['cup', 'Cup'], ['syrup', 'Syrup'], ['spr', 'Sprinkles'],
+                  ['cherry', 'Cherry'], ['cream', 'Whipped cream'], ['wafer', 'Wafer'], ['stick', 'Chocolate stick'], ['cookie', 'Cookie'], ['flag', 'Flag']];
+const iceItem = id => ICE_ITEMS.find(i => i.id === id);
+const newIce = () => ({ base: 'cone', scoop: 's1', syrup: null, sprinkle: null, top: [] });
+function stickPoly(x0, y0, x1, y1, w) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), nx = -dy / L * w / 2, ny = dx / L * w / 2;
+  return [[x0 + nx, y0 + ny], [x1 + nx, y1 + ny], [x1 - nx, y1 - ny], [x0 - nx, y0 - ny]];
+}
+function iceDef(st) {
+  const n = iceItem(st.scoop).n, sh = [], has = id => st.top.includes(id);
+  const sc = [0, 1, 2].slice(0, n).map(i => ({ k: 'scoop' + (i + 1), cy: 35 - i * 9.5, rx: 12 - i, ry: 8.5 - i * .5 }));
+  const T = sc[n - 1], topY = T.cy - T.ry, hasCream = has('cream');
+  const flavors = ['#ff9ec0', '#fff1c9', '#9be8c8'];
+  // 뒤에 꽂는 토핑 (아이스크림 뒤에 숨는 부분이 있어요)
+  if (has('wafer')) sh.push(P('wafer', stickPoly(35, T.cy - 1, 43, topY - 11, 3.6), '#f2c47a'),
+    P('wafer_line', stickPoly(35.3, T.cy - 1, 43.3, topY - 11, 1), '#d9a35b', { clip: 'wafer' }));
+  if (has('stick')) sh.push(P('stick', stickPoly(29, T.cy - 1, 21.5, topY - 12, 2.2), '#7a4a2a'));
+  if (has('cookie')) sh.push(E('cookie', 22.5, topY + 1, 6, 6, '#d39a5a'),
+    ...[[20.5, topY - 1], [24.5, topY - 2.5], [22, topY + 2]].map(([x, y]) => E('cookie_chip', x, y, 1.1, 1.1, '#5a3a22', { clip: 'cookie' })));
+  if (has('flag')) sh.push(R('flag_pole', 40.5, topY - 13, 1.2, 12, '#a0673a'), P('flag', [[41.7, topY - 13], [49, topY - 10.5], [41.7, topY - 8]], '#ff5a5f'));
+  // 콘 · 컵
+  if (st.base === 'cone') {
+    sh.push(P('cone', [[21, 40], [43, 40], [32, 63]], '#e8b36a'));
+    for (let a = 12; a <= 50; a += 5) sh.push(P('cone_line', stickPoly(a, 38, a - 13, 64, 1.1), '#c98a4b', { clip: 'cone' }),
+      P('cone_line', stickPoly(a - 14, 38, a - 1, 64, 1.1), '#c98a4b', { clip: 'cone' }));
+  } else if (st.base === 'waffle') {
+    sh.push(P('waffle', [[18, 40], [46, 40], [41, 61], [23, 61]], '#f0c27b'));
+    [45, 50, 55].forEach(y => sh.push(R('waffle_line', 0, y, 64, 1.1, '#d39a52', { clip: 'waffle' })));
+    [26, 32, 38].forEach(x => sh.push(R('waffle_line', x - .55, 40, 1.1, 22, '#d39a52', { clip: 'waffle' })));
+    sh.push(R('waffle_rim', 16.5, 38.5, 31, 3.2, '#e0a85e'));
+  } else {
+    sh.push(P('cup', [[19, 42], [45, 42], [41, 62], [23, 62]], '#ff8cc6'), R('cup_band', 0, 50, 64, 4, '#ffffff', { clip: 'cup' }),
+      ...[[27, 57.5], [37, 57.5], [32, 46]].map(([x, y]) => E('cup_dot', x, y, 1.4, 1.4, '#ffffff', { clip: 'cup' })),
+      R('cup_rim', 18, 40, 28, 3, '#ffffff'));
+  }
+  // 아이스크림 (한 스쿱씩 따로 칠할 수 있어요)
+  sc.forEach((s, i) => {
+    sh.push(E(s.k, 32, s.cy, s.rx, s.ry, flavors[i]));
+    [-.72, -.24, .24, .72].forEach(f => sh.push(E(s.k, 32 + f * s.rx, s.cy + s.ry * .72, 3.2, 2.6, flavors[i])));
+  });
+  if (st.syrup) {
+    const c = iceItem(st.syrup).c;
+    sh.push(E('syrup', 32, T.cy - T.ry * .3, T.rx * .98, T.ry * .78, c, { clip: T.k }));
+    [[-.7, 4], [-.25, 6.5], [.2, 3.5], [.62, 5.5]].forEach(([f, L]) => sh.push(R('syrup', 32 + f * T.rx - 1.1, T.cy - 1, 2.2, L, c)));
+  }
+  if (st.sprinkle) {
+    const clip = [...sc.map(s => s.k), 'syrup'], cols = ['#ff5a5f', '#4a8ff0', '#ffd23f', '#3cb371', '#a26bff'];
+    let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    sc.forEach(s => { for (let j = 0; j < 7; j++) {
+      const x = 32 + (rnd() * 2 - 1) * s.rx * .72, y = s.cy + (rnd() * 2 - 1.2) * s.ry * .55, k = 'spr' + (j % 5), c = cols[j % 5];
+      if (st.sprinkle === 'dots') sh.push(P(k, stickPoly(x - 1, y - .6, x + 1, y + .6, 1.1), c, { clip }));
+      else if (st.sprinkle === 'stars') sh.push(P(k, starPts(x, y, 1.7, .75), c, { clip }));
+      else sh.push(E(k, x - .6, y - .3, .8, .8, c, { clip }), E(k, x + .6, y - .3, .8, .8, c, { clip }), P(k, [[x - 1.35, y - .1], [x + 1.35, y - .1], [x, y + 1.4]], c, { clip }));
+    } });
+  }
+  // 위에 올리는 토핑
+  if (hasCream) sh.push(E('cream', 32, topY + .5, T.rx * .7, 3, '#ffffff'), E('cream', 32, topY - 2.5, T.rx * .5, 2.6, '#ffffff'), E('cream', 32, topY - 5, T.rx * .28, 2, '#ffffff'));
+  if (has('cherry')) {
+    const cy = topY - (hasCream ? 8.5 : 2.2);
+    sh.push(P('cherry_stem', [[31.6, cy - 2], [33.4, cy - 6.6], [34.6, cy - 6.3], [32.6, cy - 2]], '#3cb371'), E('cherry', 32, cy, 2.8, 2.8, '#e8303f'));
+  }
+  return { w: 64, h: 64, pad: 4, bg: '#fff0f6', shapes: sh };
+}
+let ice = null, iTab = 'base', iColor = null;
+const icePrev = {};
+const iceOn = it => it.cat === 'top' ? ice.st.top.includes(it.id) : ice.st[it.cat] === it.id;
+function applyIce(st, it) {
+  if (it.cat === 'top') st.top = st.top.includes(it.id) ? st.top.filter(x => x !== it.id) : [...st.top, it.id];
+  else if ((it.cat === 'syrup' || it.cat === 'sprinkle') && st[it.cat] === it.id) st[it.cat] = null;
+  else st[it.cat] = it.id;
+}
+function startIce() {
+  ice = { st: newIce(), over: {} };
+  renderITabs(); renderIItems();
+  go('ice');
+  sayEn("Let's make ice cream!");
+}
+function rebuildIce() { ice.art = build(iceDef(ice.st), 'A', scaleOf()); redrawIce(); }
+const iceColors = () => ice.art.regions.map(r => r.fix || ice.over[r.k] || r.col);
+function redrawIce() { if (ice.ctx) draw(ice.ctx, ice.art, iceColors(), ice.cs); }
+function renderITabs() {
+  const box = $('iTabs'); box.innerHTML = '';
+  ICE_CATS.forEach(([cat, emo, ko]) => {
+    const b = document.createElement('button'); b.className = 'dtab' + (cat === iTab ? ' on' : '');
+    b.innerHTML = `<span class="emoji">${emo}</span><span>${ko}</span>`;
+    b.onclick = () => { iTab = cat; sfx.tap(); renderITabs(); renderIItems(); };
+    box.appendChild(b);
+  });
+}
+function renderIItems() {
+  const box = $('iItems'); box.innerHTML = '';
+  ICE_ITEMS.filter(it => it.cat === iTab).forEach(it => {
+    const b = document.createElement('button'); b.className = 'card ditem' + (iceOn(it) ? ' on' : '');
+    if (!icePrev[it.id]) {
+      const st = newIce(); if (it.cat === 'top' || it.cat === 'syrup' || it.cat === 'sprinkle') st.scoop = 's2';
+      applyIce(st, it);
+      const pv = document.createElement('canvas'); preview(pv, iceDef(st), 3); icePrev[it.id] = pv;
+    }
+    const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.getContext('2d').drawImage(icePrev[it.id], 0, 0, 120, 120);
+    b.append(cv); b.insertAdjacentHTML('beforeend', `<span>${it.ko}</span>`);
+    b.onclick = () => {
+      const was = iceOn(it);
+      applyIce(ice.st, it);
+      if (!was) {
+        const main = it.cat === 'scoop' ? 'scoop' + it.n : it.cat === 'sprinkle' ? null : it.cat === 'syrup' ? 'syrup' : it.id;
+        if (main) { if (iColor) ice.over[main] = iColor; else if (it.cat !== 'scoop') delete ice.over[main]; }
+        sfx.pop(); sayEn((iColor && main ? colorWord(iColor) : '') + it.en + '!');
+      } else tone(600, 0, .1, 'triangle', .2, 300);
+      rebuildIce(); renderIItems();
+    };
+    box.appendChild(b);
+  });
+}
+function makeIPalette() {
+  const box = $('iPalette'); box.innerHTML = '';
+  [null, ...PALETTE].forEach(c => {
+    const b = document.createElement('button'); b.className = 'dsw';
+    if (c === null) b.textContent = '↺'; else b.style.background = c === 'rainbow' ? RAINBOW_CSS : c;
+    b.dataset.c = c || '';
+    b.onclick = () => { iColor = c; sfx.tap(); syncIPalette(); if (c) sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
+    box.appendChild(b);
+  });
+  syncIPalette();
+}
+function syncIPalette() { document.querySelectorAll('#iPalette .dsw').forEach(b => b.classList.toggle('sel', b.dataset.c === (iColor || ''))); }
+$('iceCv').addEventListener('pointerdown', e => {
+  if (!ice || !ice.art) return;
+  const A = ice.art, r = e.currentTarget.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) / r.width * A.w), y = Math.floor((e.clientY - r.top) / r.height * A.h);
+  if (x < 0 || y < 0 || x >= A.w || y >= A.h) return;
+  const reg = A.regions[A.map[y * A.w + x]];
+  if (reg.fix) return;
+  if (iColor) { ice.over[reg.k] = iColor; sfx.pop(); redrawIce(); } else sfx.tap();
+  const w = ICE_WORD.find(([p]) => reg.k.startsWith(p));
+  if (w) sayEn((iColor ? colorWord(iColor) : '') + w[1] + '!');
+});
+$('iceReset').onclick = () => { sfx.tap(); ice.st = newIce(); ice.over = {}; rebuildIce(); renderIItems(); };
+$('iceSave').onclick = () => saveArt(ice.art, iceColors(), '아이스크림');
+$('iceDone').onclick = () => {
+  celebrate('아이스크림 완성!', '정말 맛있어 보여요', [
+    ['계속 만들기', '', () => $('celebrate').classList.remove('show')],
+    ['저장하기', 'blue', () => saveArt(ice.art, iceColors(), '아이스크림')],
+  ]);
+  setTimeout(() => sayEn('Yummy! My ice cream!'), 700);
+};
+function layoutIce() {
+  if (!ice) return;
+  const m = $('iceMain'), W = m.clientWidth - 40, H = m.clientHeight - 30;
+  const land = W > H * 1.15;
+  m.classList.toggle('land', land);
+  const panel = $('icePanel');
+  let size;
+  if (land) { panel.style.maxHeight = (H + 10) + 'px'; size = Math.min(H - 20, W - panel.offsetWidth - 50); }
+  else {
+    panel.style.maxHeight = '';
+    size = Math.min(W - 20, H - panel.offsetHeight - 30);
+    if (size < H * .5) { size = Math.min(W - 20, H * .52); panel.style.maxHeight = Math.max(160, H - size - 26) + 'px'; }
+  }
+  size = Math.floor(size);
+  if (!ice.art) ice.art = build(iceDef(ice.st), 'A', scaleOf());
+  ice.cs = Math.max(3, size) / ice.art.bw;
+  ice.ctx = fitCanvas($('iceCv'), ice.cs * ice.art.bw, ice.cs * ice.art.bh);
+  redrawIce();
+}
+
+// =====================================================================
+//  퍼즐 (12조각)
+// =====================================================================
+const PLACE_EN = { farm: 'Farm', space: 'Space', winter: 'Snowy town', party: 'Birthday party', beach: 'Beach', garden: 'Garden' };
+const PZ_C = 4, PZ_R = 3;
+let pz = null;
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function makePuzzleTiles() {
+  const g = $('pzGrid'); g.innerHTML = '';
+  PLACES.forEach(def => {
+    const t = document.createElement('button'); t.className = 'card tile';
+    const cv = document.createElement('canvas'); puzzlePreview(cv, def, 4);
+    t.append(cv); t.insertAdjacentHTML('beforeend', `<span class="nm">${def.name}</span>`);
+    t.onclick = () => { sfx.tap(); startPuzzle(def); };
+    g.appendChild(t);
+  });
+}
+// 그림 위에 퍼즐 조각 선을 그려서 보여줘요
+function puzzlePreview(cv, def, cs) {
+  preview(cv, def, cs);
+  const c = cv.getContext('2d'), W = cv.width, H = cv.height;
+  c.strokeStyle = '#ffffff'; c.lineWidth = Math.max(2, cs * .8); c.beginPath();
+  for (let i = 1; i < PZ_C; i++) { c.moveTo(W / PZ_C * i, 0); c.lineTo(W / PZ_C * i, H); }
+  for (let j = 1; j < PZ_R; j++) { c.moveTo(0, H / PZ_R * j); c.lineTo(W, H / PZ_R * j); }
+  c.stroke();
+}
+function startPuzzle(def) {
+  const art = build(def, 'A', scaleOf()), cs = 10, img = document.createElement('canvas');
+  img.width = 96 * cs; img.height = 64 * cs;
+  draw(img.getContext('2d'), art, defaultColors(art), cs, { thin: cs * .3 });
+  pz = { def, img, placed: new Array(PZ_C * PZ_R).fill(false), sel: null, order: shuffle([...Array(PZ_C * PZ_R).keys()]), done: false, miss: 0 };
+  $('pzTitle').textContent = `${def.name} 퍼즐`;
+  const ex = $('pzEx'); ex.width = img.width / 2; ex.height = img.height / 2; ex.getContext('2d').drawImage(img, 0, 0, ex.width, ex.height);
+  renderTray();
+  go('puzzle');
+  sayEn(PLACE_EN[def.id] + '!');
+}
+function pieceRect(i) { const w = pz.img.width / PZ_C, h = pz.img.height / PZ_R; return [(i % PZ_C) * w, ((i / PZ_C) | 0) * h, w, h]; }
+function renderTray() {
+  const t = $('pzTray'); t.innerHTML = '';
+  pz.order.forEach(i => {
+    if (pz.placed[i]) return;
+    const b = document.createElement('button'); b.className = 'piece' + (pz.sel === i ? ' sel' : '');
+    const cv = document.createElement('canvas'), [x, y, w, h] = pieceRect(i);
+    cv.width = w / 2; cv.height = h / 2; cv.getContext('2d').drawImage(pz.img, x, y, w, h, 0, 0, cv.width, cv.height);
+    b.append(cv);
+    b.onclick = () => { pz.sel = pz.sel === i ? null : i; pz.miss = 0; sfx.tap(); renderTray(); };
+    t.appendChild(b);
+  });
+}
+function drawBoard(flash, good) {
+  if (!pz.ctx) return;
+  const ctx = pz.ctx, W = pz.bw, H = pz.bh, cw = W / PZ_C, ch = H / PZ_R;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#eef1f7'; ctx.fillRect(0, 0, W, H);
+  ctx.globalAlpha = .16; ctx.drawImage(pz.img, 0, 0, W, H); ctx.globalAlpha = 1;
+  for (let i = 0; i < PZ_C * PZ_R; i++) if (pz.placed[i]) {
+    const [x, y, w, h] = pieceRect(i);
+    ctx.drawImage(pz.img, x, y, w, h, (i % PZ_C) * cw, ((i / PZ_C) | 0) * ch, cw, ch);
+  }
+  if (!pz.done) {
+    ctx.strokeStyle = '#9aa3b5'; ctx.lineWidth = 2; ctx.setLineDash([7, 6]); ctx.beginPath();
+    for (let i = 1; i < PZ_C; i++) { ctx.moveTo(cw * i, 0); ctx.lineTo(cw * i, H); }
+    for (let j = 1; j < PZ_R; j++) { ctx.moveTo(0, ch * j); ctx.lineTo(W, ch * j); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  [[flash, 'rgba(255,59,107,.35)'], [good, 'rgba(60,179,113,.45)']].forEach(([s, col]) => {
+    if (s == null) return;
+    ctx.fillStyle = col; ctx.fillRect((s % PZ_C) * cw, ((s / PZ_C) | 0) * ch, cw, ch);
+  });
+}
+$('pzBoard').addEventListener('pointerdown', e => {
+  if (!pz || pz.done) return;
+  const r = e.currentTarget.getBoundingClientRect();
+  const c = Math.floor((e.clientX - r.left) / r.width * PZ_C), rr = Math.floor((e.clientY - r.top) / r.height * PZ_R);
+  if (c < 0 || rr < 0 || c >= PZ_C || rr >= PZ_R) return;
+  const slot = rr * PZ_C + c;
+  if (pz.placed[slot]) return;
+  if (pz.sel === null) { tone(500, 0, .08, 'sine', .15); $('pzTray').classList.remove('shake'); void $('pzTray').offsetWidth; $('pzTray').classList.add('shake'); return; }
+  if (pz.sel === slot) {
+    pz.placed[slot] = true; pz.sel = null; pz.miss = 0; sfx.ding(); renderTray(); drawBoard();
+    if (pz.placed.every(Boolean)) {
+      pz.done = true; drawBoard();
+      setTimeout(() => {
+        celebrate('퍼즐 완성!', `${pz.def.name} 그림을 다 맞췄어요`, [
+          ['다시 하기', '', () => startPuzzle(pz.def)], ['다른 그림', 'pink', () => go('puzzlePick')]]);
+        setTimeout(() => sayEn('Great job! ' + PLACE_EN[pz.def.id] + '!'), 700);
+      }, 350);
+    }
+  } else {
+    sfx.boop(); pz.miss++;
+    // 두 번 틀리면 맞는 자리를 초록색으로 살짝 알려줘요
+    drawBoard(slot, pz.miss >= 2 ? pz.sel : null);
+    setTimeout(() => drawBoard(), pz.miss >= 2 ? 900 : 350);
+  }
+});
+function layoutPuzzle() {
+  if (!pz) return;
+  const m = $('pzMain'), W = m.clientWidth - 40, H = m.clientHeight - 30, gap = 18, pa = 1.125;
+  const land = W > H * 1.2;
+  m.classList.toggle('land', land);
+  let bw, exW, pw;
+  if (land) {
+    const colW = Math.min(330, Math.max(240, W * .3));
+    exW = colW - 20; const exH = exW / 1.5;
+    pw = Math.floor(Math.min((colW - 20 - 16) / 3, (H - exH - gap - 40 - 24) / 4 * pa));
+    bw = Math.min(W - colW - gap - 12, (H - 12) * 1.5);
+    $('pzCol').style.width = colW + 'px';
+    $('pzTray').style.gridTemplateColumns = `repeat(3, ${pw}px)`;
+  } else {
+    exW = Math.min(W * .42, 260);
+    pw = Math.floor(Math.min((W - 20 - 5 * 8) / 6, 110));
+    const trayH = 2 * pw / pa + 8 + 24;
+    bw = Math.min(W - 12, (H - exW / 1.5 - trayH - gap * 2 - 24) * 1.5);
+    $('pzCol').style.width = '';
+    $('pzTray').style.gridTemplateColumns = `repeat(6, ${pw}px)`;
+  }
+  $('pzEx').style.width = exW + 'px'; $('pzEx').style.height = exW / 1.5 + 'px';
+  m.style.setProperty('--pw', pw + 'px'); m.style.setProperty('--ph', pw / pa + 'px');
+  pz.bw = Math.floor(bw); pz.bh = Math.floor(bw / 1.5);
+  pz.ctx = fitCanvas($('pzBoard'), pz.bw, pz.bh);
+  drawBoard();
+}
+
+// =====================================================================
+//  한글 맞추기
+// =====================================================================
+const HAN_WORDS = [['하늘', 'Sky', '🌤️'], ['나무', 'Tree', '🌳'], ['우유', 'Milk', '🥛'], ['바다', 'Sea', '🌊'], ['포도', 'Grapes', '🍇'],
+  ['기차', 'Train', '🚂'], ['오리', 'Duck', '🦆'], ['모자', 'Hat', '🧢'], ['나비', 'Butterfly', '🦋'], ['토끼', 'Rabbit', '🐰'],
+  ['구름', 'Cloud', '☁️'], ['사자', 'Lion', '🦁'], ['아기', 'Baby', '👶'], ['엄마', 'Mom', '👩'], ['아빠', 'Dad', '👨'],
+  ['별', 'Star', '⭐'], ['달', 'Moon', '🌙'], ['꽃', 'Flower', '🌸'], ['사과', 'Apple', '🍎'], ['고래', 'Whale', '🐳']];
+const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', JUNG = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
+const JONG = ['', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+const splitSyl = ch => { const c = ch.charCodeAt(0) - 0xAC00; return [Math.floor(c / 588), Math.floor(c % 588 / 28), c % 28]; };
+const jamoOfSyl = ch => { const [a, b, c] = splitSyl(ch); return [CHO[a], JUNG[b], ...(c ? [JONG[c]] : [])]; };
+function partSyl(ch, k) {
+  const [a, b, c] = splitSyl(ch);
+  if (k <= 0) return ''; if (k === 1) return CHO[a];
+  if (k === 2 && c) return String.fromCharCode(0xAC00 + (a * 21 + b) * 28);
+  return ch;
+}
+let han = null;
+function makeHanTiles() {
+  const g = $('hanGrid'); g.innerHTML = '';
+  HAN_WORDS.forEach((w, i) => {
+    const t = document.createElement('button'); t.className = 'card tile';
+    t.innerHTML = `<div class="emo">${w[2]}</div><span class="nm hanw">${w[0]}</span>`;
+    t.onclick = () => { sfx.tap(); startHan(i); };
+    g.appendChild(t);
+  });
+}
+function startHan(i) {
+  const [ko, en, emo] = HAN_WORDS[i], syls = [...ko];
+  const seq = syls.flatMap((s, si) => jamoOfSyl(s).map(j => ({ j, si })));
+  const pool = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣㅑㅕ'.split('');
+  const total = Math.min(12, Math.max(10, seq.length + 4));
+  const extra = shuffle(pool.filter(j => !seq.some(s => s.j === j))).slice(0, total - seq.length);
+  han = { i, ko, en, emo, syls, seq, pos: 0, busy: false, miss: 0, done: false,
+          tiles: shuffle([...seq.map(s => s.j), ...extra]).map(j => ({ j, used: false })) };
+  $('hanEmo').textContent = emo; $('hanEn').textContent = ''; $('hanEn').classList.remove('show');
+  $('hanSyls').innerHTML = syls.map(s => `<div class="syl"><span class="ghost">${s}</span><span class="fill"></span></div>`).join('');
+  const f = $('hanField'); f.querySelectorAll('.jamo').forEach(el => el.remove());
+  han.tiles.forEach(t => {
+    const b = document.createElement('button'); b.className = 'jamo'; b.textContent = t.j; t.el = b;
+    b.onclick = () => tapJamo(t);
+    f.appendChild(b);
+  });
+  go('han');
+  updateHanWord();
+  say([{ t: ko, lang: 'ko' }]);
+}
+function updateHanWord() {
+  const cnt = han.syls.map(() => 0);
+  for (let k = 0; k < han.pos; k++) cnt[han.seq[k].si]++;
+  const cur = han.pos < han.seq.length ? han.seq[han.pos].si : -1;
+  [...$('hanSyls').children].forEach((el, si) => {
+    el.querySelector('.fill').textContent = partSyl(han.syls[si], cnt[si]);
+    el.classList.toggle('now', si === cur);
+  });
+}
+function placePac(x, y) { const p = $('pac'); p.style.left = x + 'px'; p.style.top = y + 'px'; }
+function tapJamo(t) {
+  if (!han || han.busy || han.done || t.used) return;
+  const need = han.seq[han.pos];
+  if (t.j !== need.j) {
+    sfx.boop(); han.miss++;
+    t.el.classList.remove('shake'); void t.el.offsetWidth; t.el.classList.add('shake');
+    if (han.miss >= 2) { const ok = han.tiles.find(x => !x.used && x.j === need.j); if (ok) { ok.el.classList.add('hint'); setTimeout(() => ok.el.classList.remove('hint'), 1500); } }
+    return;
+  }
+  han.busy = true; han.miss = 0;
+  const pac = $('pac'), tx = t.el.offsetLeft + t.el.offsetWidth / 2, ty = t.el.offsetTop + t.el.offsetHeight / 2;
+  const px = pac.offsetLeft + pac.offsetWidth / 2;
+  pac.querySelector('.face').style.transform = tx < px ? 'scaleX(-1)' : '';
+  placePac(tx - pac.offsetWidth / 2, ty - pac.offsetHeight / 2);
+  setTimeout(() => {
+    t.used = true; t.el.classList.add('eaten');
+    tone(330, 0, .07, 'square', .12); tone(220, .09, .07, 'square', .12);
+    const si = need.si;
+    han.pos++; updateHanWord();
+    const sylDone = han.pos === han.seq.length || han.seq[han.pos].si !== si;
+    const el = $('hanSyls').children[si];
+    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+    han.busy = false;
+    if (han.pos === han.seq.length) finishHan();
+    else if (sylDone && han.syls.length > 1) say([{ t: han.syls[si], lang: 'ko' }]);
+  }, 480);
+}
+function finishHan() {
+  han.done = true;
+  $('hanEn').textContent = `${han.ko} · ${han.en}`; $('hanEn').classList.add('show');
+  sfx.ding();
+  say([{ t: han.ko, lang: 'ko' }, { t: han.en, lang: 'en' }]);
+  setTimeout(() => {
+    celebrate('참 잘했어요!', `${han.ko} · ${han.en}`, [
+      ['다음 단어', 'pink', () => startHan((han.i + 1) % HAN_WORDS.length)], ['다른 단어', '', () => go('hanPick')]]);
+  }, 1800);
+}
+$('hanSay').onclick = () => { if (han) say([{ t: han.ko, lang: 'ko' }, { t: han.en, lang: 'en' }]); };
+function layoutHan() {
+  if (!han) return;
+  const m = $('hanMain'), W = m.clientWidth - 40, H = m.clientHeight - 30, gap = 22;
+  const land = W > H * 1.1;
+  m.classList.toggle('land', land);
+  const wc = $('hanWordCard'), f = $('hanField');
+  let ww, wh, fw, fh;
+  if (land) { ww = Math.min(W * .4, 420); wh = Math.min(H, 520); fw = W - ww - gap; fh = Math.min(H, fw * .8); }
+  else { ww = W; wh = Math.min(H * .4, 360); fw = W; fh = H - wh - gap; }
+  wc.style.width = ww + 'px'; wc.style.height = wh + 'px';
+  f.style.width = fw + 'px'; f.style.height = fh + 'px';
+  $('hanEmo').style.fontSize = Math.floor(Math.min(ww, wh) * .3) + 'px';
+  const box = Math.floor(Math.min((ww - 40) / han.syls.length - 10, wh * .28, 120));
+  m.style.setProperty('--syl', box + 'px');
+  // 자음·모음을 칸에 흩어 놓기 (위치는 단어마다 한 번만 정해요)
+  const cols = fw > fh ? 5 : 4, rows = Math.ceil(15 / cols) > 3 ? 4 : 3;
+  const cw = (fw - 24) / cols, ch = (fh - 24) / rows, ts = Math.floor(Math.min(cw, ch) * .72);
+  m.style.setProperty('--tile', ts + 'px');
+  if (!han.cells || han.cells.cols !== cols) {
+    const cells = shuffle([...Array(cols * rows).keys()]);
+    han.cells = { cols, list: cells, jit: cells.map(() => [Math.random() - .5, Math.random() - .5]) };
+  }
+  han.tiles.forEach((t, k) => {
+    const c = han.cells.list[k], [jx, jy] = han.cells.jit[k];
+    t.el.style.left = 12 + (c % cols) * cw + (cw - ts) / 2 + jx * (cw - ts) * .6 + 'px';
+    t.el.style.top = 12 + ((c / cols) | 0) * ch + (ch - ts) / 2 + jy * (ch - ts) * .6 + 'px';
+  });
+  const pc = han.cells.list[han.tiles.length] ?? 0;
+  const pac = $('pac'); pac.style.transition = 'none';
+  placePac(12 + (pc % cols) * cw + (cw - ts) / 2, 12 + ((pc / cols) | 0) * ch + (ch - ts) / 2);
+  void pac.offsetWidth; pac.style.transition = '';
+}
+
+// =====================================================================
 //  축하 화면
 // =====================================================================
 function celebrate(title, sub, buttons) {
@@ -1721,6 +2353,9 @@ function renderPreviews() {
   preview($('pvDress'), composeDef(animalParts('rabbit'), { hat: 'sunhat', top: 'stripe', bottom: 'shorts', shoes: 'sneakers', acc: ['sunglasses'] }), 6);
   makeTiles();
   makeDressTiles();
+  makePuzzleTiles();
+  preview($('pvIce'), iceDef({ base: 'cone', scoop: 's2', syrup: 'choco', sprinkle: 'dots', top: ['cherry', 'wafer'] }), 5);
+  puzzlePreview($('pvPuzzle'), PLACES[1], 4);
   if (dress) { dress.art = null; }
   layout();
 }
@@ -1742,6 +2377,9 @@ renderPreviews();
 makePalette();
 makeTopics();
 makeDPalette();
+makeIPalette();
+makeHanTiles();
+$('goIce').onclick = () => { sfx.tap(); startIce(); };
 </script>
 </body>
 </html>
