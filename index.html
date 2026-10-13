@@ -267,8 +267,9 @@
   .syl { position: relative; width: var(--syl); height: var(--syl); display: grid; place-items: center; background: #fff;
     box-shadow: 0 0 0 3px #d9dce6; font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-weight: 800; font-size: calc(var(--syl) * .72); line-height: 1; }
   .syl span { grid-area: 1 / 1; }
-  .syl .ghost { color: #e1e4ec; }
+  .syl .ghost { color: #dfe3ec; }
   .syl .fill { color: var(--ink); }
+  .syl .part { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink); }
   .syl.now { box-shadow: 0 0 0 3px var(--pink); animation: nowpulse 1.2s ease-in-out infinite; }
   @keyframes nowpulse { 50% { box-shadow: 0 0 0 6px rgba(255,107,154,.45); } }
   .syl.pop .fill { animation: starpop .4s ease-out; display: inline-block; }
@@ -299,6 +300,9 @@
   #dressBoard.bg-pool::before { background: repeating-linear-gradient(90deg, rgba(255,255,255,.8) 0 6%, transparent 6% 12%) 0 52% / 100% 4% no-repeat; }
   #dressBoard canvas { position: relative; z-index: 1; display: block; }
   .dtabs { flex-wrap: wrap; }
+  .ctabs { flex: none; width: min(560px, calc(100% - 32px)); margin: 0 auto; gap: 8px; }
+  .ctabs .dtab { background: #fff; box-shadow: 0 0 0 2px var(--ink), 0 4px 0 rgba(43,45,66,.2); font-size: 12px; }
+  .ctabs .dtab.on { background: #fff3b0; }
   .dtab { min-width: 54px; }
 
   /* 아이스크림 가게 배경 */
@@ -523,7 +527,8 @@
 
 <!-- 2-1. 동물 고르기 -->
 <section id="colorPick" class="screen">
-  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">누구를 색칠할까?</div><div class="bar-r"><div class="seg"></div></div></div>
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">누구를 색칠할까?</div><div class="bar-r"><button class="pbtn sm pink" id="shuffleAnimals">🔄 다른 친구</button><div class="seg"></div></div></div>
+  <div class="dtabs ctabs" id="colorCats"></div>
   <div class="pick-main"><div class="grid" id="animalGrid"></div></div>
 </section>
 
@@ -699,6 +704,7 @@ function build(def, variant = 'A', S = 1, active = null) {
   });
   return { w, h, S, bw, bh, pad, map, regions, edges, diffs, comp, cbox };
 }
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const defaultColors = art => art.regions.map(r => r.fix || r.col);
 
 const rgbCache = {};
@@ -975,6 +981,571 @@ const ANIMALS = [
   ]},
 ];
 const LOCKED_ANIMALS = [];
+// =====================================================================
+//  색칠 도안 더 보기 (동물·탈것·건물·사람·음식)
+// =====================================================================
+// ---------- 그리기 도우미 ----------
+const eye = (x, y, w = 3, h = 4) => [ink(x, y, w, h), hl(x + .2, y + .2)];
+const eyes = (x, y, w = 3, h = 4) => [...sym(ink(x, y, w, h)), hl(x + .2, y + .2), hl(64 - x - w + .2, y + .2)];
+const cheeks = (x, y) => sym(E('cheeks', x, y, 2.4, 1.5, '#ffb3c8'));
+const smile = (x, y, w) => [ink(x, y, w, 1), ink(x - 1, y - 1, 1, 1), ink(x + w, y - 1, 1, 1)];
+const D = (id, name, en, shapes, extra = {}) => ({ id, name, en, w: 64, h: 64, pad: 4, shapes, ...extra });
+
+const MORE_ANIMALS = [
+  // 공룡: 등에 가시, 책가방
+  D('dino', '공룡', 'Dinosaur', [
+    P('tail', [[40, 44], [52, 40], [62, 44], [63, 48], [52, 48], [42, 54]], '#7ccf5e'),
+    ...[[23, 9], [32, 5], [41, 9]].map(([x, y], i) => P('spikes', [[x - 4, y + 6], [x, y - 3], [x + 4, y + 6]], '#ffd23f')),
+    ...sym(P('spikes', [[14, 20], [9, 14], [17, 15]], '#ffd23f')),
+    E('head', 32, 18, 16, 12, '#7ccf5e'),
+    E('snout', 32, 23, 9, 5, '#a8e58f'),
+    ...sym(E('nostril', 29, 22, .9, .9, '#2b2d42', { fix: '#2b2d42' })),
+    ...eyes(24, 13), ...cheeks(21, 19), ...smile(28, 27, 8),
+    ...sym(R('legs', 23, 50, 7, 8, '#7ccf5e')), ...sym(R('feet', 21, 56, 10, 4, '#5fae4a')),
+    ...sym(E('arms', 17, 39, 3.5, 6, '#7ccf5e')),
+    E('body', 32, 40, 13, 13, '#7ccf5e'),
+    E('belly', 32, 42, 8, 9, '#dff5b8', { clip: 'body' }),
+    ...sym(R('straps', 24, 29, 3, 12, '#ff6b9a')),
+    R('pocket', 28, 41, 8, 5, '#ff6b9a'),
+  ]),
+  // 코끼리: 큰 귀, 고깔모자, 티셔츠
+  D('elephant', '코끼리', 'Elephant', [
+    ...sym(E('ears', 16, 20, 8, 10, '#9aa3c8')), ...sym(E('inner', 16, 20, 5, 7, '#ffb3c8', { clip: 'ears' })),
+    P('hat', [[26, 8], [32, -3], [38, 8]], '#ff6b9a'), E('pom', 32, -3, 1.8, 1.8, '#ffd23f'), R('hatst', 27, 3, 10, 2, '#ffffff', { clip: 'hat' }),
+    E('head', 32, 19, 13, 11, '#b4bce0'),
+    ...eyes(25, 15), ...cheeks(22, 21),
+    P('trunk', [[28, 23], [36, 23], [38, 36], [44, 42], [41, 46], [34, 40], [30, 32]], '#b4bce0'),
+    ...sym(R('legs', 23, 50, 7, 8, '#b4bce0')), ...sym(R('feet', 21, 56, 10, 4, '#9aa3c8')),
+    E('body', 32, 42, 13, 12, '#b4bce0'),
+    R('shirt', 19, 34, 26, 12, '#ffd23f', { clip: 'body' }), P('star', starPts(27, 40, 3, 1.3), '#ffffff'),
+    ...sym(E('arms', 17, 41, 3.5, 6, '#b4bce0')),
+    P('tail', [[43, 46], [50, 42], [52, 44], [45, 50]], '#b4bce0'),
+  ]),
+  // 펭귄: 목도리, 털모자
+  D('penguin', '펭귄', 'Penguin', [
+    P('hat', [[20, 14], [21, 7], [26, 3], [32, 2], [38, 3], [43, 7], [44, 14]], '#4a8ff0'), R('hatband', 19, 12, 26, 3, '#ffffff'), E('pom', 32, 1.5, 3, 3, '#ffffff'),
+    E('body', 32, 36, 16, 20, '#3a3a4a'),
+    E('face', 32, 22, 11, 8, '#ffffff'),
+    E('belly', 32, 42, 10, 13, '#ffffff'),
+    ...eyes(26, 19), ...cheeks(23, 24),
+    P('beak', [[29, 24], [35, 24], [32, 28]], '#ff9f43'),
+    ...sym(P('wings', [[18, 32], [11, 46], [15, 48], [21, 40]], '#3a3a4a')),
+    R('scarf', 20, 28, 24, 4, '#ff5a5f'), R('scarfend', 36, 31, 5, 9, '#ff5a5f'), R('scarfln', 20, 29.5, 24, 1, '#ffffff', { clip: 'scarf' }),
+    ...sym(E('feet', 26, 56, 5, 2.5, '#ff9f43')),
+  ]),
+  // 사자: 갈기, 왕관, 티셔츠
+  D('lion', '사자', 'Lion', [
+    P('tail', [[43, 50], [54, 44], [58, 36], [55, 35], [52, 42], [43, 47]], '#ffb347'), E('tailtuft', 56.5, 34, 3, 3, '#a0673a'),
+    E('mane', 32, 20, 17, 16, '#ff9f43'),
+    P('crown', [[22, 7], [22, 1], [27, 4], [32, -1], [37, 4], [42, 1], [42, 7]], '#ffd23f'), E('gem', 32, 5, 1.5, 1.5, '#ff5a5f'),
+    E('head', 32, 21, 12, 10.5, '#ffd27f'),
+    E('muzzle', 32, 25, 6, 4, '#fff3dd'),
+    ...eyes(25, 17), ...cheeks(22, 23), ink(31, 23, 2, 2), ...sym(ink(29, 26, 2, 1)),
+    ...sym(R('legs', 23, 50, 7, 8, '#ffd27f')), ...sym(R('feet', 21, 56, 10, 4, '#ff9f43')),
+    E('body', 32, 42, 12, 12, '#ffd27f'),
+    R('shirt', 20, 34, 24, 12, '#6cc7ff', { clip: 'body' }), R('shirtst', 20, 38, 24, 2, '#ffffff', { clip: 'shirt' }),
+    ...sym(E('arms', 18, 41, 3.5, 6, '#ffd27f')),
+  ]),
+  // 기린: 긴 목, 점무늬, 나비넥타이
+  D('giraffe', '기린', 'Giraffe', [
+    ...sym(R('horns', 26, 1, 2, 6, '#c98a4b')), ...sym(E('horntip', 27, 1, 2, 2, '#a0673a')),
+    ...sym(E('ears', 20, 9, 4, 2.2, '#ffd27f')),
+    E('head', 32, 11, 10, 8, '#ffd27f'),
+    E('snout', 32, 15, 7, 4, '#fff3dd'), ...sym(ink(29, 15, 1.5, 1)),
+    ...eyes(26, 8, 2.6, 3.4), ...cheeks(23, 13),
+    P('neck', [[27, 17], [37, 17], [38, 36], [26, 36]], '#ffd27f'),
+    ...[[30, 21], [34, 27], [29, 31]].map(([x, y]) => E('spots', x, y, 2, 2, '#c98a4b', { clip: 'neck' })),
+    ...sym(P('bowtie', [[32, 36], [25, 33], [25, 39]], '#ff5a5f')), R('knot', 30, 34, 4, 4, '#ffd23f'),
+    ...sym(R('legs', 24, 52, 6, 7, '#ffd27f')), ...sym(R('feet', 22, 57, 9, 3, '#c98a4b')),
+    E('body', 32, 45, 12, 10, '#ffd27f'),
+    ...[[25, 43], [38, 47], [31, 50]].map(([x, y]) => E('spots', x, y, 2.2, 2.2, '#c98a4b', { clip: 'body' })),
+    R('shorts', 22, 49, 20, 6, '#3cb371'),
+    ...sym(E('arms', 19, 44, 3.5, 6, '#ffd27f')),
+    P('tail', [[43, 48], [50, 44], [52, 46], [45, 51]], '#ffd27f'),
+  ]),
+  // 유니콘: 뿔, 무지개 갈기, 안장
+  D('unicorn', '유니콘', 'Unicorn', [
+    P('horn', [[29, 9], [33, -4], [36, 9]], '#ffd23f'),
+    ...[['#ff5a5f', 12], ['#ff9f43', 16], ['#ffd23f', 20], ['#8ae66b', 24], ['#4a8ff0', 28], ['#a26bff', 32]].map(([c, y], i) => E('mane' + i, 43, y, 5, 3.5, c)),
+    ...sym(P('ears', [[24, 10], [27, 3], [30, 10]], '#ffffff')),
+    E('head', 32, 17, 12, 10, '#ffffff'),
+    E('snout', 32, 22, 7, 4, '#ffd1e6'), ...sym(ink(29, 22, 1.4, 1)),
+    ...eyes(26, 13), ...cheeks(23, 19),
+    ...sym(R('legs', 23, 50, 6, 8, '#ffffff')), ...sym(R('hooves', 22, 56, 8, 4, '#ffd23f')),
+    E('body', 32, 42, 13, 12, '#ffffff'),
+    R('saddle', 19, 38, 26, 8, '#ff8cc6', { clip: 'body' }), R('saddleln', 19, 41, 26, 2, '#ffd23f', { clip: 'saddle' }),
+    ...sym(E('arms', 18, 41, 3.5, 6, '#ffffff')),
+    ...[['#ff5a5f', 44], ['#ffd23f', 47], ['#4a8ff0', 50]].map(([c, y], i) => P('tail' + i, [[43, y], [54, y - 6], [57, y - 3], [45, y + 3]], c)),
+  ]),
+  // 장수풍뎅이: 큰 뿔, 반짝이는 등딱지, 나비넥타이
+  D('beetle', '장수풍뎅이', 'Rhino beetle', [
+    P('horn', [[29, 14], [32, -2], [35, 14]], '#5a3a22'), P('horn', [[30, 2], [26, -2], [34, -1]], '#5a3a22'),
+    ...sym(P('legs', [[14, 34], [6, 28], [8, 26], [17, 31]], '#5a3a22')), ...sym(P('legs', [[13, 42], [4, 42], [4, 45], [14, 45]], '#5a3a22')), ...sym(P('legs', [[15, 50], [7, 58], [10, 59], [18, 52]], '#5a3a22')),
+    E('head', 32, 18, 11, 8, '#7a4a2a'),
+    ...eyes(25, 15, 3, 3.5), ...cheeks(22, 20),
+    E('shell', 32, 42, 16, 17, '#a0673a'),
+    P('shellL', [[32, 26], [17, 42], [32, 58]], '#c98a4b', { clip: 'shell' }), P('shellR', [[32, 26], [47, 42], [32, 58]], '#c98a4b', { clip: 'shell' }),
+    ...sym(E('shine', 25, 36, 2, 3, '#ffffff', { clip: 'shellL' })),
+    ...sym(P('bowtie', [[32, 26], [26, 23], [26, 29]], '#ff5a5f')), R('knot', 30, 24, 4, 4, '#ffd23f'),
+  ]),
+  // 참새: 화려한 날개, 작은 모자
+  D('sparrow', '참새', 'Sparrow', [
+    ...sym(P('wing0', [[21, 30], [4, 16], [2, 26], [4, 36], [10, 42], [21, 38]], '#ff5a5f')),
+    ...sym(P('wing1', [[21, 32], [7, 20], [5, 28], [7, 36], [12, 40], [21, 37]], '#ff9f43', { clip: 'wing0' })),
+    ...sym(P('wing2', [[21, 33], [10, 24], [8, 30], [10, 36], [14, 39], [21, 36]], '#ffd23f', { clip: 'wing1' })),
+    ...sym(P('wing3', [[21, 34], [13, 28], [12, 32], [14, 37], [21, 36]], '#4a8ff0', { clip: 'wing2' })),
+    ...[['#ff5a5f', 0], ['#ffd23f', 1], ['#4a8ff0', 2]].map(([c, i]) => P('tailf' + i, [[30 + i * 2, 52], [24 + i * 6, 62], [28 + i * 6, 62], [34 + i * 2, 52]], c)),
+    R('hatbrim', 24, 9, 16, 2, '#3a3a4a'), R('hat', 27, 2, 10, 8, '#3a3a4a'), R('hatband', 27, 7, 10, 2, '#ff5a5f'),
+    E('body', 32, 40, 12, 14, '#c98a4b'),
+    E('belly', 32, 43, 8, 10, '#fff3dd', { clip: 'body' }),
+    E('head', 32, 20, 11, 10, '#c98a4b'),
+    E('face', 32, 23, 7, 5, '#fff3dd', { clip: 'head' }),
+    ...eyes(26, 16, 3, 3.5), ...cheeks(23, 21),
+    P('beak', [[29, 22], [35, 22], [32, 26]], '#ff9f43'),
+    ...sym(R('feet', 26, 54, 2, 5, '#ff9f43')), ...sym(R('feet', 23, 58, 7, 2, '#ff9f43')),
+  ]),
+  // 무지개 용: 날개, 무지개 배, 불꽃
+  D('dragon', '무지개 용', 'Rainbow dragon', [
+    ...sym(P('wings', [[18, 28], [3, 14], [5, 30], [16, 38]], '#c9a3ff')), ...sym(P('wingin', [[16, 30], [8, 22], [9, 30], [15, 35]], '#e6d4ff', { clip: 'wings' })),
+    ...sym(P('horns', [[24, 9], [21, 1], [28, 7]], '#ffd23f')),
+    P('tail', [[42, 48], [54, 44], [60, 50], [57, 53], [52, 49], [43, 54]], '#7ccf5e'), P('tailtip', [[58, 46], [64, 48], [60, 54]], '#ff5a5f'),
+    E('head', 32, 17, 13, 10, '#7ccf5e'),
+    E('snout', 32, 22, 8, 4.5, '#a8e58f'), ...sym(ink(29, 21, 1.4, 1)),
+    ...eyes(25, 13), ...cheeks(22, 19),
+    P('flame', [[40, 24], [50, 20], [54, 24], [49, 25], [52, 29], [44, 27]], '#ff9f43'), P('flamein', [[42, 24], [48, 22], [49, 26]], '#ffd23f', { clip: 'flame' }),
+    ...sym(R('legs', 23, 50, 7, 8, '#7ccf5e')), ...sym(R('feet', 21, 56, 10, 4, '#5fae4a')),
+    E('body', 32, 41, 13, 13, '#7ccf5e'),
+    ...[['#ff5a5f', 31], ['#ff9f43', 34], ['#ffd23f', 37], ['#8ae66b', 40], ['#4a8ff0', 43], ['#a26bff', 46], ['#ff8cc6', 49]].map(([c, y], i) => E('stripe' + i, 32, y + 1.5, 8, 1.5, c, { clip: 'body' })),
+    ...sym(E('arms', 18, 40, 3.5, 6, '#7ccf5e')),
+  ]),
+];
+
+// ---------- 탈것 · 건물 ----------
+const wheel = (k, x, y, r = 5) => [E(k, x, y, r, r, '#3a3a4a'), E(k + 'hub', x, y, r * .45, r * .45, '#c9cedb')];
+const win = (k, x, y, w, h, c = '#a7ddfc') => R(k, x, y, w, h, c);
+const grass = (k = 'ground') => R(k, 0, 58, 64, 6, '#8ad36a');
+const sun = (x, y, r = 4) => E('sun', x, y, r, r, '#ffd23f');
+const cloud = (k, x, y, s = 1) => [E(k, x - 4 * s, y + s, 4 * s, 2.6 * s, '#ffffff'), E(k, x, y, 4.6 * s, 3.4 * s, '#ffffff'), E(k, x + 4 * s, y + s, 3.8 * s, 2.6 * s, '#ffffff')];
+const tree = (k, x, y, s = 1) => [R(k + 'tr', x - 1.2 * s, y, 2.4 * s, 6 * s, '#a0673a'), E(k, x, y - 3 * s, 5 * s, 5 * s, '#3cb371')];
+
+const PLACES_ART = [
+  // 공주 궁전: 분홍 탑 3개, 하트 깃발
+  D('palace', '궁전', 'Palace', [
+    grass(), sun(8, 8), ...cloud('cloud', 52, 10, .9),
+    ...[18, 46].flatMap(x => [R('tower', x - 5, 24, 10, 34, '#ffd1e6'), P('roof', [[x - 7, 25], [x, 10], [x + 7, 25]], '#ff6b9a'), R('pole', x - .5, 4, 1, 7, '#a0673a'), P('flag', [[x + .5, 4], [x + 6, 6], [x + .5, 8]], '#ffd23f'), win('twin', x - 2, 32, 4, 6)]),
+    R('wall', 13, 36, 38, 22, '#ffe3f0'),
+    R('tower', 27, 18, 10, 40, '#ffd1e6'), P('roof', [[25, 19], [32, 3], [39, 19]], '#ff6b9a'),
+    R('pole', 31.5, -3, 1, 7, '#a0673a'), P('flag', [[32.5, -3], [38, -1], [32.5, 1]], '#ff5a5f'),
+    E('clock', 32, 26, 3, 3, '#ffffff'), ink(31.6, 23.5, .8, 3), ink(32, 25.6, 2, .8),
+    P('door', [[27, 58], [27, 46], [32, 42], [37, 46], [37, 58]], '#c9a3ff'), ink(31.6, 50, .8, 8),
+    ...sym(win('win', 17, 42, 4, 6)), ...sym(win('win', 17, 50, 4, 5)),
+    ...[[20, 14], [44, 14]].map(([x, y]) => E('heart', x, y, 1.6, 1.6, '#ff5a5f')),
+    P('heartb', [[30.5, 33], [33.5, 33], [32, 35]], '#ff5a5f'), E('heartb', 31, 32.5, 1, 1, '#ff5a5f'), E('heartb', 33, 32.5, 1, 1, '#ff5a5f'),
+    ...[[8, 54], [56, 54]].flatMap(([x, y]) => [R('bush', x - 4, y, 8, 4, '#3cb371'), E('bush', x, y, 4, 3, '#3cb371')]),
+  ]),
+  // 경찰서
+  D('police', '경찰서', 'Police station', [
+    grass(), sun(56, 8), ...cloud('cloud', 12, 9, .8),
+    R('building', 10, 22, 44, 36, '#d6e6ff'),
+    R('roofline', 8, 19, 48, 4, '#2f3a7a'),
+    R('sign', 20, 24, 24, 6, '#2f3a7a'), R('signtxt', 22, 26, 20, 2, '#ffffff'),
+    E('light', 32, 17, 3, 3, '#ff5a5f'), R('lightbase', 29, 18, 6, 2, '#3a3a4a'),
+    ...sym(win('win', 14, 33, 7, 7)), ...sym(win('win', 14, 45, 7, 7)), ...sym(ink(17.1, 33, .8, 7)), ...sym(ink(14, 36.6, 7, .8)),
+    R('door', 27, 44, 10, 14, '#4a8ff0'), E('knob', 35, 51, .8, .8, '#ffd23f'),
+    P('badge', [[32, 33], [36, 35], [36, 39], [32, 42], [28, 39], [28, 35]], '#ffd23f'), P('badgestar', starPts(32, 37.5, 2, .9), '#2f3a7a'),
+    R('steps', 24, 56, 16, 2, '#c9cedb'),
+    ...tree('tree', 5, 51, 1), ...tree('tree2', 59, 51, 1),
+  ]),
+  // 소방서
+  D('firestation', '소방서', 'Fire station', [
+    grass(), sun(8, 8), ...cloud('cloud', 50, 9, .9),
+    R('building', 10, 24, 44, 34, '#ff6b6b'),
+    R('roof', 8, 20, 48, 5, '#c94a43'),
+    R('towerb', 24, 8, 16, 13, '#ff6b6b'), P('towerroof', [[22, 9], [32, 2], [42, 9]], '#c94a43'),
+    E('bell', 32, 14, 2.6, 3, '#ffd23f'),
+    R('garage', 14, 38, 16, 20, '#ffd27f'), ...[42, 46, 50, 54].map(y => R('garageln', 14, y, 16, 1, '#e8b36a', { clip: 'garage' })),
+    R('garage2', 34, 38, 16, 20, '#ffd27f'), ...[42, 46, 50, 54].map(y => R('garageln', 34, y, 16, 1, '#e8b36a', { clip: 'garage2' })),
+    ...sym(win('win', 15, 28, 8, 6)), ...sym(ink(18.6, 28, .8, 6)),
+    R('sign', 26, 29, 12, 5, '#ffffff'), R('signtxt', 28, 31, 8, 1.6, '#c94a43'),
+    E('hydrant', 6, 54, 2, 4, '#ff5a5f'), R('hydrant', 4, 51, 4, 2, '#ff5a5f'),
+    ...tree('tree', 59, 51, 1),
+  ]),
+  // 소방차
+  D('firetruck', '소방차', 'Fire truck', [
+    grass('road'), R('roadln', 0, 60, 64, 1.5, '#ffffff', { clip: 'road' }), sun(56, 8), ...cloud('cloud', 14, 9),
+    R('ladder', 20, 24, 36, 4, '#c9cedb'), ...[24, 30, 36, 42, 48].map(x => R('ladderln', x, 24, 1.5, 4, '#9aa3b5', { clip: 'ladder' })),
+    R('body', 14, 28, 46, 22, '#ff5a5f'),
+    R('cab', 4, 32, 14, 18, '#ff5a5f'), win('cabwin', 6, 34, 9, 7),
+    R('stripe', 14, 40, 46, 3, '#ffffff'),
+    win('win', 22, 32, 8, 6), win('win', 34, 32, 8, 6),
+    E('light', 10, 30, 3, 2.4, '#4a8ff0'), E('light2', 50, 26, 2.5, 2, '#ffd23f'),
+    E('hose', 50, 36, 4, 4, '#ffd23f'), E('hosein', 50, 36, 1.6, 1.6, '#ff5a5f'),
+    ...wheel('wheel', 14, 51, 5.5), ...wheel('wheel', 46, 51, 5.5),
+    R('bumper', 2, 47, 60, 3, '#c9cedb'),
+  ]),
+  // 경찰차
+  D('policecar', '경찰차', 'Police car', [
+    grass('road'), R('roadln', 0, 60, 64, 1.5, '#ffffff', { clip: 'road' }), sun(8, 8), ...cloud('cloud', 50, 9),
+    R('lightbar', 24, 24, 16, 4, '#3a3a4a'), R('lightr', 25, 24.5, 6, 3, '#ff5a5f'), R('lightb', 33, 24.5, 6, 3, '#4a8ff0'),
+    P('top', [[16, 40], [20, 28], [44, 28], [48, 40]], '#ffffff'),
+    win('win', 22, 30, 9, 9), win('win', 33, 30, 9, 9),
+    R('body', 4, 40, 56, 12, '#ffffff'),
+    R('stripe', 4, 44, 56, 4, '#2f3a7a'),
+    P('badgestar', starPts(32, 46, 2.6, 1.2), '#ffd23f'),
+    ...wheel('wheel', 15, 52, 5.5), ...wheel('wheel', 49, 52, 5.5),
+    R('headlight', 57, 42, 3, 2, '#ffd23f'), R('taillight', 4, 42, 3, 2, '#ff5a5f'),
+    R('bumper', 2, 50, 60, 2.5, '#c9cedb'),
+  ]),
+  // 기차
+  D('train', '기차', 'Train', [
+    grass(), R('rail', 0, 57, 64, 1.5, '#3a3a4a'), ...[2, 10, 18, 26, 34, 42, 50, 58].map(x => R('tie', x, 55, 4, 2, '#a0673a')), sun(56, 6),
+    ...[[14, 8, 1.2], [19, 4, 1.5], [25, 1, 1.8]].flatMap(([x, y, s]) => cloud('smoke', x, y, s * .7)),
+    R('chimney', 10, 12, 6, 9, '#3a3a4a'), R('chimtop', 8, 10, 10, 3, '#ff5a5f'),
+    R('boiler', 4, 20, 22, 18, '#ff5a5f'), E('boilerfront', 4, 29, 3, 9, '#ffd23f'),
+    R('cabin', 24, 14, 14, 24, '#4a8ff0'), win('win', 27, 18, 8, 8), R('cabroof', 22, 12, 18, 3, '#2f3a7a'),
+    R('base', 2, 38, 38, 8, '#3a3a4a'), R('cowcatcher', -2, 42, 8, 6, '#ffd23f'),
+    ...wheel('wheel', 9, 48, 5), ...wheel('wheel', 22, 48, 5), ...wheel('wheel', 34, 48, 5),
+    R('coupler', 40, 40, 4, 3, '#3a3a4a'),
+    R('car', 44, 22, 20, 22, '#8ae66b'), R('carroof', 43, 20, 22, 3, '#3cb371'), win('carwin', 47, 26, 5, 6), win('carwin', 56, 26, 5, 6),
+    ...wheel('wheel', 50, 48, 4), ...wheel('wheel', 60, 48, 4),
+  ]),
+  // 오두막집
+  D('cabin', '오두막집', 'Log cabin', [
+    grass(), sun(10, 8), ...cloud('cloud', 50, 10, .8),
+    ...tree('tree', 8, 44, 1.6), ...tree('tree2', 58, 46, 1.3),
+    R('chimney', 42, 16, 5, 10, '#9aa3b5'), ...cloud('smoke', 45, 11, .6),
+    P('roof', [[12, 32], [32, 14], [52, 32]], '#a0673a'), P('roofedge', [[10, 33], [32, 13], [54, 33], [52, 35], [32, 17], [12, 35]], '#7a4a2a'),
+    R('wall', 15, 32, 34, 26, '#e8b36a'),
+    ...[36, 40, 44, 48, 52, 56].map(y => R('logline', 15, y, 34, 1, '#c98a4b', { clip: 'wall' })),
+    R('door', 28, 44, 9, 14, '#7a4a2a'), E('knob', 35, 51, .8, .8, '#ffd23f'),
+    win('win', 18, 38, 7, 7), ink(21.1, 38, .8, 7), ink(18, 41.6, 7, .8), win('win2', 39, 38, 7, 7), ink(42.1, 38, .8, 7), ink(39, 41.6, 7, .8),
+    R('flowerbox', 17, 45, 9, 2, '#ff6b9a'), ...[19, 21.5, 24].map(x => E('flowers', x, 44, 1.1, 1.1, '#ffd23f')),
+    R('path', 26, 58, 13, 6, '#f5d6a8'),
+  ]),
+  // 잠수함
+  D('submarine', '잠수함', 'Submarine', [
+    R('water1', 0, 0, 64, 20, '#86d8f7', { nl: 1 }), R('water2', 0, 20, 64, 24, '#62c4ef', { nl: 1 }), R('water3', 0, 44, 64, 20, '#46ade2', { nl: 1 }),
+    P('sand', [[0, 56], [20, 54], [40, 56], [64, 54], [64, 64], [0, 64]], '#f5d6a8'),
+    ...[[8, 14], [10, 9], [52, 48], [54, 44]].map(([x, y], i) => E('bubble', x, y, 1.4 + (i % 2) * .5, 1.4 + (i % 2) * .5, '#e8f8ff')),
+    R('periscope', 30, 10, 2, 10, '#9aa3b5'), R('periscope', 30, 10, 6, 2.5, '#9aa3b5'),
+    R('tower', 24, 18, 14, 8, '#ffd23f'), win('towerwin', 27, 20, 4, 4),
+    E('hull', 32, 36, 24, 12, '#ffd23f'),
+    ...[20, 32, 44].map(x => E('porthole', x, 36, 3.6, 3.6, '#4a8ff0')), ...[20, 32, 44].map(x => E('portrim', x, 36, 4.6, 4.6, '#c9cedb', { clip: 'hull' })),
+    ...[20, 32, 44].map(x => E('porthole', x, 36, 3.6, 3.6, '#a7ddfc')),
+    P('prop', [[56, 30], [62, 27], [62, 45], [56, 42]], '#ff9f43'), R('propbar', 55, 35, 4, 2, '#9aa3b5'),
+    E('fish', 10, 46, 4, 2.6, '#ff8cc6'), P('fishtail', [[13, 46], [17, 43], [17, 49]], '#ff8cc6'), ink(8.5, 45, 1, 1),
+    P('seaweed', [[4, 60], [3, 54], [5, 50], [4, 45], [6, 46], [6, 51], [7, 56], [7, 60]], '#3cb371'),
+    E('shell', 50, 58, 3, 2.4, '#ffd1e6'),
+  ]),
+  // 물속 집
+  D('seahouse', '물속 집', 'Underwater house', [
+    R('water1', 0, 0, 64, 18, '#86d8f7', { nl: 1 }), R('water2', 0, 18, 64, 22, '#62c4ef', { nl: 1 }), R('water3', 0, 40, 64, 24, '#46ade2', { nl: 1 }),
+    P('sand', [[0, 54], [64, 52], [64, 64], [0, 64]], '#f5d6a8'),
+    ...[[6, 20], [9, 14], [57, 10], [60, 5]].map(([x, y], i) => E('bubble', x, y, 1.4 + (i % 2) * .5, 1.4 + (i % 2) * .5, '#e8f8ff')),
+    E('dome', 32, 36, 18, 18, '#ffffff'), E('domein', 32, 36, 15, 15, '#d6f3ff', { clip: 'dome' }),
+    R('base', 12, 42, 40, 12, '#ff9f43'),
+    R('house', 22, 30, 20, 14, '#ffd1e6', { clip: 'domein' }), P('roof', [[20, 31], [32, 22], [44, 31]], '#ff6b9a', { clip: 'domein' }),
+    win('win', 25, 34, 5, 5, '#ffe9a8'), win('win', 34, 34, 5, 5, '#ffe9a8'), R('door', 29, 38, 6, 6, '#a26bff', { clip: 'domein' }),
+    R('tube', 30, 14, 4, 8, '#9aa3b5'), E('tubetop', 32, 13, 4, 2.5, '#ff5a5f'),
+    ...[[8, 50], [13, 46], [11, 52]].map(([x, y], i) => E('coral' + (i % 2), x, y, 3, 3, i % 2 ? '#ff8cc6' : '#ff5a5f')),
+    ...[[54, 50], [58, 46], [60, 52]].map(([x, y], i) => E('coral' + (i % 2), x, y, 3, 3, i % 2 ? '#ff8cc6' : '#ff9f43')),
+    P('seaweed', [[4, 56], [3, 48], [5, 42], [4, 36], [6, 37], [6, 44], [7, 50], [7, 56]], '#3cb371'),
+    E('fish', 14, 26, 4, 2.6, '#ffd23f'), P('fishtail', [[17, 26], [21, 23], [21, 29]], '#ffd23f'), ink(12.5, 25, 1, 1),
+    E('fish2', 52, 30, 3.5, 2.2, '#a26bff'), P('fish2tail', [[49, 30], [45, 27], [45, 33]], '#a26bff'), ink(53.5, 29, 1, 1),
+    P('star', starPts(44, 58, 3.5, 1.6), '#ff5a5f'),
+  ]),
+  // 우주선
+  D('rocket', '우주선', 'Rocket', [
+    R('space', 0, 0, 64, 64, '#2a2f6b', { nl: 1 }),
+    ...[[8, 8], [56, 6], [10, 40], [58, 36], [6, 58], [54, 58]].map(([x, y]) => P('stars', starPts(x, y, 2.2, 1), '#ffe27a')),
+    E('planet', 54, 18, 6, 6, '#ff9f43'), E('ring', 54, 19, 10, 2, '#ffd23f'), E('planet2', 54, 18, 6, 6, '#ff9f43'),
+    E('moon', 10, 22, 5, 5, '#fff3b0'), E('crater', 8.5, 20.5, 1.2, 1.2, '#e6d98a'), E('crater', 12, 24, 1.5, 1.5, '#e6d98a'),
+    P('fin', [[22, 42], [14, 54], [22, 52]], '#ff5a5f'), P('fin', [[42, 42], [50, 54], [42, 52]], '#ff5a5f'),
+    P('flame', [[24, 52], [32, 64], [40, 52]], '#ff9f43'), P('flamein', [[27, 52], [32, 60], [37, 52]], '#ffd23f', { clip: 'flame' }),
+    P('body', [[22, 52], [22, 26], [26, 12], [32, 4], [38, 12], [42, 26], [42, 52]], '#ffffff'),
+    P('nose', [[26, 14], [32, 4], [38, 14]], '#ff5a5f', { clip: 'body' }),
+    R('stripe', 22, 44, 20, 4, '#4a8ff0', { clip: 'body' }),
+    E('window', 32, 26, 5, 5, '#4a8ff0'), E('windowin', 32, 26, 3.5, 3.5, '#a7ddfc'),
+  ]),
+  // 비행기
+  D('airplane', '비행기', 'Airplane', [
+    R('sky', 0, 0, 64, 64, '#a7ddfc', { nl: 1 }), sun(56, 8), ...cloud('cloud', 12, 50, 1.2), ...cloud('cloud2', 52, 44, .9),
+    P('tail', [[8, 30], [10, 16], [18, 16], [18, 30]], '#ff5a5f'),
+    P('wingback', [[28, 28], [20, 14], [28, 14], [36, 28]], '#4a8ff0'),
+    E('body', 32, 32, 26, 8, '#ffffff'), P('nosecone', [[52, 26], [60, 32], [52, 38]], '#ffffff'),
+    R('stripe', 8, 33, 48, 2, '#ff5a5f', { clip: 'body' }),
+    ...[20, 27, 34, 41].map(x => E('win', x, 30, 2, 2, '#a7ddfc')),
+    P('cockpit', [[46, 28], [54, 29], [54, 32], [46, 32]], '#4a8ff0'),
+    P('wing', [[26, 36], [16, 52], [26, 52], [38, 36]], '#4a8ff0'),
+    E('engine', 24, 46, 3.5, 2.5, '#9aa3b5'),
+    E('prop', 60, 32, 1.5, 6, '#3a3a4a'), E('propc', 60, 32, 1.5, 1.5, '#ffd23f'),
+  ]),
+  // 헬리콥터
+  D('helicopter', '헬리콥터', 'Helicopter', [
+    R('sky', 0, 0, 64, 64, '#a7ddfc', { nl: 1 }), sun(8, 8), ...cloud('cloud', 50, 52, 1.1), ...cloud('cloud2', 12, 40, .8),
+    R('rotor', 6, 11, 52, 2.5, '#3a3a4a'), R('mast', 30, 13, 4, 7, '#9aa3b5'),
+    P('tailboom', [[10, 30], [24, 26], [24, 34], [10, 34]], '#ffd23f'),
+    P('tailfin', [[8, 24], [12, 24], [12, 34], [8, 36]], '#ff5a5f'), R('tailrotor', 6, 22, 6, 2, '#3a3a4a'),
+    E('body', 36, 32, 18, 12, '#ffd23f'),
+    P('window', [[42, 24], [52, 30], [50, 36], [40, 36]], '#a7ddfc'),
+    R('door', 28, 28, 8, 8, '#ff9f43'), E('win', 32, 31, 2, 2, '#a7ddfc'),
+    R('skidleg', 28, 43, 2, 5, '#3a3a4a'), R('skidleg', 42, 43, 2, 5, '#3a3a4a'), R('skid', 22, 47, 28, 2.5, '#3a3a4a'),
+  ]),
+  // 캠핑카
+  D('camper', '캠핑카', 'Camper van', [
+    grass(), sun(10, 8), ...cloud('cloud', 50, 10, .8), ...tree('tree', 58, 46, 1.4),
+    R('body', 6, 24, 46, 26, '#ffffff'),
+    R('bodybottom', 6, 40, 46, 10, '#ff9f43'),
+    R('roof', 4, 21, 50, 4, '#ffd23f'), R('luggage', 14, 17, 20, 4, '#a0673a'),
+    win('win', 10, 28, 10, 9), win('win', 36, 28, 12, 9),
+    R('door', 24, 28, 9, 18, '#6cc7ff'), E('knob', 31, 38, .8, .8, '#ffd23f'),
+    R('awning', 50, 24, 12, 3, '#ff6b9a'), ...[52, 56, 60].map(x => P('awningf', [[x, 27], [x + 4, 27], [x + 2, 30]], '#ffffff')),
+    ...wheel('wheel', 15, 51, 5), ...wheel('wheel', 43, 51, 5),
+    E('fire', 8, 56, 3, 3, '#ff9f43'), P('firein', [[6, 58], [8, 52], [10, 58]], '#ffd23f'), R('log', 4, 57, 8, 2, '#a0673a'),
+  ]),
+  // 구름집
+  D('cloudhouse', '구름집', 'Cloud house', [
+    R('sky', 0, 0, 64, 64, '#a7ddfc', { nl: 1 }), sun(10, 8, 5),
+    ...[['#ff5a5f', 15], ['#ffd23f', 12.5], ['#8ae66b', 10], ['#4a8ff0', 7.5]].map(([c, r], i) => E('rb' + i, 50, 30, r, r, c)), E('rbin', 50, 30, 5, 5, '#a7ddfc', { nl: 1 }),
+    ...cloud('cloudbase', 32, 52, 2.6), ...cloud('cloudbase', 14, 54, 1.4), ...cloud('cloudbase', 50, 54, 1.4),
+    R('wall', 20, 30, 24, 20, '#fff3b0'),
+    P('roof', [[16, 31], [32, 18], [48, 31]], '#ff6b9a'), R('chimney', 40, 20, 4, 6, '#ff9f43'),
+    R('door', 29, 40, 7, 10, '#a26bff'), E('knob', 34.5, 45, .7, .7, '#ffd23f'),
+    win('win', 22, 34, 5, 5), ink(24.1, 34, .8, 5), ink(22, 36.1, 5, .8),
+    win('win2', 37, 34, 5, 5), ink(39.1, 34, .8, 5), ink(37, 36.1, 5, .8),
+    E('heartwin', 32, 25, 2, 2, '#ff5a5f'),
+    ...[14, 20].map((y, i) => E('bird', 10 + i * 4, y + 14, 1.8, 1.2, '#3a3a4a')),
+    ...[[7, 46], [9, 44]].map(([x, y]) => P('ladder', [[x, y], [x + 1, y], [x + 1, y + 10], [x, y + 10]], '#a0673a')),
+  ]),
+  // 사탕 나라 성
+  D('candycastle', '사탕 나라 성', 'Candy castle', [
+    R('sky', 0, 0, 64, 64, '#ffe3f0', { nl: 1 }),
+    R('groundc', 0, 56, 64, 8, '#c8f5e6'),
+    ...[14, 50].flatMap(x => [R('cane', x - 2, 26, 4, 30, '#ffffff'), ...[28, 34, 40, 46, 52].map(y => P('canest', [[x - 2, y], [x + 2, y - 3], [x + 2, y - 1], [x - 2, y + 2]], '#ff5a5f', { clip: 'cane' })), E('lolly', x, 20, 7, 7, '#ff8cc6'), E('lollyin', x, 20, 4.5, 4.5, '#ffffff'), E('lollyc', x, 20, 2, 2, '#ff8cc6')]),
+    R('wall', 18, 34, 28, 22, '#ffd1e6'),
+    ...[22, 30, 38].map(x => R('tile', x, 36, 4, 2, '#ff8cc6', { clip: 'wall' })),
+    P('cupcake', [[20, 34], [44, 34], [41, 24], [23, 24]], '#a0673a'),
+    E('frosting', 32, 23, 13, 5, '#ffffff'), E('frosting', 32, 18, 9, 4, '#ffffff'), E('frosting', 32, 14, 5, 3, '#ffffff'),
+    E('cherry', 32, 10, 2.6, 2.6, '#ff5a5f'),
+    ...[[26, 22], [34, 17], [38, 23], [29, 15]].map(([x, y]) => E('sprinkle', x, y, 1, 1, '#4a8ff0')),
+    P('door', [[28, 56], [28, 46], [32, 42], [36, 46], [36, 56]], '#ff9f43'),
+    ...sym(win('win', 21, 42, 4, 5, '#fff3b0')),
+    ...[[6, 52], [58, 52], [8, 46]].map(([x, y], i) => E('gumdrop', x, y, 3, 3.5, ['#8ae66b', '#4a8ff0', '#ffd23f'][i])),
+    ...cloud('cloud', 8, 10, .8), ...cloud('cloud', 56, 8, .7),
+  ]),
+];
+
+// ---------- 사람 ----------
+const SK = '#ffe0c7';
+const face = (hy = 14) => [...eyes(27, hy, 2.6, 3.6), ...cheeks(24, hy + 5), E('mouth', 32, hy + 7, 1.4, .9, '#e86b8a', { fix: '#e86b8a' })];
+const headBase = (hy = 16, hc = '#5b3a29') => [E('hair', 32, hy - 2, 12, 11, hc), E('head', 32, hy, 10.5, 10, SK), P('hair', [[21.5, hy - 2], [22, hy - 7], [26, hy - 10], [32, hy - 11], [38, hy - 10], [42, hy - 7], [42.5, hy - 2], [40, hy - 5], [35, hy - 7], [30, hy - 5], [26, hy - 7]], hc)];
+const legsShoes = (c = SK, sc = '#ff5a5f') => [...sym(R('legs', 26, 46, 5, 10, c)), ...sym(E('shoes', 28.5, 57, 4, 2.2, sc))];
+const arms = (c = SK) => sym(P('arms', [[25, 28], [20, 29], [18, 42], [21.5, 42.5], [25.5, 33]], c));
+const hands = () => sym(E('hands', 19.5, 43.5, 2.2, 2.2, SK));
+
+const PEOPLE_ART = [
+  D('princess', '공주', 'Princess', [
+    ...legsShoes(SK, '#ff8cc6'),
+    P('dress', [[24, 27], [40, 27], [52, 58], [12, 58]], '#ff8cc6'), R('sash', 0, 36, 64, 3, '#ffd23f', { clip: 'dress' }),
+    ...[[22, 50], [32, 46], [42, 50], [27, 55], [37, 55]].map(([x, y]) => E('dot', x, y, 1.4, 1.4, '#ffffff', { clip: 'dress' })),
+    ...sym(E('sleeves', 21.5, 30, 3.8, 3.8, '#ff8cc6')), ...arms(), ...hands(),
+    E('hairB', 32, 24, 13, 14, '#ffd27f'), ...sym(E('hairB', 22, 32, 4, 6, '#ffd27f')),
+    E('head', 32, 16, 10.5, 10, SK), P('hair', [[21.5, 14], [22, 9], [26, 6], [32, 5], [38, 6], [42, 9], [42.5, 14], [40, 11], [35, 9], [30, 11], [26, 9]], '#ffd27f'),
+    P('crown', [[25, 7], [25, 1], [28.5, 4], [32, 0], [35.5, 4], [39, 1], [39, 7]], '#ffd23f'), E('gem', 32, 4.5, 1.2, 1.2, '#ff5a5f'),
+    ...face(),
+    E('necklace', 32, 27.5, 1.4, 1.4, '#ff5a5f'),
+  ]),
+  D('fairy', '요정', 'Fairy', [
+    ...sym(P('wings', [[22, 30], [6, 18], [8, 34], [21, 38]], '#c8f5ff')), ...sym(P('wings2', [[22, 38], [10, 48], [20, 46]], '#c8f5ff')),
+    ...sym(E('wingdot', 13, 29, 1.6, 1.6, '#ff8cc6')),
+    ...legsShoes(SK, '#3cb371'),
+    P('dress', [[25, 27], [39, 27], [46, 50], [18, 50]], '#8ae66b'), ...[[20, 48], [28, 50], [36, 50], [44, 48]].map(([x, y]) => P('petal', [[x - 3, y], [x + 3, y], [x, y + 5]], '#3cb371')),
+    ...arms(), ...hands(),
+    P('wandst', [[43.5, 42], [45.5, 42.3], [49, 26], [47, 25.6]], '#ffd23f'), P('wand', starPts(48.5, 23, 3.6, 1.6), '#ffd23f'),
+    E('hairB', 32, 20, 12.5, 11, '#ff9f43'),
+    E('head', 32, 16, 10.5, 10, SK), P('hair', [[21.5, 14], [22, 9], [26, 6], [32, 5], [38, 6], [42, 9], [42.5, 14], [40, 11], [35, 9], [30, 11], [26, 9]], '#ff9f43'),
+    E('flower', 23, 9, 2.2, 2.2, '#ff8cc6'), E('flowerc', 23, 9, 1, 1, '#ffd23f'),
+    ...face(),
+  ]),
+  D('mermaid', '인어', 'Mermaid', [
+    R('water', 0, 46, 64, 18, '#86d8f7', { nl: 1 }),
+    ...[[8, 52], [54, 50], [12, 58]].map(([x, y], i) => E('bubble', x, y, 1.4, 1.4, '#e8f8ff')),
+    P('fin', [[26, 52], [14, 62], [32, 58], [50, 62], [38, 52]], '#3cb371'),
+    P('tail', [[24, 30], [40, 30], [42, 44], [38, 54], [26, 54], [22, 44]], '#3cb371'),
+    ...[[28, 36], [36, 36], [32, 42], [27, 48], [37, 48]].map(([x, y]) => E('scale', x, y, 2.4, 2, '#8ae66b', { clip: 'tail' })),
+    R('belly', 24, 26, 16, 6, SK),
+    ...sym(E('shell', 28, 27, 3.6, 2.8, '#ff8cc6')),
+    ...arms(), ...hands(),
+    E('hairB', 32, 24, 13, 15, '#ff5a5f'), ...sym(E('hairB', 21, 34, 4, 7, '#ff5a5f')),
+    E('head', 32, 16, 10.5, 10, SK), P('hair', [[21.5, 14], [22, 9], [26, 6], [32, 5], [38, 6], [42, 9], [42.5, 14], [40, 11], [35, 9], [30, 11], [26, 9]], '#ff5a5f'),
+    P('star', starPts(40, 8, 3, 1.4), '#ffd23f'),
+    ...face(),
+    E('pearl', 32, 27.5, 1.2, 1.2, '#ffffff'),
+  ]),
+  D('prince', '왕자', 'Prince', [
+    ...sym(R('legs', 26, 44, 5, 12, '#2f3a7a')), ...sym(E('shoes', 28.5, 57, 4, 2.2, '#3a3a4a')),
+    P('cape', [[22, 27], [42, 27], [48, 50], [16, 50]], '#ff5a5f'),
+    R('coat', 23, 27, 18, 19, '#4a8ff0'), R('belt', 23, 41, 18, 3, '#ffd23f'),
+    ...[32, 36].map(y => E('button', 32, y, 1, 1, '#ffd23f')),
+    ...sym(R('epaulet', 22, 27, 5, 2.5, '#ffd23f')),
+    ...arms('#4a8ff0'), ...hands(),
+    ...headBase(16, '#5b3a29'),
+    P('crown', [[25, 7], [25, 1], [28.5, 4], [32, 0], [35.5, 4], [39, 1], [39, 7]], '#ffd23f'), E('gem', 32, 4.5, 1.2, 1.2, '#4a8ff0'),
+    ...face(),
+  ]),
+  D('witch', '마녀', 'Witch', [
+    ...sym(R('legs', 26, 46, 5, 10, '#a26bff')), ...sym(E('shoes', 28.5, 57, 4, 2.2, '#3a3a4a')),
+    P('dress', [[25, 27], [39, 27], [46, 52], [18, 52]], '#a26bff'), ...[[23, 48], [32, 44], [41, 48]].map(([x, y]) => P('dstar', starPts(x, y, 2, .9), '#ffd23f', { clip: 'dress' })),
+    ...arms(), ...hands(),
+    P('broom', [[43, 44], [45.5, 44.5], [52, 18], [49.5, 17.5]], '#a0673a'), P('bristles', [[41, 42], [48, 44], [46, 54], [38, 50]], '#ffd23f'),
+    E('hairB', 32, 22, 12.5, 12, '#2f3a7a'),
+    E('head', 32, 16, 10.5, 10, SK), P('hair', [[21.5, 14], [22, 9], [26, 6], [32, 5], [38, 6], [42, 9], [42.5, 14], [40, 11], [35, 9], [30, 11], [26, 9]], '#2f3a7a'),
+    E('hatbrim', 32, 7, 15, 2.6, '#3a3a4a'), P('hat', [[24, 7], [30, -8], [40, 7]], '#3a3a4a'), R('hatband', 24, 4, 16, 2, '#ff8cc6', { clip: 'hat' }),
+    ...face(),
+    E('cat', 10, 54, 4, 3.5, '#3a3a4a'), ...sym(P('catear', [[7, 52], [8, 48], [10, 52]], '#3a3a4a')), hl(8.5, 53), hl(11, 53),
+  ]),
+  D('ballerina', '발레리나', 'Ballerina', [
+    ...sym(R('legs', 26, 44, 5, 12, SK)), ...sym(E('shoes', 28.5, 57, 4, 2.2, '#ffb3c8')), ...sym(P('ribbon', [[27.5, 50], [29.5, 50], [30, 56], [27, 56]], '#ffb3c8')),
+    P('bodice', [[25, 27], [39, 27], [40, 40], [24, 40]], '#ff8cc6'),
+    P('tutu', [[22, 38], [42, 38], [50, 46], [14, 46]], '#ffd1e6'), ...[16, 23, 32, 41, 48].map(x => E('tutuf', x, 46, 3.6, 2.4, '#ffb3c8')),
+    P('arms', [[25, 28], [16, 20], [14, 22], [22, 31]], SK), P('arms', [[39, 28], [48, 20], [50, 22], [42, 31]], SK),
+    E('hands', 15, 20.5, 2.2, 2.2, SK), E('hands', 49, 20.5, 2.2, 2.2, SK),
+    E('hair', 32, 15, 11, 10, '#5b3a29'), E('bun', 32, 5, 4, 4, '#5b3a29'), E('head', 32, 16, 10.5, 10, SK), P('hair', [[21.5, 14], [22, 9], [26, 6], [32, 5], [38, 6], [42, 9], [42.5, 14], [40, 11], [35, 9], [30, 11], [26, 9]], '#5b3a29'),
+    E('flower', 36, 6, 1.8, 1.8, '#ff8cc6'),
+    ...face(),
+  ]),
+  D('astronaut', '우주인', 'Astronaut', [
+    R('space', 0, 0, 64, 64, '#2a2f6b', { nl: 1 }), ...[[6, 8], [58, 12], [8, 50], [56, 54]].map(([x, y]) => P('stars', starPts(x, y, 2, .9), '#ffe27a')),
+    E('planet', 54, 30, 5, 5, '#ff9f43'),
+    ...sym(R('legs', 26, 44, 5, 12, '#ffffff')), ...sym(E('shoes', 28.5, 57, 4, 2.4, '#ff5a5f')),
+    R('backpack', 22, 28, 20, 14, '#9aa3b5'),
+    R('suit', 24, 27, 16, 18, '#ffffff'), R('chest', 28, 31, 8, 5, '#4a8ff0'), ...[29.5, 32, 34.5].map(x => E('btn', x, 33.5, .8, .8, ['#ff5a5f', '#ffd23f', '#8ae66b'][(x * 2) % 3 | 0])),
+    ...arms('#ffffff'), ...sym(E('gloves', 19.5, 43.5, 2.4, 2.4, '#ff5a5f')),
+    E('helmet', 32, 15, 12, 12, '#dff4ff'), E('helmetrim', 32, 25, 9, 2.5, '#9aa3b5'),
+    E('head', 32, 16, 8.5, 8.5, SK), P('hair', [[23.5, 14], [24, 10], [27, 8], [32, 7], [37, 8], [40, 10], [40.5, 14], [38, 12], [34, 10], [30, 12], [27, 10]], '#5b3a29'),
+    ...face(),
+    E('shine', 26, 9, 1.6, 2.6, '#ffffff'),
+  ]),
+  D('doctor', '의사', 'Doctor', [
+    ...sym(R('legs', 26, 44, 5, 12, '#6cc7ff')), ...sym(E('shoes', 28.5, 57, 4, 2.2, '#ffffff')),
+    R('coat', 22, 27, 20, 20, '#ffffff'), R('shirt', 29, 27, 6, 8, '#6cc7ff', { clip: 'coat' }),
+    R('pocket', 35, 38, 5, 4, '#dfe3ec'), ...[31, 35, 39].map(y => E('btn', 32, y, .8, .8, '#9aa3b5')),
+    ...arms('#ffffff'), ...hands(),
+    P('stetho', [[27, 28], [29, 28], [29, 36], [27, 36]], '#3a3a4a'), E('stethoc', 28, 38, 2, 2, '#9aa3b5'),
+    ...headBase(16, '#3a3a4a'),
+    R('capb', 23, 5, 18, 5, '#ffffff'), R('cross', 31, 5.5, 2, 4, '#ff5a5f'), R('cross', 30, 6.5, 4, 2, '#ff5a5f'),
+    ...face(),
+  ]),
+  D('chef', '요리사', 'Chef', [
+    ...sym(R('legs', 26, 44, 5, 12, '#3a3a4a')), ...sym(E('shoes', 28.5, 57, 4, 2.2, '#3a3a4a')),
+    R('jacket', 22, 27, 20, 18, '#ffffff'), ...[31, 35, 39].flatMap(y => [E('btn', 29, y, .9, .9, '#3a3a4a'), E('btn', 35, y, .9, .9, '#3a3a4a')]),
+    R('apron', 24, 40, 16, 8, '#ff5a5f'),
+    R('scarf', 26, 26, 12, 3, '#ff5a5f'),
+    ...arms('#ffffff'), ...hands(),
+    P('spoon', [[43.5, 42], [45.5, 42.3], [48, 28], [46, 27.6]], '#9aa3b5'), E('spoonh', 47.5, 25, 2.6, 3.4, '#c9cedb'),
+    ...headBase(17, '#a0673a'),
+    E('toque', 32, 5, 12, 6, '#ffffff'), R('toque', 24, 5, 16, 7, '#ffffff'), R('toqueband', 23, 10, 18, 3, '#ffffff'),
+    ...face(15),
+    E('mustache', 32, 24, 3, 1, '#a0673a'),
+  ]),
+];
+
+// ---------- 음식 · 디저트 ----------
+const plate = (y = 56) => [E('plate', 32, y, 24, 4, '#ffffff'), E('platein', 32, y - .5, 16, 2.2, '#e9eef7')];
+const FOOD_ART = [
+  D('cake', '케이크', 'Cake', [
+    ...plate(57),
+    R('tier1', 10, 42, 44, 14, '#ffd1e6'), E('cream1', 32, 42, 22, 4, '#ffffff'), ...[14, 23, 32, 41, 50].map(x => E('drip1', x, 45, 2.6, 2.6, '#ffffff', { clip: 'tier1' })),
+    R('tier2', 17, 28, 30, 14, '#fff3b0'), E('cream2', 32, 28, 15, 3.5, '#ffffff'), ...[21, 28, 36, 43].map(x => E('drip2', x, 31, 2.4, 2.4, '#ffffff', { clip: 'tier2' })),
+    R('tier3', 23, 16, 18, 12, '#c8f5e6'), E('cream3', 32, 16, 9, 3, '#ffffff'),
+    ...[26, 32, 38].flatMap(x => [R('candle', x - 1, 6, 2, 10, ['#ff5a5f', '#4a8ff0', '#8ae66b'][(x / 6) % 3 | 0]), E('flame', x, 4, 1.3, 2, '#ffd23f')]),
+    ...[[14, 51], [32, 50], [50, 51]].map(([x, y]) => E('strawb', x, y, 2.2, 2.8, '#ff3b6b')),
+    ...[[20, 36], [44, 36]].map(([x, y]) => E('cherry', x, y, 2, 2, '#e8303f')),
+    ...[[27, 22], [37, 23], [32, 19]].map(([x, y]) => E('sprinkle', x, y, .9, .9, '#ff8cc6')),
+    R('ribbon', 10, 48, 44, 2.5, '#ff6b9a', { clip: 'tier1' }),
+  ]),
+  D('icecream', '아이스크림', 'Ice cream', [
+    P('cone', [[20, 40], [44, 40], [32, 63]], '#e8b36a'), ...[16, 24, 32, 40, 48].flatMap(a => [P('coneln', [[a, 38], [a + 1.2, 38], [a - 12, 64], [a - 13.2, 64]], '#c98a4b', { clip: 'cone' }), P('coneln', [[a - 14, 38], [a - 12.8, 38], [a + 1.2, 64], [a, 64]], '#c98a4b', { clip: 'cone' })]),
+    E('scoop1', 32, 36, 13, 9, '#ff9ec0'), ...[-.7, -.25, .25, .7].map(f => E('scoop1', 32 + f * 13, 42, 3.2, 2.6, '#ff9ec0')),
+    E('scoop2', 32, 25, 12, 8.5, '#fff1c9'), ...[-.7, -.25, .25, .7].map(f => E('scoop2', 32 + f * 12, 30.5, 3, 2.4, '#fff1c9')),
+    E('scoop3', 32, 15, 11, 8, '#9be8c8'), ...[-.7, -.25, .25, .7].map(f => E('scoop3', 32 + f * 11, 20, 2.8, 2.2, '#9be8c8')),
+    E('syrup', 32, 12, 9, 4.5, '#7a4a2a', { clip: 'scoop3' }), ...[-.6, -.2, .25, .65].map((f, i) => R('syrup', 32 + f * 10 - 1, 13, 2, 3 + (i % 2) * 2.5, '#7a4a2a')),
+    ...[[24, 36], [36, 40], [30, 26], [38, 24], [26, 17], [36, 14]].map(([x, y], i) => P('sprinkle', [[x - 1.3, y - .6], [x + 1.3, y - .6], [x + 1.3, y + .6], [x - 1.3, y + .6]], ['#ff5a5f', '#4a8ff0', '#ffd23f', '#3cb371'][i % 4])),
+    P('cherrystem', [[31.6, 4], [33.4, -1], [34.6, -.6], [32.6, 4]], '#3cb371'), E('cherry', 32, 6, 2.8, 2.8, '#e8303f'),
+    P('wafer', [[36, 20], [46, 2], [49, 3.5], [39, 21]], '#f2c47a'),
+  ]),
+  D('cupcake', '컵케이크', 'Cupcake', [
+    ...plate(58),
+    P('cup', [[18, 36], [46, 36], [42, 56], [22, 56]], '#ff8cc6'), ...[22, 28, 34, 40].map(x => P('cupln', [[x, 36], [x + 2, 36], [x + 1, 56], [x - 1, 56]], '#ff6b9a', { clip: 'cup' })),
+    R('cuprim', 16, 34, 32, 3.5, '#ff6b9a'),
+    E('frost1', 32, 32, 16, 6, '#ffffff'), E('frost2', 32, 25, 12, 5, '#ffd1e6'), E('frost3', 32, 19, 8, 4, '#ffffff'), E('frost4', 32, 14, 4.5, 3, '#ffd1e6'),
+    ...[[22, 32], [42, 33], [27, 25], [38, 24], [31, 19]].map(([x, y], i) => E('sprinkle', x, y, 1.1, 1.1, ['#ff5a5f', '#4a8ff0', '#ffd23f', '#3cb371', '#a26bff'][i])),
+    E('cherry', 32, 10, 2.8, 2.8, '#e8303f'), P('cherrystem', [[31.6, 8], [33.4, 3], [34.6, 3.4], [32.6, 8]], '#3cb371'),
+    R('candle', 42, 20, 2, 10, '#4a8ff0'), E('flame', 43, 18, 1.3, 2, '#ffd23f'),
+  ]),
+  D('donut', '도넛', 'Donut', [
+    ...plate(55),
+    E('donut', 32, 32, 22, 19, '#e8b36a'),
+    E('glaze', 32, 30, 20, 15, '#ff8cc6'), ...[14, 22, 32, 42, 50].map(x => E('glazedrip', x, 40, 3, 3.5, '#ff8cc6')),
+    E('hole', 32, 32, 6, 5, '#ffffff', { nl: 1 }),
+    ...[[20, 24], [28, 20], [38, 21], [46, 26], [24, 36], [42, 36]].map(([x, y], i) => P('sprinkle', [[x - 1.4, y - .6], [x + 1.4, y - .6], [x + 1.4, y + .6], [x - 1.4, y + .6]], ['#ffd23f', '#4a8ff0', '#8ae66b', '#ffffff'][i % 4])),
+    E('donut2', 10, 50, 9, 7, '#c98a4b'), E('glaze2', 10, 49, 8, 5, '#7a4a2a'), E('hole2', 10, 50, 2.6, 2, '#ffffff', { nl: 1 }),
+    E('donut3', 54, 50, 9, 7, '#e8b36a'), E('glaze3', 54, 49, 8, 5, '#ffd23f'), E('hole3', 54, 50, 2.6, 2, '#ffffff', { nl: 1 }),
+  ]),
+  D('apple', '사과', 'Apple', [
+    E('apple', 32, 36, 20, 19, '#ff5a5f'), E('appleL', 23, 36, 10, 16, '#ff5a5f'), E('appleR', 41, 36, 10, 16, '#ff5a5f'),
+    E('shine', 23, 27, 1.6, 2.8, '#ffffff'),
+    R('stem', 31, 10, 2.4, 10, '#7a4a2a'),
+    P('leaf', [[33, 14], [42, 6], [46, 10], [36, 17]], '#3cb371'), ink(35, 13, 6, .8),
+    E('worm', 46, 44, 4, 3, '#8ae66b'), E('wormh', 50, 42, 3, 3, '#8ae66b'), ink(50.5, 41, 1, 1),
+    E('cheeks', 26, 44, 2.6, 1.6, '#ffb3c8'), E('cheeks', 38, 44, 2.6, 1.6, '#ffb3c8'),
+    ink(28, 38, 2, 3), ink(34, 38, 2, 3), ...smile(30, 43, 4),
+  ]),
+  D('watermelon', '수박', 'Watermelon', [
+    P('rind', [[6, 24], [58, 24], [50, 50], [32, 58], [14, 50]], '#3cb371'),
+    P('rindin', [[9, 26], [55, 26], [48, 48], [32, 55], [16, 48]], '#c8f5e6'),
+    P('flesh', [[11, 28], [53, 28], [46, 47], [32, 52], [18, 47]], '#ff5a7a'),
+    ...[[20, 34], [30, 38], [40, 33], [26, 44], [36, 45], [44, 40]].map(([x, y]) => E('seed', x, y, 1.1, 1.8, '#2b2d42', { fix: '#2b2d42' })),
+    E('melon', 48, 14, 12, 9, '#3cb371'), ...[40, 46, 52].map(x => P('stripe', [[x, 5], [x + 3, 5], [x + 3, 23], [x, 23]], '#2fa35e', { clip: 'melon' })),
+    E('cheeks', 24, 40, 2.6, 1.6, '#ffb3c8'), E('cheeks', 40, 40, 2.6, 1.6, '#ffb3c8'), ink(27, 35, 2, 3), ink(35, 35, 2, 3), ...smile(29, 41, 6),
+  ]),
+  D('grapes', '포도', 'Grapes', [
+    R('stem', 31, 2, 2.4, 10, '#7a4a2a'), P('leaf', [[33, 6], [42, 0], [46, 4], [36, 10]], '#3cb371'),
+    ...[[26, 16], [38, 16], [20, 24], [32, 22], [44, 24], [26, 32], [38, 32], [22, 40], [32, 38], [42, 40], [27, 47], [37, 47], [32, 54]].map(([x, y], i) => E('grape' + (i % 3), x, y, 5.2, 5.2, ['#a26bff', '#8e55f0', '#b98cff'][i % 3])),
+    ...[[26, 16], [32, 22], [22, 40]].map(([x, y]) => E('shine', x - 1.5, y - 1.8, 1.2, 1.6, '#ffffff')),
+    E('cheeks', 29, 40, 2, 1.3, '#ffb3c8'), E('cheeks', 35, 40, 2, 1.3, '#ffb3c8'), ink(30, 36, 1.4, 2.4), ink(33, 36, 1.4, 2.4), ...smile(31, 40, 2),
+  ]),
+  D('strawberry', '딸기', 'Strawberry', [
+    E('berry', 32, 36, 17, 19, '#ff3b6b'), P('berry', [[16, 38], [48, 38], [32, 60]], '#ff3b6b'),
+    ...[[24, 30], [32, 28], [40, 30], [22, 40], [32, 38], [42, 40], [27, 48], [37, 48], [32, 55]].map(([x, y]) => E('seed', x, y, 1.1, 1.5, '#fff3b0', { fix: '#fff3b0' })),
+    ...[[18, 18], [26, 14], [38, 14], [46, 18]].map(([x, y]) => P('leaf', [[32, 22], [x, y], [x + (x < 32 ? 6 : -6), y - 4]], '#3cb371')), E('leafc', 32, 20, 6, 3, '#3cb371'),
+    R('stem', 31, 8, 2.4, 10, '#2f8f4e'),
+    E('cheeks', 25, 44, 2.6, 1.6, '#ffb3c8'), E('cheeks', 39, 44, 2.6, 1.6, '#ffb3c8'), ink(28, 38, 2, 3), ink(34, 38, 2, 3), ...smile(30, 44, 4),
+  ]),
+  D('pineapple', '파인애플', 'Pineapple', [
+    ...[[22, 22, -1], [32, 18, 0], [42, 22, 1], [27, 14, -.5], [37, 14, .5]].map(([x, y, d]) => P('leaf', [[32, 26], [x + d * 4, y - 14], [x + d * 8, y - 6]], '#3cb371')),
+    E('body', 32, 42, 16, 20, '#ffd23f'),
+    ...[-12, -4, 4, 12].map(a => P('cross', [[a + 20, 22], [a + 21.5, 22], [a + 45.5, 62], [a + 44, 62]], '#e8b36a', { clip: 'body' })),
+    ...[-12, -4, 4, 12].map(a => P('cross', [[a + 45.5, 22], [a + 44, 22], [a + 20, 62], [a + 21.5, 62]], '#e8b36a', { clip: 'body' })),
+    E('cheeks', 25, 46, 2.6, 1.6, '#ffb3c8'), E('cheeks', 39, 46, 2.6, 1.6, '#ffb3c8'), ink(28, 40, 2, 3), ink(34, 40, 2, 3), ...smile(30, 46, 4),
+  ]),
+  D('banana', '바나나', 'Banana', [
+    P('banana', [[10, 20], [16, 16], [30, 30], [46, 36], [56, 32], [58, 38], [48, 48], [30, 46], [14, 34]], '#ffd23f'),
+    P('bananain', [[16, 22], [20, 20], [32, 32], [46, 38], [52, 36], [52, 40], [46, 44], [30, 42], [18, 30]], '#fff3b0', { clip: 'banana' }),
+    R('tip', 8, 17, 5, 4, '#7a4a2a'), E('tip2', 57, 36, 2.5, 2, '#7a4a2a'),
+    P('banana2', [[14, 40], [20, 38], [34, 50], [48, 52], [56, 48], [58, 54], [50, 60], [34, 58], [18, 50]], '#fff3b0'),
+    ink(24, 30, 1.6, 2.4), ink(29, 33, 1.6, 2.4), E('cheeks', 22, 36, 2, 1.3, '#ffb3c8'), E('cheeks', 32, 39, 2, 1.3, '#ffb3c8'),
+  ]),
+];
+
+const COLOR_CATS = [
+  { id: 'animal', ko: '동물', emo: '🐾', list: [...ANIMALS, ...MORE_ANIMALS] },
+  { id: 'place', ko: '탈것·건물', emo: '🚗', list: PLACES_ART },
+  { id: 'people', ko: '사람', emo: '👸', list: PEOPLE_ART },
+  { id: 'food', ko: '음식', emo: '🍰', list: FOOD_ART },
+];
+let colorCat = 'animal';
+
 
 // =====================================================================
 //  틀린그림 장면 (96 x 64 칸)  only:'A' = 오른쪽에서 없어짐, only:'B' = 새로 생김, cB = 색 바뀜
@@ -1238,13 +1809,29 @@ function layout() {
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { drawGround(); layout(); }, 120); });
 
 // 고르기 화면 타일
+let animalPage = [];
+function pickAnimals() {
+  const pool = COLOR_CATS.find(c => c.id === colorCat).list.slice();
+  animalPage = pool.length <= 9 ? pool : shuffle(pool).slice(0, 9);
+}
+function renderColorCats() {
+  const box = $('colorCats'); box.innerHTML = '';
+  COLOR_CATS.forEach(c => {
+    const b = document.createElement('button'); b.className = 'dtab' + (c.id === colorCat ? ' on' : '');
+    b.innerHTML = `<span class="emoji">${c.emo}</span><span>${c.ko}</span>`;
+    b.onclick = () => { colorCat = c.id; sfx.tap(); pickAnimals(); renderColorCats(); makeTiles(); layout(); };
+    box.appendChild(b);
+  });
+}
+pickAnimals();
 function makeTiles() {
   const ag = $('animalGrid'); ag.innerHTML = ''; $('placeGrid').innerHTML = '';
-  ANIMALS.forEach(def => {
+  // 그림이 9개보다 많으면 9개씩만 보여주고, '다른 친구' 버튼으로 바꿔요
+  animalPage.forEach(def => {
     const t = document.createElement('button'); t.className = 'card tile';
     const cv = document.createElement('canvas'); preview(cv, def, 6);
     t.append(cv); t.insertAdjacentHTML('beforeend', `<span class="nm">${def.name}</span>`);
-    t.onclick = () => { sfx.tap(); startColor(def); sayEn(EN_ANIMALS[def.id]); };
+    t.onclick = () => { sfx.tap(); startColor(def); sayEn(def.en || EN_ANIMALS[def.id] || ''); };
     ag.appendChild(t);
   });
   LOCKED_ANIMALS.forEach(n => ag.insertAdjacentHTML('beforeend',
@@ -1687,19 +2274,38 @@ const THEMES = [
   { id: 'pool', emo: '🏊', ko: '수영장 가는 날! 수영복, 수영모, 물안경, 튜브, 쪼리를 챙겨요.', en: "Let's go to the pool!", need: ['swim', 'swimcap', 'goggles', 'ring', 'flipflop'], bg: 'pool' },
 ];
 let dress = null, dTab = 'top', dColor = null;
-const dTintCache = {};
-function dTinted(name, color) {
-  if (!color) return DIMG[name];
-  const key = name + '|' + color; if (dTintCache[key]) return dTintCache[key];
-  const im = DIMG[name], c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d');
-  x.drawImage(im, 0, 0); x.globalCompositeOperation = 'source-atop';
-  if (color === 'rainbow') { const g = x.createLinearGradient(0, 0, c.width, c.height); RAINBOW.forEach((col, i) => { g.addColorStop(i / 7, col); g.addColorStop((i + 1) / 7 - .001, col); }); x.fillStyle = g; x.globalAlpha = .72; }
-  else { x.fillStyle = color; x.globalAlpha = .62; }
+// 색 바꾸기: 그림을 흑백으로 만든 다음 새 색을 입혀요. 원래 색이 섞이지 않아서 깨끗하게 바뀌어요
+const recolorCache = {};
+function recolorImage(im, color, cacheKey) {
+  if (!color) return im;
+  const key = cacheKey + '|' + color; if (recolorCache[key]) return recolorCache[key];
+  const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d');
+  x.drawImage(im, 0, 0);
+  const img = x.getImageData(0, 0, c.width, c.height), d = img.data;
+  // 그림마다 밝기 범위가 달라서(검정 점퍼, 흰 셔츠) 먼저 밝기를 재고, 몸통 부분이 밝은 쪽으로 오게 펴요
+  const hist = new Uint32Array(256); let n = 0;
+  for (let i = 0; i < d.length; i += 4) { if (d[i + 3] < 128) continue; hist[(d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114) | 0]++; n++; }
+  let acc = 0, lo = 0, hi = 255;
+  for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= n * .12) { lo = v; break; } }
+  acc = 0; for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc >= n * .3) { hi = v; break; } }
+  if (hi - lo < 30) hi = lo + 30;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i + 3] === 0) continue;
+    const l0 = d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114;
+    let l = .55 + (l0 - lo) / (hi - lo) * .5;
+    if (l0 < lo) l = Math.max(.08, .5 * l0 / lo);     // 테두리 선은 어둡게 남겨요
+    const v = Math.round(Math.min(1, l) * 255); d[i] = d[i + 1] = d[i + 2] = v;
+  }
+  x.putImageData(img, 0, 0);
+  x.globalCompositeOperation = 'multiply';
+  if (color === 'rainbow') { const g = x.createLinearGradient(0, 0, c.width, c.height); RAINBOW.forEach((col, i) => { g.addColorStop(i / 7, col); g.addColorStop((i + 1) / 7 - .001, col); }); x.fillStyle = g; }
+  else x.fillStyle = color;
   x.fillRect(0, 0, c.width, c.height);
-  x.globalAlpha = 1; x.globalCompositeOperation = 'multiply'; x.drawImage(im, 0, 0);
   x.globalCompositeOperation = 'destination-in'; x.drawImage(im, 0, 0);
-  return (dTintCache[key] = c);
+  return (recolorCache[key] = c);
 }
+const dTintCache = {};
+function dTinted(name, color) { return recolorImage(DIMG[name], color, 'd:' + name); }
 // 머리 색: 인형 그림 위에 머리카락 부분만 색을 입혀요
 function dollWithHair(color) {
   if (!color) return DIMG.doll;
@@ -1711,7 +2317,15 @@ function dollWithHair(color) {
   if (color === 'rainbow') { const g = mx.createLinearGradient(0, 0, 0, d.height * .6); RAINBOW.forEach((col, i) => { g.addColorStop(i / 7, col); g.addColorStop((i + 1) / 7 - .001, col); }); mx.fillStyle = g; }
   else mx.fillStyle = color;
   mx.fillRect(0, 0, m.width, m.height);
-  x.globalAlpha = .7; x.drawImage(m, 0, 0); x.globalAlpha = 1;
+  // 머리카락은 검정이라 그냥 덮으면 어두워져요. 머리 부분을 밝게 편 다음 색을 곱해요
+  const img = x.getImageData(0, 0, c.width, c.height), px = img.data;
+  const mm = mx.getImageData(0, 0, m.width, m.height).data;
+  for (let i = 0; i < px.length; i += 4) {
+    const a = mm[i + 3] / 255; if (!a) continue;
+    const l0 = (px[i] * .299 + px[i + 1] * .587 + px[i + 2] * .114) / 255, l = .75 + l0 * 1.6;
+    px[i] = px[i] * (1 - a) + Math.min(255, mm[i] * l) * a; px[i + 1] = px[i + 1] * (1 - a) + Math.min(255, mm[i + 1] * l) * a; px[i + 2] = px[i + 2] * (1 - a) + Math.min(255, mm[i + 2] * l) * a;
+  }
+  x.putImageData(img, 0, 0);
   return (dTintCache[key] = c);
 }
 function dollLayers(worn, over = {}) {
@@ -1927,27 +2541,8 @@ function applyIce(st, it) {
   else if ((it.cat === 'syrup' || it.cat === 'sprinkle') && st[it.cat] === it.id) st[it.cat] = null;
   else st[it.cat] = it.id;
 }
-// 그림에 색을 입혀요 (명암은 그대로 두고 색만 바뀌어요)
 const tintCache = {};
-function tinted(name, color) {
-  if (!color) return ICE_IMG[name];
-  const key = name + '|' + color;
-  if (tintCache[key]) return tintCache[key];
-  const im = ICE_IMG[name], c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
-  const x = c.getContext('2d');
-  x.drawImage(im, 0, 0);
-  x.globalCompositeOperation = 'source-atop';
-  if (color === 'rainbow') {
-    const g = x.createLinearGradient(0, 0, c.width, c.height);
-    RAINBOW.forEach((col, i) => { g.addColorStop(i / 7, col); g.addColorStop((i + 1) / 7 - .001, col); });
-    x.fillStyle = g; x.globalAlpha = .72;
-  } else { x.fillStyle = color; x.globalAlpha = .62; }
-  x.fillRect(0, 0, c.width, c.height);
-  x.globalAlpha = 1; x.globalCompositeOperation = 'multiply';
-  x.drawImage(im, 0, 0);          // 원래 명암을 한 번 더 겹쳐서 입체감을 살려요
-  x.globalCompositeOperation = 'destination-in'; x.drawImage(im, 0, 0);
-  return (tintCache[key] = c);
-}
+function tinted(name, color) { return recolorImage(ICE_IMG[name], color, 'i:' + name); }
 // 설계도: 100 x 100 칸 기준으로 어디에 무엇을 놓을지 정해요
 function iceLayers(st, over = {}) {
   const L = [], n = iceItem(st.scoop).n, has = id => st.top.includes(id);
@@ -2131,7 +2726,6 @@ function layoutIce() {
 const PLACE_EN = { farm: 'Farm', space: 'Space', winter: 'Snowy town', party: 'Birthday party', beach: 'Beach', garden: 'Garden' };
 const PZ_C = 4, PZ_R = 3;
 let pz = null;
-const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 // 한 변: s=0 평평, +1 볼록(바깥), -1 오목. 시계 방향으로 돌 때 왼쪽이 바깥쪽
 function knobSide(path, x0, y0, x1, y1, s, k) {
   if (!s) { path.lineTo(x1, y1); return; }
@@ -2352,6 +2946,14 @@ function startHan(i) {
           tiles: shuffle([...seq.map(s => s.j), ...extra]).map(j => ({ j, used: false })) };
   $('hanEmo').textContent = emo; $('hanEn').textContent = ''; $('hanEn').classList.remove('show');
   $('hanSyls').innerHTML = syls.map(s => `<div class="syl"><span class="ghost">${s}</span><span class="fill"></span></div>`).join('');
+  // 글자를 자음·모음 자리별로 잘라 두고, 맞힌 부분만 진하게 보여줘요
+  [...$('hanSyls').children].forEach((el, si) => {
+    jamoRegions(syls[si]).forEach(rects => {
+      const parts = rects.map(([t, r, b, l]) => { const p = document.createElement('span'); p.className = 'part'; p.textContent = syls[si]; p.style.clipPath = `inset(${t}% ${r}% ${b}% ${l}%)`; p.style.opacity = 0; el.appendChild(p); return p; });
+      el.appendChild(Object.assign(document.createElement('i'), { style: 'display:none' }));
+      (el._parts = el._parts || []).push(parts);
+    });
+  });
   const f = $('hanField'); f.querySelectorAll('.jamo').forEach(el => el.remove());
   han.tiles.forEach(t => {
     const b = document.createElement('button'); b.className = 'jamo'; b.textContent = t.j; t.el = b;
@@ -2367,9 +2969,21 @@ function updateHanWord() {
   for (let k = 0; k < han.pos; k++) cnt[han.seq[k].si]++;
   const cur = han.pos < han.seq.length ? han.seq[han.pos].si : -1;
   [...$('hanSyls').children].forEach((el, si) => {
-    el.querySelector('.fill').textContent = partSyl(han.syls[si], cnt[si]);
+    (el._parts || []).forEach((parts, k) => parts.forEach(p => p.style.opacity = k < cnt[si] ? 1 : 0));
     el.classList.toggle('now', si === cur);
   });
+}
+// 글자 안에서 초성·중성·종성이 차지하는 자리 (위 오른쪽 아래 왼쪽 % 로 잘라요)
+function jamoRegions(ch) {
+  const [, b, c] = splitSyl(ch), v = JUNG[b];
+  const vert = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅣ'.includes(v), horiz = 'ㅗㅛㅜㅠㅡ'.includes(v);
+  const bot = c ? 38 : 0;                // 받침이 있으면 아래 38%는 받침 자리
+  let cho, jung;
+  if (vert) { cho = [[0, 48, bot, 0]]; jung = [[0, 0, bot, 52]]; }
+  else if (horiz) { const mid = c ? 34 : 50; cho = [[0, 0, 100 - mid, 0]]; jung = [[mid, 0, bot, 0]]; }
+  else { const mid = c ? 34 : 50; cho = [[0, 46, 100 - mid, 0]]; jung = [[mid, 0, bot, 0], [0, 0, 100 - mid, 54]]; }
+  const out = [cho, jung]; if (c) out.push([[100 - bot, 0, 0, 0]]);
+  return out;
 }
 function cellXY(r, c) { const z = han.mz; return [z.ox + (c + .5) * z.cs, z.oy + (r + .5) * z.cs]; }
 function placeAt(el, r, c, size) { const [x, y] = cellXY(r, c); el.style.left = (x - size / 2) + 'px'; el.style.top = (y - size / 2) + 'px'; }
@@ -2552,6 +3166,8 @@ makeIPalette();
 makeHanTiles();
 $('goIce').onclick = () => { sfx.tap(); startIce(); };
 $('goDress').onclick = () => { sfx.tap(); startDress(); };
+$('shuffleAnimals').onclick = () => { sfx.tap(); pickAnimals(); makeTiles(); layout(); };
+renderColorCats();
 function renderDressPv() { const cv = $('pvDress'), w = { ...emptyWorn(), hat: 'hbow', dress: 'party', shoes: 'maryjane', acc: ['necklace'] }; cv.width = 260 * .78; cv.height = 260; drawDoll(cv.getContext('2d'), dollLayers(w), 260); }
 Object.values(DIMG).forEach(im => im.addEventListener('load', () => { renderDressPv(); if (dress) { redrawDress(); renderDItems(); } }));
 // 아이스크림 그림이 다 읽히면 첫 화면 미리보기를 다시 그려요
