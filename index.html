@@ -272,7 +272,8 @@
   .syl .part { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink); }
   .syl.now { box-shadow: 0 0 0 3px var(--pink); animation: nowpulse 1.2s ease-in-out infinite; }
   @keyframes nowpulse { 50% { box-shadow: 0 0 0 6px rgba(255,107,154,.45); } }
-  .syl.pop .fill { animation: starpop .4s ease-out; display: inline-block; }
+  .syl canvas { width: 100%; height: 100%; display: block; }
+  .syl.pop canvas { animation: starpop .4s ease-out; }
   .han-en { font-size: 22px; font-weight: 700; color: var(--blue); min-height: 1.2em; opacity: 0; transform: translateY(8px); transition: .3s; }
   .han-en.show { opacity: 1; transform: none; }
   .han-field { position: relative; overflow: hidden; background: #ffffff; }
@@ -3581,15 +3582,9 @@ function startHan(i) {
   han = { i, ko, en, emo, syls, seq, pos: 0, busy: false, miss: 0, done: false, maze: null,
           tiles: shuffle([...seq.map(s => s.j), ...extra]).map(j => ({ j, used: false })) };
   $('hanEmo').textContent = emo; $('hanEn').textContent = ''; $('hanEn').classList.remove('show');
-  $('hanSyls').innerHTML = syls.map(s => `<div class="syl"><span class="ghost">${s}</span><span class="fill"></span></div>`).join('');
-  // 글자를 자음·모음 자리별로 잘라 두고, 맞힌 부분만 진하게 보여줘요
-  [...$('hanSyls').children].forEach((el, si) => {
-    jamoRegions(syls[si]).forEach(rects => {
-      const parts = rects.map(([t, r, b, l]) => { const p = document.createElement('span'); p.className = 'part'; p.textContent = syls[si]; p.style.clipPath = `inset(${t}% ${r}% ${b}% ${l}%)`; p.style.opacity = 0; el.appendChild(p); return p; });
-      el.appendChild(Object.assign(document.createElement('i'), { style: 'display:none' }));
-      (el._parts = el._parts || []).push(parts);
-    });
-  });
+  $('hanSyls').innerHTML = syls.map(() => `<div class="syl"><canvas></canvas></div>`).join('');
+  // 글자를 픽셀 단위로 자음·모음 조각으로 나눠 두고, 맞힌 조각만 진하게 보여줘요
+  [...$('hanSyls').children].forEach((el, si) => { el._ch = syls[si]; el._k = 0; drawSyl(el); });
   const f = $('hanField'); f.querySelectorAll('.jamo').forEach(el => el.remove());
   han.tiles.forEach(t => {
     const b = document.createElement('button'); b.className = 'jamo'; b.textContent = t.j; t.el = b;
@@ -3605,9 +3600,49 @@ function updateHanWord() {
   for (let k = 0; k < han.pos; k++) cnt[han.seq[k].si]++;
   const cur = han.pos < han.seq.length ? han.seq[han.pos].si : -1;
   [...$('hanSyls').children].forEach((el, si) => {
-    (el._parts || []).forEach((parts, k) => parts.forEach(p => p.style.opacity = k < cnt[si] ? 1 : 0));
+    if (el._k !== cnt[si]) { el._k = cnt[si]; drawSyl(el); }
     el.classList.toggle('now', si === cur);
   });
+}
+// 글자를 그린 다음 붙어 있는 픽셀 덩어리(획)마다 초성·중성·종성 중 어디에 속하는지 정해요.
+// 덩어리가 통째로 한 자모에 들어가니까 ㅇ을 맞혔을 때 ㅁ 윗부분이 같이 칠해지지 않아요
+const sylCache = {};
+function sylMasks(ch) {
+  if (sylCache[ch]) return sylCache[ch];
+  const N = 200, cv = document.createElement('canvas'); cv.width = cv.height = N; const x = cv.getContext('2d');
+  x.font = `800 ${N * .72}px "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans CJK KR", sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#000';
+  x.fillText(ch, N / 2, N / 2 + N * .04);
+  const d = x.getImageData(0, 0, N, N).data, lab = new Int32Array(N * N).fill(-1), comps = [];
+  for (let i = 0; i < N * N; i++) {
+    if (d[i * 4 + 3] < 60 || lab[i] >= 0) continue;
+    const c = { px: [], x0: N, y0: N, x1: 0, y1: 0 }, stack = [i]; lab[i] = comps.length;
+    while (stack.length) {
+      const q = stack.pop(), qx = q % N, qy = (q / N) | 0; c.px.push(q);
+      if (qx < c.x0) c.x0 = qx; if (qx > c.x1) c.x1 = qx; if (qy < c.y0) c.y0 = qy; if (qy > c.y1) c.y1 = qy;
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => { const nx = qx + dx, ny = qy + dy; if (nx < 0 || ny < 0 || nx >= N || ny >= N) return; const n = ny * N + nx; if (lab[n] < 0 && d[n * 4 + 3] >= 60) { lab[n] = lab[i]; stack.push(n); } });
+    }
+    comps.push(c);
+  }
+  const regs = jamoRegions(ch).map(rects => rects.map(([t, r, b, l]) => [l / 100 * N, t / 100 * N, (100 - r) / 100 * N, (100 - b) / 100 * N]));
+  const inReg = (rects, px, py) => rects.some(([a, b, c2, d2]) => px >= a && px < c2 && py >= b && py < d2);
+  const owner = new Int8Array(N * N).fill(-1);
+  comps.forEach(c => {
+    const area = (c.x1 - c.x0 + 1) * (c.y1 - c.y0 + 1);
+    const ov = regs.map(rects => rects.reduce((sum, [a, b, c2, d2]) => sum + Math.max(0, Math.min(c.x1 + 1, c2) - Math.max(c.x0, a)) * Math.max(0, Math.min(c.y1 + 1, d2) - Math.max(c.y0, b)), 0) / area);
+    const order = ov.map((v, i) => [v, i]).sort((p, q) => q[0] - p[0]);
+    // 한 덩어리가 두 자리에 크게 걸쳐 있으면(글꼴에서 획이 붙은 경우) 그 덩어리만 자리로 나눠요
+    if (order[0][0] >= .6 || !order[1] || order[1][0] < .25) c.px.forEach(q => owner[q] = order[0][1]);
+    else c.px.forEach(q => { const qx = q % N, qy = (q / N) | 0; let k = regs.findIndex(r => inReg(r, qx, qy)); owner[q] = k < 0 ? order[0][1] : k; });
+  });
+  const paint = (k, rgb) => { const m = document.createElement('canvas'); m.width = m.height = N; const mx = m.getContext('2d'), img = mx.createImageData(N, N);
+    for (let i = 0; i < N * N; i++) if (k < 0 ? d[i * 4 + 3] > 0 : owner[i] === k) { img.data[i * 4] = rgb[0]; img.data[i * 4 + 1] = rgb[1]; img.data[i * 4 + 2] = rgb[2]; img.data[i * 4 + 3] = d[i * 4 + 3]; }
+    mx.putImageData(img, 0, 0); return m; };
+  return sylCache[ch] = { N, ghost: paint(-1, [223, 227, 236]), masks: regs.map((_, k) => paint(k, [43, 45, 66])) };
+}
+function drawSyl(el) {
+  const m = sylMasks(el._ch), cv = el.firstElementChild; cv.width = cv.height = m.N;
+  const x = cv.getContext('2d'); x.drawImage(m.ghost, 0, 0);
+  for (let k = 0; k < el._k; k++) x.drawImage(m.masks[k], 0, 0);
 }
 // 글자 안에서 초성·중성·종성이 차지하는 자리 (위 오른쪽 아래 왼쪽 % 로 잘라요)
 function jamoRegions(ch) {
