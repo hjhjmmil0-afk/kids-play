@@ -174,6 +174,31 @@
   .shakefx { animation: shake .35s 3; }
   .swayfx { animation: sway 1.4s ease-in-out infinite; }
   @keyframes sway { 50% { transform: rotate(-10deg) translateX(-12px); } }
+  /* 영어 게임 공통 */
+  .game-main { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 4px 20px 22px; }
+  .gtop { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+  .bubble { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #fff; font-size: 18px; font-weight: 800; text-align: left; }
+  .bubble .who { font-size: 34px; line-height: 1; }
+  .bubble.talk .who { animation: bounce .6s ease-in-out 3; }
+  .stars { display: flex; gap: 2px; font-size: 20px; width: 100%; justify-content: center; line-height: 1; }
+  .stars span { opacity: .3; } .stars span.on { opacity: 1; } .stars span.got { display: inline-block; animation: starpop .45s ease-out; }
+  .fcards { display: grid; grid-template-columns: repeat(2, var(--fc)); gap: 16px; }
+  .game-main.land .fcards { grid-template-columns: repeat(4, var(--fc)); }
+  .fcard { width: var(--fc); height: var(--fc); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .fcard .emoji { font-size: calc(var(--fc) * .5); line-height: 1; }
+  .fcard small { font-size: 14px; font-weight: 800; color: #4a5170; }
+  .fcard.ok { background: #e3f9df; animation: starpop .5s; }
+  .fcard.shake { animation: shake .3s; }
+  .fcard.hint { animation: hintglow .5s ease-in-out 3; }
+  .popfield { position: relative; overflow: hidden; background: linear-gradient(#bfe9ff, #eaf7ff 70%, #c8f0c0) !important; }
+  .balloon { position: absolute; left: 0; top: 0; width: var(--bw); height: calc(var(--bw) * 1.6); background: none; border: 0; padding: 0; will-change: transform; cursor: pointer; }
+  .balloon .bb { display: grid; place-items: center; width: var(--bw); height: calc(var(--bw) * 1.2); border-radius: 50% 50% 50% 50% / 45% 45% 55% 55%;
+    background: radial-gradient(circle at 35% 28%, rgba(255,255,255,.75), transparent 42%), var(--bc); box-shadow: inset 0 0 0 3px var(--bd), 0 4px 0 rgba(43,45,66,.15); }
+  .balloon .bb .emoji { font-size: calc(var(--bw) * .5); line-height: 1; }
+  .balloon .bs { display: block; width: 3px; height: calc(var(--bw) * .4); background: var(--bd); margin: 0 auto; }
+  .balloon.pop { pointer-events: none; } .balloon.pop .bb { animation: balloonpop .45s forwards; } .balloon.pop .bs { opacity: 0; }
+  .balloon.wob .bb { animation: shake .3s; }
+  @keyframes balloonpop { 40% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(.1); opacity: 0; } }
   .thumbs { display: grid; grid-template-columns: repeat(2, var(--tw)); gap: 14px; }
   .eng-main:not(.land) .thumbs { grid-template-columns: repeat(4, var(--tw)); }
   .thumb { width: var(--tw); height: var(--tw); display: grid; place-items: center; font-size: calc(var(--tw) * .55); line-height: 1;
@@ -440,7 +465,34 @@
 <!-- 2-3. 영어 주제 고르기 -->
 <section id="engPick" class="screen">
   <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">무엇을 배워 볼까?</div><div class="bar-r"></div></div>
+  <div class="dtabs ctabs" id="engModes"></div>
   <div class="pick-main"><div class="grid" id="topicGrid"></div></div>
+</section>
+
+<!-- 영어 게임: 듣고 찾기 -->
+<section id="engFind" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="engPick">◀ 뒤로</button><div class="ribbon" id="findTitle"></div><div class="bar-r"></div></div>
+  <div class="game-main" id="findMain">
+    <div class="gtop" id="findTop">
+      <button class="card bubble" id="findBubble"><span class="who emoji">🐰</span><span class="q" id="findQ"></span></button>
+      <button class="pbtn sm blue" id="findSay">🔊 다시 듣기</button>
+      <div class="stars" id="findStars"></div>
+    </div>
+    <div class="fcards" id="findCards"></div>
+  </div>
+</section>
+
+<!-- 영어 게임: 풍선 터뜨리기 -->
+<section id="engPop" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="engPick">◀ 뒤로</button><div class="ribbon" id="popTitle"></div><div class="bar-r"></div></div>
+  <div class="game-main" id="popMain">
+    <div class="gtop" id="popTop">
+      <button class="card bubble" id="popBubble"><span class="who emoji">🐻</span><span class="q" id="popQ"></span></button>
+      <button class="pbtn sm blue" id="popSay">🔊 다시 듣기</button>
+      <div class="stars" id="popScore"></div>
+    </div>
+    <div class="card popfield" id="popField"></div>
+  </div>
 </section>
 
 <!-- 옷입히기 고르기 -->
@@ -1985,6 +2037,7 @@ function go(id) {
   document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'puzzlePick', 'hanPick'].includes(id));
   $('celebrate').classList.remove('show');
   if (id !== 'eng' && canSpeak) speechSynthesis.cancel();
+  if (id !== 'engPop' && typeof stopPop === 'function') stopPop();
   layout();
 }
 document.addEventListener('click', e => {
@@ -1997,6 +2050,8 @@ function layout() {
   if (current === 'color') layoutColor();
   if (current === 'spot') layoutSpot();
   if (current === 'engPick') layoutGrid($('topicGrid'), 3, 2, 1);
+  if (current === 'engFind') layoutFind();
+  if (current === 'engPop') layoutPop();
   if (current === 'eng') layoutEng();
   if (current === 'dress') layoutDress();
   if (current === 'ice') layoutIce();
@@ -2340,7 +2395,7 @@ function makeTopics() {
   TOPICS.forEach(tp => {
     const t = document.createElement('button'); t.className = 'card tile';
     t.innerHTML = `<div class="emo">${tp.emoji}</div><span class="nm">${tp.ko}</span><span class="en">${tp.en}</span>`;
-    t.onclick = () => { sfx.tap(); startEng(tp); };
+    t.onclick = () => { sfx.tap(); startEngMode(tp); };
     g.appendChild(t);
   });
 }
@@ -2415,6 +2470,190 @@ function layoutEng() {
   const st = $('stage'); st.style.width = sw + 'px'; st.style.height = sh + 'px';
   $('bigEmoji').style.fontSize = Math.floor(Math.min(sw, sh) * .32) + 'px';
   setFx(eng.tp.cards[eng.i][4]);
+}
+// =====================================================================
+//  영어 게임: 듣고 찾기 · 풍선 터뜨리기 (영어 놀이 주제의 카드를 그대로 써요)
+// =====================================================================
+let engMode = 'card';
+const ENG_MODES = [['card', '📖', '카드 보기'], ['find', '👂', '듣고 찾기'], ['pop', '🎈', '풍선 터뜨리기']];
+function renderEngModes() {
+  const box = $('engModes'); box.innerHTML = '';
+  ENG_MODES.forEach(([id, emo, ko]) => {
+    const b = document.createElement('button'); b.className = 'dtab' + (id === engMode ? ' on' : '');
+    b.innerHTML = `<span class="emoji">${emo}</span><span>${ko}</span>`;
+    b.onclick = () => { engMode = id; sfx.tap(); renderEngModes(); };
+    box.appendChild(b);
+  });
+}
+function startEngMode(tp) { if (engMode === 'find') startFind(tp); else if (engMode === 'pop') startPop(tp); else startEng(tp); }
+const starsHTML = (n, total) => Array.from({ length: total }, (_, i) => `<span class="${i < n ? 'on' : ''}${i === n - 1 ? ' got' : ''}">${i < n ? '⭐' : '☆'}</span>`).join('');
+const pickDistinct = (arr, n, not) => shuffle(arr.filter(c => c !== not)).slice(0, n);
+
+// ---------- 듣고 찾기 ----------
+let fd = null;
+const FIND_ROUNDS = 10;
+function startFind(tp) {
+  fd = { tp, round: 0, stars: 0, miss: 0, busy: false, recent: [] };
+  $('findTitle').textContent = `${tp.ko} · 듣고 찾기`;
+  go('engFind');
+  nextFind();
+}
+function nextFind() {
+  if (!fd || fd.done) return;
+  if (fd.round >= FIND_ROUNDS) { finishFind(); return; }
+  const cards = fd.tp.cards;
+  let pool = cards.filter(c => !fd.recent.includes(c)); if (pool.length < 1) pool = cards;
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  fd.recent = [target, ...fd.recent].slice(0, 3);
+  // 처음 4판은 단어, 그다음부터는 문장으로 물어봐요
+  const useSent = fd.round >= 4;
+  const others = pickDistinct(cards, 3, target);
+  fd.cur = { target, useSent, opts: shuffle([target, ...others]) };
+  fd.miss = 0; fd.busy = false;
+  $('findStars').innerHTML = starsHTML(fd.stars, FIND_ROUNDS);
+  $('findQ').textContent = useSent ? target[3] : `Where is the ${target[2].toLowerCase()}?`;
+  const box = $('findCards'); box.innerHTML = '';
+  fd.cur.opts.forEach(c => {
+    const b = document.createElement('button'); b.className = 'card fcard';
+    b.innerHTML = `<span class="emoji">${c[0]}</span><small>${c[2]}</small>`;
+    b.onclick = () => tapFind(c, b);
+    box.appendChild(b);
+  });
+  setTimeout(askFind, 350);
+}
+function askFind() {
+  if (!fd || !fd.cur) return;
+  const [, , en, sent] = fd.cur.target;
+  const bub = $('findBubble'); bub.classList.remove('talk'); void bub.offsetWidth; bub.classList.add('talk');
+  say(fd.cur.useSent ? [{ t: sent, lang: 'en' }] : [{ t: `Where is the ${en.toLowerCase()}?`, lang: 'en' }]);
+}
+function tapFind(c, el) {
+  if (!fd || fd.busy) return;
+  const [emo, ko, en] = fd.cur.target;
+  if (c === fd.cur.target) {
+    fd.busy = true; fd.stars++; fd.round++;
+    el.classList.add('ok'); sfx.ding();
+    $('findStars').innerHTML = starsHTML(fd.stars, FIND_ROUNDS);
+    const go2 = () => { if (fd && fd.cur === cur && !fd.done) nextFind(); };
+    const cur = fd.cur, tm = setTimeout(go2, canSpeak ? 4000 : 1200);
+    say([{ t: `${en}! Yes!`, lang: 'en' }, { t: ko, lang: 'ko' }], () => { clearTimeout(tm); setTimeout(go2, 400); });
+  } else {
+    fd.miss++; sfx.boop();
+    el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+    say([{ t: `Hmm, that's the ${c[2].toLowerCase()}.`, lang: 'en' }, { t: fd.cur.useSent ? fd.cur.target[3] : `Where is the ${en.toLowerCase()}?`, lang: 'en' }]);
+    if (fd.miss >= 2) { const ok = [...$('findCards').children][fd.cur.opts.indexOf(fd.cur.target)]; ok.classList.add('hint'); setTimeout(() => ok.classList.remove('hint'), 1500); }
+  }
+}
+function finishFind() {
+  fd.done = true; const tp = fd.tp;
+  celebrate('참 잘했어요!', `${tp.ko} 단어를 ${fd.stars}개 찾았어요 ⭐`, [['다시 하기', 'pink', () => startFind(tp)], ['다른 주제', '', () => go('engPick')]]);
+  setTimeout(() => sayEn('Great job! You found them all!'), 600);
+}
+$('findSay').onclick = () => { sfx.tap(); askFind(); };
+$('findBubble').onclick = askFind;
+function layoutFind() {
+  if (!fd) return;
+  const m = $('findMain'), W = m.clientWidth - 40, H = m.clientHeight - 30;
+  const land = W > H * 1.15; m.classList.toggle('land', land);
+  // 카드 4장이 2x2 또는 1x4 로 들어가게 크기를 정해요
+  const cols = land ? 4 : 2, rows = land ? 1 : 2, gap = 16;
+  const top = $('findTop').offsetHeight + 20;
+  const cw = Math.floor(Math.min((W - gap * (cols - 1)) / cols, (H - top - gap * (rows - 1)) / rows, 240));
+  m.style.setProperty('--fc', cw + 'px');
+}
+
+// ---------- 풍선 터뜨리기 ----------
+let pp = null;
+const POP_GOAL = 10, BALLOON_COLORS = ['#ff5a5f', '#ffd23f', '#4a8ff0', '#8ae66b', '#ff8cc6', '#a26bff', '#ff9f43', '#2ee6c8'];
+function startPop(tp) {
+  stopPop();
+  pp = { tp, score: 0, balloons: [], target: null, last: 0, spawnAt: 0, askAt: 0, done: false, id: 0 };
+  $('popTitle').textContent = `${tp.ko} · 풍선 터뜨리기`;
+  $('popField').querySelectorAll('.balloon').forEach(b => b.remove());
+  go('engPop');
+  newTarget(true);
+  pp.raf = requestAnimationFrame(popTick);
+}
+function stopPop() { if (pp && pp.raf) cancelAnimationFrame(pp.raf); if (pp) pp.raf = null; }
+function newTarget(first) {
+  const cards = pp.tp.cards;
+  // 지금 떠 있는 풍선 중에 하나를 고르면 바로 찾을 수 있어요. 없으면 새로 띄워 줘요
+  const alive = pp.balloons.filter(b => !b.popped && b.y > .15);
+  const pick = alive.length && Math.random() < .7 ? alive[Math.floor(Math.random() * alive.length)].card : cards[Math.floor(Math.random() * cards.length)];
+  pp.target = pick; pp.needSpawn = !pp.balloons.some(b => !b.popped && b.card === pick);
+  $('popQ').textContent = `Pop the ${pick[2].toLowerCase()}!`;
+  $('popScore').innerHTML = starsHTML(pp.score, POP_GOAL);
+  pp.askAt = performance.now() + 6000;
+  setTimeout(() => askPop(), first ? 400 : 250);
+}
+function askPop() {
+  if (!pp || pp.done || current !== 'engPop') return;
+  const bub = $('popBubble'); bub.classList.remove('talk'); void bub.offsetWidth; bub.classList.add('talk');
+  say([{ t: `Pop the ${pp.target[2].toLowerCase()}!`, lang: 'en' }]);
+  pp.askAt = performance.now() + 6000;
+}
+function spawnBalloon(card) {
+  const f = $('popField'), el = document.createElement('button'); el.className = 'balloon';
+  const c = BALLOON_COLORS[pp.id % BALLOON_COLORS.length];
+  el.style.setProperty('--bc', c); el.style.setProperty('--bd', mixHex(c, '#2b2d42', .35));
+  el.innerHTML = `<span class="bb"><span class="emoji">${card[0]}</span></span><i class="bs"></i>`;
+  const b = { id: pp.id++, card, el, x: .08 + Math.random() * .76, y: -.15, speed: (.075 + Math.min(.08, pp.score * .008)) * (0.85 + Math.random() * .3), wob: Math.random() * 6.28, popped: false };
+  el.onclick = () => tapBalloon(b);
+  f.appendChild(el); pp.balloons.push(b);
+  return b;
+}
+function popTick(now) {
+  if (!pp || pp.done) return;
+  if (current !== 'engPop') { pp.raf = requestAnimationFrame(popTick); pp.last = now; return; }
+  const dt = pp.last ? Math.min(.05, (now - pp.last) / 1000) : 0; pp.last = now;
+  const f = $('popField'), FW = f.clientWidth, FH = f.clientHeight, bw = Math.min(110, Math.max(64, FW * .17));
+  f.style.setProperty('--bw', bw + 'px');
+  const alive = pp.balloons.filter(b => !b.popped);
+  if (now > pp.spawnAt && alive.length < (FW > 700 ? 5 : 4)) {
+    const cards = pp.tp.cards;
+    const card = pp.needSpawn ? pp.target : cards[Math.floor(Math.random() * cards.length)];
+    spawnBalloon(card); pp.needSpawn = false;
+    pp.spawnAt = now + 1400 + Math.random() * 800;
+  }
+  if (now > pp.askAt) askPop();
+  pp.balloons.forEach(b => {
+    if (b.popped) return;
+    b.y += b.speed * dt; b.wob += dt * 2;
+    // 위로 다 올라가면 사라져요. 찾던 풍선이면 다시 띄워 줘요
+    if (b.y > 1.15) { b.popped = true; b.el.remove(); if (b.card === pp.target && !pp.balloons.some(o => !o.popped && o.card === pp.target)) pp.needSpawn = true; return; }
+    const px = b.x * FW + Math.sin(b.wob) * bw * .18, py = FH - b.y * (FH + bw * 1.6);
+    b.el.style.transform = `translate(${px - bw / 2}px, ${py - bw * 1.3}px) rotate(${Math.sin(b.wob) * 6}deg)`;
+  });
+  pp.balloons = pp.balloons.filter(b => !b.popped || b.el.isConnected);
+  pp.raf = requestAnimationFrame(popTick);
+}
+function tapBalloon(b) {
+  if (!pp || pp.done || b.popped) return;
+  if (b.card === pp.target) {
+    b.popped = true; b.el.classList.add('pop'); setTimeout(() => b.el.remove(), 500);
+    sfx.pop(); pp.score++;
+    $('popScore').innerHTML = starsHTML(pp.score, POP_GOAL);
+    say([{ t: `${b.card[2]}! Pop!`, lang: 'en' }]);
+    if (pp.score >= POP_GOAL) { finishPop(); return; }
+    setTimeout(() => { if (pp && !pp.done) newTarget(); }, 700);
+  } else {
+    sfx.boop(); b.el.classList.remove('wob'); void b.el.offsetWidth; b.el.classList.add('wob');
+    say([{ t: `Oops, that's the ${b.card[2].toLowerCase()}. Pop the ${pp.target[2].toLowerCase()}!`, lang: 'en' }]);
+    pp.askAt = performance.now() + 6000;
+  }
+}
+function finishPop() {
+  pp.done = true; stopPop();
+  const tp = pp.tp;
+  celebrate('풍선 다 터뜨렸다!', `${tp.ko} 단어 ${POP_GOAL}개 성공 🎈`, [['다시 하기', 'pink', () => startPop(tp)], ['다른 주제', '', () => go('engPick')]]);
+  setTimeout(() => sayEn('Wow! You popped them all!'), 600);
+}
+$('popSay').onclick = () => { sfx.tap(); askPop(); };
+$('popBubble').onclick = askPop;
+function layoutPop() {
+  if (!pp) return;
+  const m = $('popMain'), W = m.clientWidth - 40, H = m.clientHeight - 30;
+  const f = $('popField'); f.style.width = W + 'px'; f.style.height = (H - $('popTop').offsetHeight - 16) + 'px';
 }
 
 // =====================================================================
@@ -3877,6 +4116,7 @@ renderColorCats();
 renderSpotCats();
 renderPzLevels();
 renderHanTabs();
+renderEngModes();
 function renderDressPv() {
   let cv = $('pvDress'); cv.width = 260 * .78; cv.height = 260; drawDoll(cv.getContext('2d'), dollLayers({ ...emptyWorn('girl'), hat: 'hbow', dress: 'party', shoes: 'maryjane', acc: ['necklace'] }), 260);
   cv = $('pvGirl'); cv.width = 300 * .78; cv.height = 300; drawDoll(cv.getContext('2d'), dollLayers({ ...emptyWorn('girl'), top: 'tshirt', bottom: 'skirt', shoes: 'sneakers' }), 300);
