@@ -431,7 +431,7 @@
     </button>
     <button class="choice" data-go="hanPick">
       <div class="card"><div class="pv pv-eng pv-han"><span class="e">가</span><span class="w">ㄱ + ㅏ</span></div></div>
-      <span class="pbtn yellow">한글 놀이</span>
+      <span class="pbtn yellow">한글·ABC 놀이</span>
     </button>
   </div>
  </div>
@@ -502,6 +502,7 @@
 <!-- 퍼즐 고르기 -->
 <section id="puzzlePick" class="screen">
   <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">무슨 퍼즐 할까?</div><div class="bar-r"><div class="seg"></div></div></div>
+  <div class="dtabs ctabs" id="pzLevels"></div>
   <div class="pick-main"><div class="grid" id="pzGrid"></div></div>
 </section>
 
@@ -520,12 +521,13 @@
 <!-- 한글 단어 고르기 -->
 <section id="hanPick" class="screen">
   <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">무슨 글자 만들까?</div><div class="bar-r"></div></div>
+  <div class="dtabs ctabs" id="hanTabs"></div>
   <div class="pick-main"><div class="grid" id="hanGrid"></div></div>
 </section>
 
 <!-- 한글 맞추기 -->
 <section id="han" class="screen">
-  <div class="bar"><button class="pbtn sm" data-go="hanPick">◀ 뒤로</button><div class="ribbon">한글 놀이</div><div class="bar-r"></div></div>
+  <div class="bar"><button class="pbtn sm" data-go="hanPick">◀ 뒤로</button><div class="ribbon" id="hanTitle">한글 놀이</div><div class="bar-r"></div></div>
   <div class="han-main" id="hanMain">
     <div class="card han-word" id="hanWordCard">
       <div class="han-emo emoji" id="hanEmo"></div>
@@ -585,9 +587,9 @@
 <!-- 3-1. 색칠하기 -->
 <section id="color" class="screen">
   <div class="bar"><button class="pbtn sm" data-go="colorPick">◀ 뒤로</button><div class="ribbon" id="colorTitle"></div>
-    <div class="bar-r"><button class="pbtn sm" id="resetBtn">처음부터</button></div></div>
+    <div class="bar-r"><button class="pbtn sm yellow" id="exampleBtn">🖼️ 예시</button><button class="pbtn sm" id="resetBtn">처음부터</button></div></div>
   <div class="color-main" id="colorMain">
-    <div class="card board" id="colorBoard"><canvas id="colorCv"></canvas><button class="example" id="exampleBtn"><span>예시</span><canvas id="exampleCv"></canvas></button></div>
+    <div class="card board" id="colorBoard"><canvas id="colorCv"></canvas></div>
     <div class="card palette">
       <div class="now"><span id="nowSwatch"></span>이 색으로 칠해요</div>
       <div class="swatches" id="swatches"></div>
@@ -2000,7 +2002,7 @@ function layout() {
   if (current === 'ice') layoutIce();
   if (current === 'puzzlePick') { const land = innerWidth > innerHeight; layoutGrid($('pzGrid'), land ? 4 : 3, land ? 3 : 4, 1.5); }
   if (current === 'puzzle') layoutPuzzle();
-  if (current === 'hanPick') { const nar = innerWidth < 600; layoutGrid($('hanGrid'), nar ? 4 : 5, nar ? 5 : 4, 1); }
+  if (current === 'hanPick') { const nar = innerWidth < 600, n = hanList().length; layoutGrid($('hanGrid'), nar ? 4 : 5, Math.ceil(n / (nar ? 4 : 5)), 1); }
   if (current === 'han') layoutHan();
 }
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { drawGround(); layout(); }, 120); });
@@ -2087,7 +2089,6 @@ function startColor(def) {
   paint = { def, art, colors: art.regions.map(r => r.fix || '#ffffff'), history: [], done: false };
   syncUndo();
   $('colorTitle').textContent = `${def.name} 색칠하기`;
-  preview($('exampleCv'), def, 4); $('exampleBtn').classList.remove('big');
   go('color');
 }
 function layoutColor() {
@@ -2123,7 +2124,8 @@ $('colorCv').addEventListener('pointerdown', e => {
     ]), 300);
   }
 });
-$('exampleBtn').onclick = () => { sfx.tap(); $('exampleBtn').classList.toggle('big'); };
+// 예시 그림: 버튼을 누르면 화면 가득 보여주고, 아무 데나 누르면 닫혀요 (색칠 그림을 가리지 않아요)
+$('exampleBtn').onclick = () => { sfx.tap(); const cv = document.createElement('canvas'); preview(cv, paint.def, 8); $('exImg').src = cv.toDataURL(); $('exBox').classList.add('show'); };
 $('resetBtn').onclick = () => { if (!paint) return; sfx.tap(); startColor(paint.def); };
 // 되돌리기: 방금 칠한 것부터 하나씩 이전 색으로
 function syncUndo() { $('undoBtn').disabled = !paint || !paint.history.length; }
@@ -3361,7 +3363,18 @@ $('goIceGame').onclick = () => { sfx.tap(); startIce('game'); };
 //  퍼즐 (12조각, 진짜 퍼즐 모양)
 // =====================================================================
 const PLACE_EN = { forest: 'Forest', sea: 'Under the sea', sky: 'In the sky', swamp: 'Swamp', playground: 'Playground', kinder: 'Kindergarten', farm: 'Farm', space: 'Space', winter: 'Snowy town', party: 'Birthday party', beach: 'Beach', garden: 'Garden' };
-const PZ_C = 4, PZ_R = 3;
+// 난이도: 쉬움 12조각(4x3) / 보통 20조각(5x4) / 어려움 30조각(6x5)
+const PZ_LEVELS = [{ id: 'easy', ko: '쉬움', sub: '12조각', emo: '🙂', c: 4, r: 3 }, { id: 'mid', ko: '보통', sub: '20조각', emo: '😎', c: 5, r: 4 }, { id: 'hard', ko: '어려움', sub: '30조각', emo: '🤯', c: 6, r: 5 }];
+let pzLevel = 'easy', PZ_C = 4, PZ_R = 3;
+function renderPzLevels() {
+  const box = $('pzLevels'); box.innerHTML = '';
+  PZ_LEVELS.forEach(l => {
+    const b = document.createElement('button'); b.className = 'dtab' + (l.id === pzLevel ? ' on' : '');
+    b.innerHTML = `<span class="emoji">${l.emo}</span><span>${l.ko} · ${l.sub}</span>`;
+    b.onclick = () => { pzLevel = l.id; PZ_C = l.c; PZ_R = l.r; sfx.tap(); renderPzLevels(); };
+    box.appendChild(b);
+  });
+}
 let pz = null;
 // 한 변: s=0 평평, +1 볼록(바깥), -1 오목. 시계 방향으로 돌 때 왼쪽이 바깥쪽
 function knobSide(path, x0, y0, x1, y1, s, k) {
@@ -3485,17 +3498,19 @@ $('pzExCard').onclick = () => { sfx.tap(); $('exBox').classList.add('show'); };
 $('exBox').onclick = () => $('exBox').classList.remove('show');
 function layoutPuzzle() {
   if (!pz) return;
-  const m = $('pzMain'), W = m.clientWidth - 40, H = m.clientHeight - 30, gap = 18, pa = 1.125;
+  const m = $('pzMain'), W = m.clientWidth - 40, H = m.clientHeight - 30, gap = 18;
+  const piw = 96 / PZ_C, pih = 64 / PZ_R, pm = Math.min(piw, pih) * .25, pa = (piw + 2 * pm) / (pih + 2 * pm);
   const land = W > H * 1.2;
   m.classList.toggle('land', land);
   let bw, exW, pw;
   if (land) {
     const colW = Math.min(400, Math.max(260, W * .34));
     exW = colW - 16; const exH = exW / 1.5;
-    pw = Math.floor(Math.min((colW - 20 - 16) / 3, (H - exH - gap - 40 - 24) / 4 * pa));
+    const n = PZ_C * PZ_R, cols = n <= 12 ? 3 : n <= 20 ? 4 : 5, rows = Math.ceil(n / cols);
+    pw = Math.floor(Math.min((colW - 20 - 16 - (cols - 1) * 8) / cols, (H - exH - gap - 40 - 24 - (rows - 1) * 8) / rows * pa));
     bw = Math.min(W - colW - gap - 12, (H - 12) * 1.5);
     $('pzCol').style.width = colW + 'px';
-    $('pzTray').style.gridTemplateColumns = `repeat(3, ${pw}px)`;
+    $('pzTray').style.gridTemplateColumns = `repeat(${cols}, ${pw}px)`;
   } else {
     // 세로 화면: 예시는 오른쪽 위, 조각은 아래에서 옆으로 밀어 봐요
     exW = Math.min(W * .5, 300);
@@ -3520,6 +3535,20 @@ const HAN_WORDS = [['하늘', 'Sky', '🌤️'], ['나무', 'Tree', '🌳'], ['�
   ['기차', 'Train', '🚂'], ['오리', 'Duck', '🦆'], ['모자', 'Hat', '🧢'], ['나비', 'Butterfly', '🦋'], ['토끼', 'Rabbit', '🐰'],
   ['구름', 'Cloud', '☁️'], ['사자', 'Lion', '🦁'], ['아기', 'Baby', '👶'], ['엄마', 'Mom', '👩'], ['아빠', 'Dad', '👨'],
   ['별', 'Star', '⭐'], ['달', 'Moon', '🌙'], ['꽃', 'Flower', '🌸'], ['사과', 'Apple', '🍎'], ['고래', 'Whale', '🐳']];
+// 영어 ABC 놀이 단어 (짧은 세 글자 단어들) : [영어, 한국어, 그림]
+const ABC_WORDS = [['cat', '고양이', '🐱'], ['dog', '강아지', '🐶'], ['hat', '모자', '🧢'], ['mom', '엄마', '👩'], ['dad', '아빠', '👨'], ['sun', '해', '☀️'],
+  ['bus', '버스', '🚌'], ['pig', '돼지', '🐷'], ['cup', '컵', '🥤'], ['bee', '벌', '🐝'], ['egg', '달걀', '🥚'], ['fox', '여우', '🦊']];
+let hanLang = 'ko';
+const hanList = () => hanLang === 'ko' ? HAN_WORDS : ABC_WORDS;
+function renderHanTabs() {
+  const box = $('hanTabs'); box.innerHTML = '';
+  [['ko', '🇰🇷', '한글'], ['en', '🔤', '영어 ABC']].forEach(([id, emo, ko]) => {
+    const b = document.createElement('button'); b.className = 'dtab' + (id === hanLang ? ' on' : '');
+    b.innerHTML = `<span class="emoji">${emo}</span><span>${ko}</span>`;
+    b.onclick = () => { hanLang = id; sfx.tap(); renderHanTabs(); makeHanTiles(); layout(); };
+    box.appendChild(b);
+  });
+}
 const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', JUNG = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
 const JONG = ['', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 const splitSyl = ch => { const c = ch.charCodeAt(0) - 0xAC00; return [Math.floor(c / 588), Math.floor(c % 588 / 28), c % 28]; };
@@ -3533,9 +3562,9 @@ function partSyl(ch, k) {
 let han = null;
 function makeHanTiles() {
   const g = $('hanGrid'); g.innerHTML = '';
-  HAN_WORDS.forEach((w, i) => {
+  hanList().forEach((w, i) => {
     const t = document.createElement('button'); t.className = 'card tile';
-    t.innerHTML = `<div class="emo">${w[2]}</div><span class="nm hanw">${w[0]}</span>`;
+    t.innerHTML = `<div class="emo">${w[2]}</div><span class="nm hanw">${hanLang === 'ko' ? w[0] : w[0].toUpperCase()}</span>`;
     t.onclick = () => { sfx.tap(); startHan(i); };
     g.appendChild(t);
   });
@@ -3574,12 +3603,16 @@ function bfsPath(W, from, to) {
   return path;
 }
 function startHan(i) {
-  const [ko, en, emo] = HAN_WORDS[i], syls = [...ko];
-  const seq = syls.flatMap((s, si) => jamoOfSyl(s).map(j => ({ j, si })));
-  const pool = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣㅑㅕ'.split('');
+  const lang = hanLang, w = hanList()[i];
+  const ko = lang === 'ko' ? w[0] : w[1], en = lang === 'ko' ? w[1] : w[0], emo = w[2];
+  // 한글은 글자를 자음·모음으로, 영어는 단어를 알파벳 하나하나로 나눠요
+  const syls = lang === 'ko' ? [...ko] : [...en.toUpperCase()];
+  const seq = lang === 'ko' ? syls.flatMap((s, si) => jamoOfSyl(s).map(j => ({ j, si }))) : syls.map((j, si) => ({ j, si }));
+  const pool = (lang === 'ko' ? 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣㅑㅕ' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ').split('');
   const total = Math.min(12, Math.max(10, seq.length + 4));
   const extra = shuffle(pool.filter(j => !seq.some(s => s.j === j))).slice(0, total - seq.length);
-  han = { i, ko, en, emo, syls, seq, pos: 0, busy: false, miss: 0, done: false, maze: null,
+  $('hanTitle').textContent = lang === 'ko' ? '한글 놀이' : '영어 ABC 놀이';
+  han = { i, lang, ko, en, emo, syls, seq, pos: 0, busy: false, miss: 0, done: false, maze: null,
           tiles: shuffle([...seq.map(s => s.j), ...extra]).map(j => ({ j, used: false })) };
   $('hanEmo').textContent = emo; $('hanEn').textContent = ''; $('hanEn').classList.remove('show');
   $('hanSyls').innerHTML = syls.map(() => `<div class="syl"><canvas></canvas></div>`).join('');
@@ -3593,7 +3626,7 @@ function startHan(i) {
   });
   go('han');
   updateHanWord();
-  say([{ t: ko, lang: 'ko' }]);
+  say(lang === 'ko' ? [{ t: ko, lang: 'ko' }] : [{ t: en, lang: 'en' }]);
 }
 function updateHanWord() {
   const cnt = han.syls.map(() => 0);
@@ -3623,7 +3656,8 @@ function sylMasks(ch) {
     }
     comps.push(c);
   }
-  const regs = jamoRegions(ch).map(rects => rects.map(([t, r, b, l]) => [l / 100 * N, t / 100 * N, (100 - r) / 100 * N, (100 - b) / 100 * N]));
+  const isHan = ch.charCodeAt(0) >= 0xAC00 && ch.charCodeAt(0) <= 0xD7A3;
+  const regs = (isHan ? jamoRegions(ch) : [[[0, 0, 0, 0]]]).map(rects => rects.map(([t, r, b, l]) => [l / 100 * N, t / 100 * N, (100 - r) / 100 * N, (100 - b) / 100 * N]));
   const inReg = (rects, px, py) => rects.some(([a, b, c2, d2]) => px >= a && px < c2 && py >= b && py < d2);
   const owner = new Int8Array(N * N).fill(-1);
   comps.forEach(c => {
@@ -3692,6 +3726,7 @@ function tapJamo(t) {
     return;
   }
   han.busy = true; han.miss = 0;
+  if (han.lang === 'en') say([{ t: t.j, lang: 'en' }]);   // 알파벳 이름을 읽어 줘요
   const z = han.mz, path = bfsPath(z.W, z.at, t.cell), mun = $('muncher');
   let k = 1;
   const step = () => {
@@ -3705,7 +3740,7 @@ function tapJamo(t) {
       el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
       han.busy = false;
       if (han.pos === han.seq.length) finishHan();
-      else if (sylDone && han.syls.length > 1) say([{ t: han.syls[si], lang: 'ko' }]);
+      else if (han.lang === 'ko' && sylDone && han.syls.length > 1) say([{ t: han.syls[si], lang: 'ko' }]);
       return;
     }
     const [r, c] = path[k], [pr, pc] = path[k - 1];
@@ -3721,12 +3756,14 @@ function finishHan() {
   han.done = true;
   $('hanEn').textContent = `${han.ko} · ${han.en}`; $('hanEn').classList.add('show');
   sfx.ding();
-  say([{ t: han.ko, lang: 'ko' }, { t: han.en, lang: 'en' }]);
+  hanSpeak();
   setTimeout(() => {
-    celebrate('참 잘했어요!', `${han.ko} · ${han.en}`, [['다음 단어', 'pink', () => startHan((han.i + 1) % HAN_WORDS.length)], ['다른 단어', '', () => go('hanPick')]]);
+    celebrate('참 잘했어요!', `${han.ko} · ${han.en}`, [['다음 단어', 'pink', () => startHan((han.i + 1) % hanList().length)], ['다른 단어', '', () => go('hanPick')]]);
   }, 1800);
 }
-$('hanSay').onclick = () => { if (han) say([{ t: han.ko, lang: 'ko' }, { t: han.en, lang: 'en' }]); };
+// 영어 모드면 알파벳을 하나씩 읽고 나서 단어를 읽어요 (C, A, T, cat!)
+function hanSpeak() { if (!han) return; if (han.lang === 'ko') say([{ t: han.ko, lang: 'ko' }, { t: han.en, lang: 'en' }]); else say([...han.syls.map(j => ({ t: j, lang: 'en' })), { t: han.en + '!', lang: 'en' }, { t: han.ko, lang: 'ko' }]); }
+$('hanSay').onclick = hanSpeak;
 function layoutHan() {
   if (!han) return;
   const m = $('hanMain'), Wm = m.clientWidth - 40, Hm = m.clientHeight - 30, gap = 22;
@@ -3838,6 +3875,8 @@ makeHanTiles();
 $('shuffleAnimals').onclick = () => { sfx.tap(); pickAnimals(); makeTiles(); layout(); };
 renderColorCats();
 renderSpotCats();
+renderPzLevels();
+renderHanTabs();
 function renderDressPv() {
   let cv = $('pvDress'); cv.width = 260 * .78; cv.height = 260; drawDoll(cv.getContext('2d'), dollLayers({ ...emptyWorn('girl'), hat: 'hbow', dress: 'party', shoes: 'maryjane', acc: ['necklace'] }), 260);
   cv = $('pvGirl'); cv.width = 300 * .78; cv.height = 300; drawDoll(cv.getContext('2d'), dollLayers({ ...emptyWorn('girl'), top: 'tshirt', bottom: 'skirt', shoes: 'sneakers' }), 300);
