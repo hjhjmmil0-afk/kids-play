@@ -199,6 +199,17 @@
   .balloon.pop { pointer-events: none; } .balloon.pop .bb { animation: balloonpop .45s forwards; } .balloon.pop .bs { opacity: 0; }
   .balloon.wob .bb { animation: shake .3s; }
   @keyframes balloonpop { 40% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(.1); opacity: 0; } }
+  /* 동물 피아노 */
+  .emo-pv { font-size: 90px; line-height: 1; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .pkeys { display: flex; gap: 10px; align-items: flex-end; justify-content: center; }
+  .pkeys.two { display: grid; grid-template-columns: repeat(3, var(--kw)); }
+  .pkey { width: var(--kw); height: var(--kh); background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; padding: 10px 4px 0;
+    border-radius: 6px 6px 16px 16px; box-shadow: 0 0 0 3px var(--ink), 0 7px 0 rgba(43,45,66,.28); transition: transform .08s, background .08s; position: relative; overflow: hidden; touch-action: manipulation; }
+  .pkey canvas { width: 78%; height: auto; }
+  .pkey .kn { width: 100%; padding: 9px 0; background: var(--kc); font-weight: 800; font-size: 16px; box-shadow: inset 0 3px 0 rgba(0,0,0,.08); }
+  .pkey.lit { background: var(--kc); transform: translateY(5px); box-shadow: 0 0 0 3px var(--ink), 0 2px 0 rgba(43,45,66,.28), 0 0 22px var(--kc); }
+  .pkey.lit canvas { animation: bounce .4s; }
+  #pianoMain.demo .pkey { pointer-events: none; }
   .thumbs { display: grid; grid-template-columns: repeat(2, var(--tw)); gap: 14px; }
   .eng-main:not(.land) .thumbs { grid-template-columns: repeat(4, var(--tw)); }
   .thumb { width: var(--tw); height: var(--tw); display: grid; place-items: center; font-size: calc(var(--tw) * .55); line-height: 1;
@@ -459,6 +470,10 @@
       <div class="card"><div class="pv pv-eng pv-han"><span class="e">가</span><span class="w">ㄱ + ㅏ</span></div></div>
       <span class="pbtn yellow">한글·ABC 놀이</span>
     </button>
+    <button class="choice" data-go="pianoPick">
+      <div class="card"><div class="pv"><canvas id="pvPiano"></canvas></div></div>
+      <span class="pbtn pink">동물 피아노</span>
+    </button>
   </div>
  </div>
 </section>
@@ -493,6 +508,29 @@
       <div class="stars" id="popScore"></div>
     </div>
     <div class="card popfield" id="popField"></div>
+  </div>
+</section>
+
+<!-- 동물 피아노 고르기 -->
+<section id="pianoPick" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">동물 피아노</div><div class="bar-r"><div class="seg"></div></div></div>
+  <div class="pick-main"><div class="modes">
+    <button class="choice" id="goPianoFree"><div class="card"><div class="pv emo-pv">🎹</div></div><span class="pbtn mint">자유롭게 치기</span><small>동물 건반을 마음껏 눌러요</small></button>
+    <button class="choice" id="goPianoMelody"><div class="card"><div class="pv emo-pv">🎵</div></div><span class="pbtn pink">소리 따라치기</span><small>들려준 멜로디를 똑같이 쳐요</small></button>
+    <button class="choice" id="goPianoEn"><div class="card"><div class="pv emo-pv">🔤</div></div><span class="pbtn green">영어 따라치기</span><small>"Cat, Dog, Pig!" 순서대로 눌러요</small></button>
+  </div></div>
+</section>
+
+<!-- 동물 피아노 -->
+<section id="piano" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="pianoPick">◀ 뒤로</button><div class="ribbon" id="pianoTitle">동물 피아노</div>
+    <div class="bar-r"><button class="pbtn sm blue" id="pnReplay">🔊 다시 듣기</button></div></div>
+  <div class="game-main" id="pianoMain">
+    <div class="gtop" id="pnTop">
+      <div class="card bubble"><span class="who emoji" id="pnWho">🐻</span><span class="q" id="pnMsg"></span></div>
+      <div class="stars" id="pnStars"></div>
+    </div>
+    <div class="pkeys" id="pnKeys"></div>
   </div>
 </section>
 
@@ -2055,10 +2093,11 @@ let current = 'home';
 function go(id) {
   current = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'puzzlePick', 'hanPick'].includes(id));
+  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'puzzlePick', 'hanPick', 'pianoPick', 'dressPick', 'icePick'].includes(id));
   $('celebrate').classList.remove('show');
   if (id !== 'eng' && canSpeak) speechSynthesis.cancel();
   if (id !== 'engPop' && typeof stopPop === 'function') stopPop();
+  if (id !== 'piano' && pn) { clearPianoTimers(); pn.phase = 'wait'; }
   layout();
 }
 document.addEventListener('click', e => {
@@ -2072,6 +2111,7 @@ function layout() {
   if (current === 'spot') layoutSpot();
   if (current === 'engPick') layoutGrid($('topicGrid'), 3, 2, 1);
   if (current === 'engFind') layoutFind();
+  if (current === 'piano') layoutPiano();
   if (current === 'engPop') layoutPop();
   if (current === 'eng') layoutEng();
   if (current === 'dress') layoutDress();
@@ -2140,6 +2180,130 @@ function layoutGrid(grid, cols, rows, aspect) {
   grid.style.gridTemplateColumns = `repeat(${cols}, ${tw + 16}px)`;
   grid.querySelectorAll('.q').forEach(q => q.style.height = tw / aspect + 'px');
   grid.querySelectorAll('.emo').forEach(q => { q.style.height = tw + 'px'; q.style.fontSize = Math.floor(tw * .55) + 'px'; });
+}
+
+// =====================================================================
+//  동물 피아노 (건반마다 동물과 음이 달라요 · 소리/영어 따라치기)
+// =====================================================================
+const PIANO_KEYS = [
+  { id: 'rabbit', en: 'Rabbit', ko: '토끼', f: 261.63, c: '#ffb3b8', n: '도' }, { id: 'cat', en: 'Cat', ko: '고양이', f: 293.66, c: '#ffd6a8', n: '레' },
+  { id: 'dog', en: 'Dog', ko: '강아지', f: 329.63, c: '#fff2a8', n: '미' }, { id: 'fox', en: 'Fox', ko: '여우', f: 349.23, c: '#c8f2c4', n: '파' },
+  { id: 'penguin', en: 'Penguin', ko: '펭귄', f: 392.0, c: '#b3e3ff', n: '솔' }, { id: 'lion', en: 'Lion', ko: '사자', f: 440.0, c: '#ead0ff', n: '라' },
+];
+const PIANO_GOAL = 8;
+let pn = null;
+// 피아노 소리: 기본음 + 한 옥타브 위 살짝, 길게 울리다 사라져요
+function pianoTone(f, dur = .6) { tone(f, 0, dur, 'triangle', .35); tone(f * 2, 0, dur * .5, 'sine', .08); }
+function startPiano(mode) {
+  pn = { mode, seq: [], step: 0, phase: 'idle', timers: [] };
+  $('pianoTitle').textContent = mode === 'free' ? '동물 피아노' : mode === 'en' ? '영어 따라치기' : '소리 따라치기';
+  renderPianoKeys();
+  $('pnStars').innerHTML = mode === 'free' ? '' : starsHTML(0, PIANO_GOAL - 1);
+  $('pnReplay').style.display = mode === 'free' ? 'none' : '';
+  go('piano');
+  if (mode === 'free') { pn.phase = 'free'; pianoMsg('🎹', '마음껏 쳐 보세요!'); sayEn("Let's play the piano!"); }
+  else { pianoMsg('🐻', '잘 들어 보세요…'); pn.timers.push(setTimeout(newPianoRound, 900)); }
+}
+function pianoMsg(emo, text) { $('pnWho').textContent = emo; $('pnMsg').textContent = text; }
+function renderPianoKeys() {
+  const box = $('pnKeys'); box.innerHTML = '';
+  const defs = [...ANIMALS, ...MORE_ANIMALS];
+  PIANO_KEYS.forEach((k, i) => {
+    const b = document.createElement('button'); b.className = 'pkey'; b.style.setProperty('--kc', k.c); b.dataset.i = i;
+    const cv = document.createElement('canvas'); const def = defs.find(d => d.id === k.id); if (def) preview(cv, def, 2);
+    b.append(cv); b.insertAdjacentHTML('beforeend', `<span class="kn">${pn && pn.mode === 'en' ? k.en : k.n}</span>`);
+    b.onpointerdown = e => { e.preventDefault(); tapKey(i); };
+    box.appendChild(b);
+  });
+}
+function lightKey(i, ms = 420) {
+  const el = $('pnKeys').children[i]; if (!el) return;
+  el.classList.remove('lit'); void el.offsetWidth; el.classList.add('lit');
+  setTimeout(() => el.classList.remove('lit'), ms);
+}
+function playKey(i, demo) {
+  const k = PIANO_KEYS[i];
+  lightKey(i, demo ? 520 : 380);
+  if (pn.mode === 'en') { say([{ t: k.en, lang: 'en' }]); pianoTone(k.f, .35); }
+  else pianoTone(k.f);
+}
+function clearPianoTimers() { pn.timers.forEach(clearTimeout); pn.timers = []; }
+function newPianoRound() {
+  if (!pn || pn.mode === 'free') return;
+  // 처음엔 2개, 맞힐 때마다 하나씩 늘어나요. 같은 음이 연달아 나오지 않게 해요
+  const addOne = () => { let i; do i = Math.floor(Math.random() * PIANO_KEYS.length); while (pn.seq.length && i === pn.seq[pn.seq.length - 1]); pn.seq.push(i); };
+  if (!pn.seq.length) { addOne(); addOne(); } else addOne();
+  playDemo();
+}
+function playDemo() {
+  if (!pn || pn.mode === 'free') return;
+  clearPianoTimers();
+  pn.phase = 'demo'; pn.step = 0;
+  pianoMsg('👂', '잘 들어 보세요…');
+  $('pianoMain').classList.add('demo');
+  const gap = pn.mode === 'en' ? 1000 : 650;
+  pn.seq.forEach((i, k) => pn.timers.push(setTimeout(() => playKey(i, true), 500 + k * gap)));
+  pn.timers.push(setTimeout(() => {
+    pn.phase = 'input'; $('pianoMain').classList.remove('demo');
+    pianoMsg('🎹', pn.mode === 'en' ? '들은 순서대로 눌러 보세요!' : '똑같이 쳐 보세요!');
+  }, 500 + pn.seq.length * gap + 100));
+}
+function tapKey(i) {
+  if (!pn) return;
+  if (pn.phase === 'free') { playKey(i); return; }
+  if (pn.phase !== 'input') return;
+  playKey(i);
+  if (pn.seq[pn.step] === i) {
+    pn.step++;
+    if (pn.step === pn.seq.length) {
+      pn.phase = 'wait';
+      const got = pn.seq.length - 1;
+      $('pnStars').innerHTML = starsHTML(got, PIANO_GOAL - 1);
+      if (pn.seq.length >= PIANO_GOAL) { setTimeout(finishPiano, 600); return; }
+      pianoMsg('🎉', `참 잘했어요! 이번엔 ${pn.seq.length + 1}개!`);
+      setTimeout(() => sfx.ding(), 400);
+      pn.timers.push(setTimeout(newPianoRound, 1500));
+    }
+  } else {
+    pn.phase = 'wait';
+    setTimeout(() => sfx.boop(), 300);
+    pianoMsg('🤔', '다시 들어 볼까?');
+    say([{ t: '다시 들어 볼까?', lang: 'ko' }]);
+    pn.timers.push(setTimeout(playDemo, 1600));
+  }
+}
+function finishPiano() {
+  const mode = pn.mode;
+  pianoMsg('🏆', '멜로디 완성!');
+  const melody = pn.seq.map(i => PIANO_KEYS[i]);
+  // 완성한 멜로디를 한 번 들려주고 축하해요
+  melody.forEach((k, j) => setTimeout(() => { lightKey(j >= 0 ? pn.seq[j] : 0); pianoTone(k.f, .5); }, j * 420));
+  setTimeout(() => {
+    celebrate('멜로디 완성!', `${PIANO_GOAL}개 음을 다 기억했어요 🎵`, [['다시 하기', 'pink', () => startPiano(mode)], ['다른 놀이', '', () => go('pianoPick')]]);
+    sayEn('Wonderful! You remembered the whole melody!');
+  }, melody.length * 420 + 400);
+}
+$('pnReplay').onclick = () => { sfx.tap(); if (pn && pn.seq.length && pn.phase !== 'demo') playDemo(); };
+$('goPianoFree').onclick = () => { sfx.tap(); startPiano('free'); };
+$('goPianoMelody').onclick = () => { sfx.tap(); startPiano('melody'); };
+$('goPianoEn').onclick = () => { sfx.tap(); startPiano('en'); };
+function layoutPiano() {
+  if (!pn) return;
+  const m = $('pianoMain'), W = m.clientWidth - 40, H = m.clientHeight - 30;
+  const top = $('pnTop').offsetHeight + 16;
+  const n = PIANO_KEYS.length, gap = 10, two = W < 560;   // 좁은 화면이면 건반을 두 줄로
+  $('pnKeys').classList.toggle('two', two);
+  let kw, kh;
+  if (two) { kw = Math.floor(Math.min((W - gap * 2) / 3, (H - top - gap) / 2 / 1.5, 150)); kh = Math.min((H - top - gap) / 2, kw * 1.5); }
+  else { kw = Math.floor(Math.min((W - gap * (n - 1)) / n, (H - top) / 1.9, 150)); kh = Math.min(H - top, kw * 1.9); }
+  m.style.setProperty('--kw', kw + 'px'); m.style.setProperty('--kh', Math.floor(kh) + 'px');
+}
+function renderPianoPv() {
+  const cv = $('pvPiano'); cv.width = 260; cv.height = 200; const x = cv.getContext('2d');
+  PIANO_KEYS.forEach((k, i) => { const w = 260 / 6; x.fillStyle = '#fff'; x.fillRect(i * w + 2, 52, w - 4, 146); x.fillStyle = k.c; x.fillRect(i * w + 2, 160, w - 4, 38); x.strokeStyle = '#2b2d42'; x.lineWidth = 3; x.strokeRect(i * w + 2, 52, w - 4, 146); });
+  x.font = '30px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  ['🐰', '🐱', '🐶', '🦊', '🐧', '🦁'].forEach((e, i) => x.fillText(e, i * 260 / 6 + 260 / 12, 110));
+  x.font = '34px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; x.fillText('🎵', 70, 26); x.fillText('🎶', 190, 26);
 }
 
 // =====================================================================
@@ -4142,6 +4306,7 @@ function renderPreviews() {
   makePuzzleTiles();
   renderIcePv();
   puzzlePreview($('pvPuzzle'), PLACES[1], 4);
+  renderPianoPv();
 
   layout();
 }
