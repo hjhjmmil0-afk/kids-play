@@ -2076,7 +2076,7 @@ function layout() {
   if (current === 'eng') layoutEng();
   if (current === 'dress') layoutDress();
   if (current === 'ice') layoutIce();
-  if (current === 'puzzlePick') { const land = innerWidth > innerHeight; layoutGrid($('pzGrid'), land ? 4 : 3, land ? 3 : 4, 1.5); }
+  if (current === 'puzzlePick') { const land = innerWidth > innerHeight; layoutGrid($('pzGrid'), land ? 4 : 2, land ? 1 : 2, 1.5); }
   if (current === 'puzzle') layoutPuzzle();
   if (current === 'hanPick') { const nar = innerWidth < 600, n = hanList().length; layoutGrid($('hanGrid'), nar ? 4 : 5, Math.ceil(n / (nar ? 4 : 5)), 1); }
   if (current === 'han') layoutHan();
@@ -3641,14 +3641,19 @@ $('goIceGame').onclick = () => { sfx.tap(); startIce('game'); };
 // =====================================================================
 const PLACE_EN = { forest: 'Forest', sea: 'Under the sea', sky: 'In the sky', swamp: 'Swamp', playground: 'Playground', kinder: 'Kindergarten', farm: 'Farm', space: 'Space', winter: 'Snowy town', party: 'Birthday party', beach: 'Beach', garden: 'Garden' };
 // 난이도: 쉬움 12조각(4x3) / 보통 20조각(5x4) / 어려움 30조각(6x5)
-const PZ_LEVELS = [{ id: 'easy', ko: '쉬움', sub: '12조각', emo: '🙂', c: 4, r: 3 }, { id: 'mid', ko: '보통', sub: '20조각', emo: '😎', c: 5, r: 4 }, { id: 'hard', ko: '어려움', sub: '30조각', emo: '🤯', c: 6, r: 5 }];
+// 단계마다 그림이 달라요: 쉬움은 모양이 큼직한 그림, 어려움은 자잘한 그림
+const PZ_LEVELS = [
+  { id: 'easy', ko: '쉬움', sub: '12조각', emo: '🙂', c: 4, r: 3, scenes: ['sky', 'sea', 'beach', 'garden'] },
+  { id: 'mid', ko: '보통', sub: '20조각', emo: '😎', c: 5, r: 4, scenes: ['forest', 'playground', 'farm', 'party'] },
+  { id: 'hard', ko: '어려움', sub: '30조각', emo: '🤯', c: 6, r: 5, scenes: ['space', 'winter', 'kinder', 'swamp'] },
+];
 let pzLevel = 'easy', PZ_C = 4, PZ_R = 3;
 function renderPzLevels() {
   const box = $('pzLevels'); box.innerHTML = '';
   PZ_LEVELS.forEach(l => {
     const b = document.createElement('button'); b.className = 'dtab' + (l.id === pzLevel ? ' on' : '');
     b.innerHTML = `<span class="emoji">${l.emo}</span><span>${l.ko} · ${l.sub}</span>`;
-    b.onclick = () => { pzLevel = l.id; PZ_C = l.c; PZ_R = l.r; sfx.tap(); renderPzLevels(); };
+    b.onclick = () => { pzLevel = l.id; PZ_C = l.c; PZ_R = l.r; sfx.tap(); renderPzLevels(); makePuzzleTiles(); layout(); };
     box.appendChild(b);
   });
 }
@@ -3678,7 +3683,8 @@ function piecePath(i, cw, ch, ox = 0, oy = 0) {
 }
 function makePuzzleTiles() {
   const g = $('pzGrid'); g.innerHTML = '';
-  PLACES.forEach(def => {
+  const lv = PZ_LEVELS.find(l => l.id === pzLevel);
+  lv.scenes.map(id => PLACES.find(d => d.id === id)).filter(Boolean).forEach(def => {
     const t = document.createElement('button'); t.className = 'card tile';
     const cv = document.createElement('canvas'); puzzlePreview(cv, def, 4);
     t.append(cv); t.insertAdjacentHTML('beforeend', `<span class="nm">${def.name}</span>`);
