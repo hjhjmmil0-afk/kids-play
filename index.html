@@ -200,6 +200,21 @@
   .balloon.pop { pointer-events: none; } .balloon.pop .bb { animation: balloonpop .45s forwards; } .balloon.pop .bs { opacity: 0; }
   .balloon.wob .bb { animation: shake .3s; }
   @keyframes balloonpop { 40% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(.1); opacity: 0; } }
+  /* 점프 점프 */
+  .runfield { position: relative; padding: 0; overflow: hidden; }
+  #runCv { display: block; touch-action: none; }
+  .jumpbtn { position: absolute; right: 14px; bottom: 14px; font-size: 18px; padding: 12px 18px; touch-action: none; }
+  .rword { display: flex; gap: 6px; }
+  .rslot { min-width: 40px; height: 44px; padding: 0 4px; display: grid; place-items: center; font-size: 26px; font-weight: 800; color: #d4d8e3;
+    background: #f3f5fa; box-shadow: 0 0 0 2px #d9dce6; border-radius: 6px; font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  .rslot.got { color: #fff; background: var(--pink); box-shadow: 0 0 0 2px var(--ink); animation: starpop .4s; }
+  .rslot.now { box-shadow: 0 0 0 3px var(--pink); animation: nowpulse 1.2s ease-in-out infinite; color: #b9bfd0; }
+  .runwho { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 8px; }
+  .runwho .lbl { font-size: 12px; font-weight: 700; margin-right: 4px; }
+  .rwho { width: 46px; height: 46px; padding: 3px; display: grid; place-items: center; }
+  .rwho canvas { width: 100%; height: 100%; object-fit: contain; }
+  .rwho.on { background: #fff3b0; box-shadow: 0 0 0 3px var(--ink); transform: translateY(-2px); }
+  @media (max-width: 560px) { .rslot { min-width: 28px; height: 34px; font-size: 18px; } .rword { gap: 3px; } }
   /* 미로 찾기 */
   .mzfield { position: relative; padding: 0; overflow: hidden; }
   #mzCv { display: block; touch-action: none; }
@@ -509,6 +524,10 @@
       <div class="card"><div class="pv"><canvas id="pvMaze"></canvas></div></div>
       <span class="pbtn green">미로 찾기</span>
     </button>
+    <button class="choice" data-go="runPick">
+      <div class="card"><div class="pv"><canvas id="pvRun"></canvas></div></div>
+      <span class="pbtn blue">점프 점프</span>
+    </button>
   </div>
  </div>
 </section>
@@ -543,6 +562,23 @@
       <div class="stars" id="popScore"></div>
     </div>
     <div class="card popfield" id="popField"></div>
+  </div>
+</section>
+
+<!-- 점프 점프 고르기 -->
+<section id="runPick" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">무엇을 모아 볼까?</div><div class="bar-r"><div class="seg"></div></div></div>
+  <div class="dtabs ctabs" id="runTabs"></div>
+  <div class="runwho" id="runWho"></div>
+  <div class="pick-main"><div class="grid" id="runGrid"></div></div>
+</section>
+
+<!-- 점프 점프 -->
+<section id="run" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="runPick">◀ 뒤로</button><div class="ribbon" id="runTitle">점프 점프</div><div class="bar-r"></div></div>
+  <div class="game-main" id="runMain">
+    <div class="gtop" id="runTop"><button class="card bubble" id="runSay"><span class="who emoji" id="runEmo"></span><span class="rword" id="runWord"></span><span class="emoji">🔊</span></button></div>
+    <div class="card runfield" id="runField"><canvas id="runCv"></canvas><button class="pbtn pink jumpbtn" id="runJumpBtn">⬆ 점프!</button></div>
   </div>
 </section>
 
@@ -2169,10 +2205,11 @@ let current = 'home';
 function go(id) {
   current = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'puzzlePick', 'hanPick', 'pianoPick', 'dressPick', 'icePick', 'mazePick'].includes(id));
+  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'puzzlePick', 'hanPick', 'pianoPick', 'dressPick', 'icePick', 'mazePick', 'runPick'].includes(id));
   $('celebrate').classList.remove('show');
   if (id !== 'eng' && canSpeak) speechSynthesis.cancel();
   if (id !== 'engPop' && typeof stopPop === 'function') stopPop();
+  if (id !== 'run' && rn) stopRun();
   if (id !== 'piano' && pn) { clearPianoTimers(); pn.phase = 'wait'; }
   layout();
 }
@@ -2190,6 +2227,8 @@ function layout() {
   if (current === 'piano') layoutPiano();
   if (current === 'mazePick') { layoutGrid($('mzGrid'), 3, 2, 1); $('mzGrid').querySelectorAll('.emo').forEach(q => q.style.fontSize = Math.floor(parseFloat(q.style.fontSize) * .6) + 'px'); }
   if (current === 'maze') layoutMaze();
+  if (current === 'runPick') { const nar = innerWidth < 600, n = runList().length; layoutGrid($('runGrid'), nar ? 3 : 5, Math.ceil(n / (nar ? 3 : 5)), 1); }
+  if (current === 'run') layoutRun();
   if (current === 'engPop') layoutPop();
   if (current === 'eng') layoutEng();
   if (current === 'dress') layoutDress();
@@ -2557,6 +2596,237 @@ function renderMazePv() {
   x.lineWidth = 16;
   for (let i = 1; i < P.length; i++) { const gr = x.createLinearGradient(...P[i - 1], ...P[i]); gr.addColorStop(0, RAINBOW[(i - 1) % 7]); gr.addColorStop(1, RAINBOW[i % 7]); x.strokeStyle = gr; x.beginPath(); x.moveTo(...P[i - 1]); x.lineTo(...P[i]); x.stroke(); }
   x.font = `34px ${EMO_FONT}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('🐿️', 47, 47); x.fillText('🏠', 212, 212);
+}
+
+// =====================================================================
+//  점프 점프 달리기 (달리면서 풍선 글자를 순서대로 먹어요)
+// =====================================================================
+const NUM_KO = ['', '하나', '둘', '셋', '넷', '다섯', '여섯', '일곱', '여덟', '아홉', '열'];
+const NUM_EN = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const RUN_NUMS = [
+  { label: '1·2·3', emo: '🐣', seq: [1, 2, 3] }, { label: '1~5', emo: '🖐️', seq: [1, 2, 3, 4, 5] },
+  { label: '1~10', emo: '🔟', seq: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, { label: '5→1', emo: '🚀', seq: [5, 4, 3, 2, 1] },
+  { label: '2·4·6·8', emo: '👟', seq: [2, 4, 6, 8, 10] },
+];
+const RUN_TABS = [['en', '🔤', '영어 ABC'], ['ko', '🇰🇷', '한글'], ['num', '🔢', '숫자']];
+const RUNNERS = [['rabbit', '토끼'], ['fox', '여우'], ['dog', '강아지'], ['cat', '고양이'], ['penguin', '펭귄']];
+let runTab = 'en', runWho = 'rabbit', rn = null;
+const runList = () => runTab === 'en' ? ABC_WORDS : runTab === 'ko' ? HAN_WORDS : RUN_NUMS;
+function renderRunTabs() {
+  const box = $('runTabs'); box.innerHTML = '';
+  RUN_TABS.forEach(([id, emo, ko]) => {
+    const b = document.createElement('button'); b.className = 'dtab' + (id === runTab ? ' on' : '');
+    b.innerHTML = `<span class="emoji">${emo}</span><span>${ko}</span>`;
+    b.onclick = () => { runTab = id; sfx.tap(); renderRunTabs(); makeRunTiles(); layout(); };
+    box.appendChild(b);
+  });
+  const who = $('runWho'); who.innerHTML = '<span class="lbl">누가 달릴까?</span>';
+  const defs = [...ANIMALS, ...MORE_ANIMALS];
+  RUNNERS.forEach(([id, ko]) => {
+    const b = document.createElement('button'); b.className = 'card rwho' + (id === runWho ? ' on' : '');
+    const cv = document.createElement('canvas'); const d = defs.find(x => x.id === id); if (d) preview(cv, d, 1);
+    b.append(cv); b.title = ko;
+    b.onclick = () => { runWho = id; sfx.tap(); renderRunTabs(); };
+    who.appendChild(b);
+  });
+}
+function makeRunTiles() {
+  const g = $('runGrid'); g.innerHTML = '';
+  runList().forEach((w, i) => {
+    const t = document.createElement('button'); t.className = 'card tile';
+    const label = runTab === 'en' ? w[0].toUpperCase() : runTab === 'ko' ? w[0] : w.label;
+    t.innerHTML = `<div class="emo">${runTab === 'num' ? w.emo : w[2]}</div><span class="nm hanw">${label}</span>`;
+    t.onclick = () => { sfx.tap(); startRun(i); };
+    g.appendChild(t);
+  });
+}
+// 이번 판에 모을 것들: { t: 화면 글자, say: 읽을 말 }
+function runSeq(tab, i) {
+  if (tab === 'en') { const w = ABC_WORDS[i]; return { word: w[0], ko: w[1], emo: w[2], items: [...w[0].toUpperCase()].map(ch => ({ t: ch, say: [{ t: letterName(ch), lang: 'en' }] })), pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), done: [{ t: w[0] + '!', lang: 'en' }, { t: w[1], lang: 'ko' }] }; }
+  if (tab === 'ko') { const w = HAN_WORDS[i]; const items = [...w[0]].flatMap((s, si) => jamoOfSyl(s).map(j => ({ t: j, si, say: [{ t: jamoName(j), lang: 'ko' }] }))); return { word: w[0], ko: w[0], emo: w[2], syls: [...w[0]], items, pool: 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣㅑㅕ'.split(''), done: [{ t: w[0], lang: 'ko' }, { t: w[1], lang: 'en' }] }; }
+  const n = RUN_NUMS[i]; return { word: n.label, ko: n.label, emo: n.emo, items: n.seq.map(k => ({ t: String(k), say: [{ t: NUM_KO[k], lang: 'ko' }, { t: NUM_EN[k], lang: 'en' }] })), pool: '1 2 3 4 5 6 7 8 9 10'.split(' '), done: [{ t: '참 잘했어요!', lang: 'ko' }] };
+}
+const BALLOON_C = ['#ff5a5f', '#ff9f43', '#ffd23f', '#3cb371', '#4a8ff0', '#a26bff', '#ff8cc6'];
+function startRun(i) {
+  stopRun();
+  const S = runSeq(runTab, i), defs = [...ANIMALS, ...MORE_ANIMALS];
+  const sprite = document.createElement('canvas'); preview(sprite, defs.find(d => d.id === runWho) || defs[0], 4);
+  rn = { tab: runTab, i, S, pos: 0, items: [], sprite, t: 0, nextAt: 1.2, sinceNeed: 0, speedMul: 1, hurt: 0, done: false, last: 0,
+         y: 0, vy: 0, jumps: 0, dist: 0, pops: [] };
+  $('runTitle').textContent = runTab === 'en' ? '영어 점프' : runTab === 'ko' ? '한글 점프' : '숫자 점프';
+  $('runEmo').textContent = S.emo;
+  renderRunWord();
+  go('run');
+  say([{ t: runTab === 'en' ? `Let's spell ${S.word}!` : runTab === 'ko' ? `${S.word}${hasJong(S.word.slice(-1)) ? '을' : '를'} 만들어요!` : '숫자를 순서대로 모아요!', lang: runTab === 'en' ? 'en' : 'ko' }]);
+  rn.raf = requestAnimationFrame(runTick);
+}
+function stopRun() { if (rn && rn.raf) cancelAnimationFrame(rn.raf); if (rn) rn.raf = null; }
+function renderRunWord() {
+  const box = $('runWord'); box.innerHTML = '';
+  rn.S.items.forEach((it, k) => {
+    const s = document.createElement('span'); s.className = 'rslot' + (k < rn.pos ? ' got' : k === rn.pos ? ' now' : '');
+    s.textContent = it.t; box.appendChild(s);
+  });
+}
+function runJump() {
+  if (!rn || current !== 'run') return;
+  // 땅에서 한 번, 공중에서 한 번 더 뛸 수 있어요 (아기들이 늦게 눌러도 괜찮게)
+  if (rn.jumps >= 2) return;
+  rn.vy = -rn.jumpV * (rn.jumps ? .85 : 1); rn.jumps++;
+  tone(rn.jumps === 1 ? 520 : 700, 0, .12, 'square', .07, rn.jumps === 1 ? 900 : 1100);
+}
+function runSpawn() {
+  const z = rn.z, need = rn.S.items[rn.pos];
+  // 장애물 35%, 풍선 65%. 필요한 글자가 2번 넘게 안 나왔으면 꼭 넣어 줘요
+  if (Math.random() < .35 && rn.t > 2) { rn.items.push({ kind: Math.random() < .5 ? 'stump' : 'rock', x: z.W + z.s, w: z.s * .55, h: z.s * (.38 + Math.random() * .12) }); return; }
+  let t;
+  if (!need) return;
+  if (rn.sinceNeed >= 2 || Math.random() < .5) { t = need.t; rn.sinceNeed = 0; }
+  else { const pool = rn.S.pool.filter(p => p !== need.t); t = pool[Math.floor(Math.random() * pool.length)]; rn.sinceNeed++; }
+  const hi = Math.random() < .5;
+  rn.items.push({ kind: 'balloon', t, x: z.W + z.s, y: z.ground - z.s * (hi ? 2.15 : 1.75), r: z.s * .36, c: BALLOON_C[Math.floor(Math.random() * BALLOON_C.length)], wob: Math.random() * 6 });
+}
+function runTick(now) {
+  if (!rn) return;
+  rn.raf = requestAnimationFrame(runTick);
+  if (current !== 'run' || !rn.z) { rn.last = now; return; }
+  const dt = rn.last ? Math.min(.05, (now - rn.last) / 1000) : 0; rn.last = now;
+  const z = rn.z;
+  rn.t += dt; rn.speedMul = Math.min(1, rn.speedMul + dt * .6);
+  const v = z.W * (.2 + Math.min(.06, rn.pos * .008)) * rn.speedMul;
+  rn.dist += v * dt;
+  // 점프 물리
+  rn.vy += z.g * dt; rn.y += rn.vy * dt;
+  if (rn.y >= 0) { rn.y = 0; rn.vy = 0; rn.jumps = 0; }
+  // 새 물건
+  if (!rn.done && rn.t >= rn.nextAt) { runSpawn(); rn.nextAt = rn.t + 1.15 + Math.random() * .6; }
+  const rx = z.W * .2, ry = z.ground + rn.y - z.s / 2, rr = z.s * .4;
+  rn.hurt = Math.max(0, rn.hurt - dt);
+  rn.items.forEach(it => {
+    it.x -= v * dt;
+    if (it.gone) { it.fly = (it.fly || 0) + dt; return; }
+    if (it.kind === 'balloon') {
+      it.wob += dt * 3;
+      const by = it.y + Math.sin(it.wob) * z.s * .06;
+      if (Math.hypot(it.x - rx, by - ry) < it.r + rr) {
+        const need = rn.S.items[rn.pos];
+        if (need && it.t === need.t) {
+          it.gone = 'pop'; sfx.pop(); rn.pos++;
+          rn.pops.push({ x: it.x, y: by, c: it.c, t: 0 });
+          renderRunWord();
+          const sylDone = rn.tab === 'ko' && (rn.pos === rn.S.items.length || rn.S.items[rn.pos].si !== need.si);
+          if (rn.pos === rn.S.items.length) finishRun(need);
+          else say(sylDone ? [...need.say, { t: rn.S.syls[need.si], lang: 'ko' }] : need.say);
+        } else {
+          // 다른 글자: 풍선이 통 튕겨서 날아가고 무슨 글자였는지 알려 줘요
+          it.gone = 'bounce'; sfx.boop();
+          const name = rn.tab === 'en' ? [{ t: `Oops, that's ${letterName(it.t)}.`, lang: 'en' }] : rn.tab === 'ko' ? [{ t: `${jamoName(it.t)}가 아니에요~`, lang: 'ko' }] : [{ t: `${NUM_KO[+it.t]}가 아니에요~`, lang: 'ko' }];
+          say(name);
+        }
+      }
+    } else if (!it.hitDone && !rn.hurt) {
+      const top = z.ground - it.h;
+      if (Math.abs(it.x - rx) < (it.w / 2 + z.s * .25) && z.ground + rn.y > top + z.s * .08) {
+        it.hitDone = true; rn.hurt = .9; rn.speedMul = .35; tone(200, 0, .2, 'square', .1, 120);
+      }
+    }
+  });
+  rn.items = rn.items.filter(it => it.x > -z.s * 2 && !(it.fly > 1));
+  rn.pops.forEach(p => p.t += dt); rn.pops = rn.pops.filter(p => p.t < .6);
+  drawRun();
+}
+function drawRun() {
+  const z = rn.z, ctx = z.ctx, W = z.W, H = z.H, s = z.s;
+  // 하늘 · 구름 · 언덕 (멀리 있는 건 천천히 움직여요)
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#8fd3fb'); g.addColorStop(1, '#dff3ff');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(255,255,255,.9)';
+  for (let k = 0; k < 4; k++) { const x = ((k * W * .37 - rn.dist * .15) % (W * 1.4) + W * 1.4) % (W * 1.4) - W * .2, y = H * (.12 + (k % 2) * .1); [[0, 0, 1], [s * .5, -s * .15, .8], [s, 0, .9]].forEach(([dx, dy, k2]) => { ctx.beginPath(); ctx.arc(x + dx, y + dy, s * .35 * k2, 0, 7); ctx.fill(); }); }
+  ctx.fillStyle = '#a8de8f';
+  for (let k = 0; k < 4; k++) { const x = ((k * W * .4 - rn.dist * .35) % (W * 1.6) + W * 1.6) % (W * 1.6) - W * .3; ctx.beginPath(); ctx.ellipse(x, z.ground, W * .22, H * .2, 0, Math.PI, 0); ctx.fill(); }
+  // 땅
+  ctx.fillStyle = '#7ccf5e'; ctx.fillRect(0, z.ground, W, s * .22);
+  ctx.fillStyle = '#c98a4b'; ctx.fillRect(0, z.ground + s * .22, W, H - z.ground);
+  ctx.fillStyle = '#a0673a';
+  const step = s * .7; for (let x = -((rn.dist) % step); x < W; x += step) { ctx.fillRect(x, z.ground + s * .45, s * .18, s * .1); ctx.fillRect(x + step / 2, z.ground + s * .75, s * .14, s * .08); }
+  // 물건들
+  rn.items.forEach(it => {
+    if (it.kind === 'balloon') {
+      let by = it.y + Math.sin(it.wob) * s * .06, bx = it.x, a = 1;
+      if (it.gone === 'pop') return;
+      if (it.gone === 'bounce') { by -= it.fly * s * 4; bx += it.fly * s * 2; a = Math.max(0, 1 - it.fly); }
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = '#8a8fa8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx, by + it.r); ctx.quadraticCurveTo(bx - s * .1, by + it.r * 1.8, bx, by + it.r * 2.4); ctx.stroke();
+      ctx.fillStyle = it.c; ctx.beginPath(); ctx.ellipse(bx, by, it.r, it.r * 1.12, 0, 0, 7); ctx.fill();
+      ctx.strokeStyle = mixHex(it.c, '#2b2d42', .4); ctx.lineWidth = 3; ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.ellipse(bx - it.r * .35, by - it.r * .45, it.r * .2, it.r * .12, -.6, 0, 7); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#2b2d42'; ctx.lineWidth = Math.max(3, s * .06);
+      ctx.font = `800 ${it.r * (it.t.length > 1 ? .95 : 1.25)}px "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.strokeText(it.t, bx, by + it.r * .05); ctx.fillText(it.t, bx, by + it.r * .05);
+      ctx.globalAlpha = 1;
+    } else {
+      const top = z.ground - it.h, x = it.x - it.w / 2;
+      if (it.kind === 'stump') {
+        ctx.fillStyle = '#a0673a'; ctx.strokeStyle = '#5a3420'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.roundRect(x, top, it.w, it.h + 4, 4); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#e6c08a'; ctx.beginPath(); ctx.ellipse(it.x, top, it.w / 2, it.w * .18, 0, 0, 7); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#c98a4b'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(it.x, top, it.w * .25, it.w * .08, 0, 0, 7); ctx.stroke();
+      } else {
+        ctx.fillStyle = '#9aa3b5'; ctx.strokeStyle = '#5a6075'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(x, z.ground + 2); ctx.quadraticCurveTo(x - it.w * .05, top + it.h * .3, it.x - it.w * .1, top); ctx.quadraticCurveTo(it.x + it.w * .4, top - it.h * .05, x + it.w * 1.05, z.ground + 2); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(it.x - it.w * .15, top + it.h * .3, it.w * .12, it.h * .1, -.5, 0, 7); ctx.fill();
+      }
+    }
+  });
+  // 터진 풍선 조각
+  rn.pops.forEach(p => { ctx.fillStyle = p.c; for (let k = 0; k < 8; k++) { const a = k / 8 * 6.28, d = p.t * s * 2.2; ctx.globalAlpha = 1 - p.t / .6; ctx.beginPath(); ctx.arc(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, s * .08, 0, 7); ctx.fill(); } ctx.globalAlpha = 1; });
+  // 달리는 친구
+  const rx = W * .2, base = z.ground + rn.y, sp = rn.sprite, h = s * 1.15, w = h * sp.width / sp.height;
+  const bob = rn.y === 0 ? Math.abs(Math.sin(rn.dist / (s * .55))) * s * .1 : 0;
+  ctx.fillStyle = 'rgba(0,0,0,.15)'; ctx.beginPath(); ctx.ellipse(rx, z.ground + 3, s * .4 * (1 + rn.y / (s * 6)), s * .08, 0, 0, 7); ctx.fill();
+  ctx.save(); ctx.translate(rx, base - bob);
+  if (rn.y < 0) ctx.rotate(Math.max(-.25, rn.vy / (rn.jumpV * 4)));
+  if (rn.hurt && Math.floor(rn.hurt * 12) % 2) ctx.globalAlpha = .35;
+  ctx.drawImage(sp, -w / 2, -h, w, h);
+  ctx.restore();
+}
+function finishRun(last) {
+  rn.done = true; sfx.ding();
+  say([...last.say, ...rn.S.done]);
+  const me = rn;
+  setTimeout(() => {
+    if (rn !== me || current !== 'run') return;
+    const list = runList();
+    celebrate('다 모았어요!', `${rn.S.emo} ${rn.S.word}`, [['다음', 'pink', () => startRun((rn.i + 1) % list.length)], ['다른 것', '', () => go('runPick')]]);
+  }, 1800);
+}
+function layoutRun() {
+  if (!rn) return;
+  const m = $('runMain'), W = m.clientWidth - 40, H = m.clientHeight - 30 - $('runTop').offsetHeight - 14;
+  const fw = Math.floor(W), fh = Math.floor(Math.min(H, W * (W < 600 ? 1.1 : .75)));
+  const f = $('runField'); f.style.width = fw + 'px'; f.style.height = fh + 'px';
+  const s = Math.min(fh * .17, fw * .11);
+  rn.z = { ctx: fitCanvas($('runCv'), fw, fh), W: fw, H: fh, s, ground: fh - s * .9, g: s * 30 };
+  // 공중에서 두 번째 풍선 높이(2.15칸)까지 닿게 점프 힘을 정해요
+  rn.jumpV = Math.sqrt(2 * rn.z.g * s * 1.75);
+  drawRun();
+}
+$('runCv').addEventListener('pointerdown', e => { e.preventDefault(); runJump(); });
+$('runJumpBtn').addEventListener('pointerdown', e => { e.preventDefault(); runJump(); });
+document.addEventListener('keydown', e => { if (current === 'run' && (e.code === 'Space' || e.code === 'ArrowUp')) { e.preventDefault(); runJump(); } });
+$('runSay').onclick = () => { if (!rn) return; const need = rn.S.items[rn.pos]; say(need ? [{ t: rn.tab === 'en' ? rn.S.word : rn.S.word, lang: rn.tab === 'en' ? 'en' : 'ko' }, ...need.say] : rn.S.done); };
+function renderRunPv() {
+  const cv = $('pvRun'); cv.width = cv.height = 260; const x = cv.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 260); g.addColorStop(0, '#8fd3fb'); g.addColorStop(1, '#dff3ff'); x.fillStyle = g; x.fillRect(0, 0, 260, 260);
+  x.fillStyle = '#7ccf5e'; x.fillRect(0, 200, 260, 14); x.fillStyle = '#c98a4b'; x.fillRect(0, 214, 260, 46);
+  [['C', '#ff5a5f', 120, 70], ['A', '#ffd23f', 175, 95], ['T', '#4a8ff0', 225, 70]].forEach(([t, c, bx, by]) => {
+    x.strokeStyle = '#8a8fa8'; x.lineWidth = 2; x.beginPath(); x.moveTo(bx, by + 22); x.lineTo(bx, by + 50); x.stroke();
+    x.fillStyle = c; x.beginPath(); x.ellipse(bx, by, 22, 25, 0, 0, 7); x.fill(); x.strokeStyle = '#2b2d42'; x.lineWidth = 3; x.stroke();
+    x.fillStyle = '#fff'; x.font = '800 26px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.strokeText(t, bx, by + 1); x.fillText(t, bx, by + 1);
+  });
+  x.fillStyle = '#a0673a'; x.strokeStyle = '#5a3420'; x.lineWidth = 3; x.beginPath(); x.roundRect(190, 170, 30, 32, 4); x.fill(); x.stroke();
+  const d = [...ANIMALS, ...MORE_ANIMALS].find(a => a.id === 'rabbit'), sp = document.createElement('canvas'); preview(sp, d, 2);
+  x.save(); x.translate(60, 150); x.rotate(-.2); x.drawImage(sp, -40, -50, 80, 80); x.restore();
 }
 
 // =====================================================================
@@ -4707,6 +4977,7 @@ function renderPreviews() {
   puzzlePreview($('pvPuzzle'), PLACES[1], 4);
   renderPianoPv();
   renderMazePv();
+  renderRunPv();
 
   layout();
 }
@@ -4737,6 +5008,8 @@ renderPzLevels();
 renderHanTabs();
 renderEngModes();
 renderMazeLevels();
+renderRunTabs();
+makeRunTiles();
 makeMazeTiles();
 function renderDressPv() {
   let cv = $('pvDress'); cv.width = 260 * .78; cv.height = 260; drawDoll(cv.getContext('2d'), dollLayers({ ...emptyWorn('girl'), hat: 'hbow', dress: 'party', shoes: 'maryjane', acc: ['necklace'] }), 260);
