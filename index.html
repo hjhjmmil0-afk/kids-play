@@ -2091,10 +2091,25 @@ function drawGround() {
 // =====================================================================
 let actx = null;
 function audio() {
-  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-  if (actx.state === 'suspended') actx.resume();
+  if (!actx) { actx = new (window.AudioContext || window.webkitAudioContext)(); actx.onstatechange = () => { if (actx.state !== 'running') actx.resume().catch(() => {}); }; }
+  // 아이패드는 말소리(TTS)가 끝나거나 다른 앱 소리가 나면 'interrupted' 상태로 멈춰요. 그때마다 다시 켜요
+  if (actx.state !== 'running') actx.resume().catch(() => {});
   return actx;
 }
+// 아이패드에서 소리가 안 나는 두 가지를 막아요:
+// 1) 손가락이 닿을 때마다 소리 장치를 깨워요  2) 무음 스위치가 켜져 있어도 소리 나게, 조용한 소리를 계속 틀어 둬요
+const SILENT_WAV = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
+let unmuteEl = null;
+function unlockAudio() {
+  try {
+    audio();
+    if (!unmuteEl) { unmuteEl = document.createElement('audio'); unmuteEl.setAttribute('playsinline', ''); unmuteEl.loop = true; unmuteEl.src = SILENT_WAV; document.body.appendChild(unmuteEl); }
+    if (unmuteEl.paused) unmuteEl.play().catch(() => {});
+  } catch (e) {}
+}
+document.addEventListener('pointerdown', unlockAudio, { passive: true });
+document.addEventListener('touchend', unlockAudio, { passive: true });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) unlockAudio(); });
 function tone(freq, start, dur, type = 'sine', vol = .25, slide) {
   const a = audio(), o = a.createOscillator(), g = a.createGain(), t = a.currentTime + start;
   o.type = type; o.frequency.setValueAtTime(freq, t);
@@ -2252,7 +2267,7 @@ function lightKey(i, ms = 420) {
 function playKey(i, demo) {
   const k = PIANO_KEYS[i];
   lightKey(i, demo ? 520 : 380);
-  if (pn.mode === 'en') { say([{ t: k.en, lang: 'en' }]); pianoTone(k.f, .35); }
+  if (pn.mode === 'en') { pianoTone(k.f, .35); setTimeout(() => say([{ t: k.en, lang: 'en' }]), 120); }
   else pianoTone(k.f);
 }
 function clearPianoTimers() { pn.timers.forEach(clearTimeout); pn.timers = []; }
@@ -2772,7 +2787,7 @@ function say(parts, done) {
     if (voices[p.lang]) u.voice = voices[p.lang];
     u.rate = p.lang === 'en' ? .8 : .95; u.pitch = 1.1;
     u.onstart = () => p.start && p.start();
-    u.onend = () => { p.end && p.end(); if (i === list.length - 1 && done) done(); };
+    u.onend = () => { p.end && p.end(); if (actx && actx.state !== 'running') actx.resume().catch(() => {}); if (i === list.length - 1 && done) done(); };
     speechSynthesis.speak(u);
   });
 }
