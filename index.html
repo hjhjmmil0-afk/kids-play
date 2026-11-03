@@ -199,6 +199,11 @@
   .balloon.pop { pointer-events: none; } .balloon.pop .bb { animation: balloonpop .45s forwards; } .balloon.pop .bs { opacity: 0; }
   .balloon.wob .bb { animation: shake .3s; }
   @keyframes balloonpop { 40% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(.1); opacity: 0; } }
+  /* 미로 찾기 */
+  .mzfield { position: relative; padding: 0; overflow: hidden; }
+  #mzCv { display: block; touch-action: none; }
+  .tile .emo small { font-size: .45em; margin: 0 2px; vertical-align: middle; }
+  .bubble .q { font-size: 15px; line-height: 1.35; }
   /* 동물 피아노 */
   .emo-pv { font-size: 90px; line-height: 1; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
   .pkeys { display: flex; gap: 10px; align-items: flex-end; justify-content: center; }
@@ -474,6 +479,10 @@
       <div class="card"><div class="pv"><canvas id="pvPiano"></canvas></div></div>
       <span class="pbtn pink">동물 피아노</span>
     </button>
+    <button class="choice" data-go="mazePick">
+      <div class="card"><div class="pv"><canvas id="pvMaze"></canvas></div></div>
+      <span class="pbtn green">미로 찾기</span>
+    </button>
   </div>
  </div>
 </section>
@@ -508,6 +517,23 @@
       <div class="stars" id="popScore"></div>
     </div>
     <div class="card popfield" id="popField"></div>
+  </div>
+</section>
+
+<!-- 미로 찾기 고르기 -->
+<section id="mazePick" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="home">◀ 뒤로</button><div class="ribbon">누구를 도와줄까?</div><div class="bar-r"><div class="seg"></div></div></div>
+  <div class="dtabs ctabs" id="mzLevels"></div>
+  <div class="pick-main"><div class="grid" id="mzGrid"></div></div>
+</section>
+
+<!-- 미로 찾기 -->
+<section id="maze" class="screen">
+  <div class="bar"><button class="pbtn sm" data-go="mazePick">◀ 뒤로</button><div class="ribbon" id="mazeTitle">미로 찾기</div>
+    <div class="bar-r"><button class="pbtn sm" id="mzReset">처음부터</button><button class="pbtn sm blue" id="mzNew">🔀 새 미로</button></div></div>
+  <div class="game-main" id="mazeMain">
+    <div class="gtop" id="mzTop"><button class="card bubble" id="mzSay"><span class="who emoji" id="mzWho">🐿️</span><span class="q" id="mzMsg"></span></button></div>
+    <div class="card mzfield" id="mzField"><canvas id="mzCv"></canvas></div>
   </div>
 </section>
 
@@ -2093,7 +2119,7 @@ let current = 'home';
 function go(id) {
   current = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'puzzlePick', 'hanPick', 'pianoPick', 'dressPick', 'icePick'].includes(id));
+  document.body.classList.toggle('ground', ['home', 'colorPick', 'spotPick', 'engPick', 'puzzlePick', 'hanPick', 'pianoPick', 'dressPick', 'icePick', 'mazePick'].includes(id));
   $('celebrate').classList.remove('show');
   if (id !== 'eng' && canSpeak) speechSynthesis.cancel();
   if (id !== 'engPop' && typeof stopPop === 'function') stopPop();
@@ -2112,6 +2138,8 @@ function layout() {
   if (current === 'engPick') layoutGrid($('topicGrid'), 3, 2, 1);
   if (current === 'engFind') layoutFind();
   if (current === 'piano') layoutPiano();
+  if (current === 'mazePick') { layoutGrid($('mzGrid'), 3, 2, 1); $('mzGrid').querySelectorAll('.emo').forEach(q => q.style.fontSize = Math.floor(parseFloat(q.style.fontSize) * .6) + 'px'); }
+  if (current === 'maze') layoutMaze();
   if (current === 'engPop') layoutPop();
   if (current === 'eng') layoutEng();
   if (current === 'dress') layoutDress();
@@ -2304,6 +2332,181 @@ function renderPianoPv() {
   x.font = '30px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
   ['🐰', '🐱', '🐶', '🦊', '🐧', '🦁'].forEach((e, i) => x.fillText(e, i * 260 / 6 + 260 / 12, 110));
   x.font = '34px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; x.fillText('🎵', 70, 26); x.fillText('🎶', 190, 26);
+}
+
+// =====================================================================
+//  미로 찾기 (손가락으로 무지개 선을 그어서 출발 → 도착)
+// =====================================================================
+const MAZE_STORIES = [
+  { id: 'squirrel', who: '🐿️', goal: '🏠', ko: '숲속에서 다람쥐가 길을 잃었어요! 집까지 가는 길을 찾아 주세요.', en: 'The squirrel is lost! Help it find its home.', done: '다람쥐가 집에 도착했어요!', doneEn: 'Home sweet home!', bg: ['#dff5d0', '#bfe8a8'], wall: '#3b8f3b', deco: ['🌲', '🌳', '🍄', '🌼'] },
+  { id: 'rabbit', who: '🐰', goal: '🥕', ko: '배고픈 토끼가 당근밭을 찾아가요. 길을 알려 주세요!', en: 'The hungry rabbit wants a carrot. Show it the way!', done: '토끼가 당근을 찾았어요! 냠냠!', doneEn: 'Yummy carrot!', bg: ['#fff3d6', '#ffe0a8'], wall: '#c9742e', deco: ['🌷', '🐞', '🌿', '🦋'] },
+  { id: 'penguin', who: '🐧', goal: '🐟', ko: '펭귄이 물고기를 잡으러 가요. 얼음 미로를 지나가요!', en: 'The penguin is going fishing. Cross the ice maze!', done: '펭귄이 물고기를 잡았어요!', doneEn: 'A big fish!', bg: ['#e4f6ff', '#bfe9ff'], wall: '#3f8fc8', deco: ['❄️', '⛄', '🧊', '🐳'] },
+  { id: 'rocket', who: '🚀', goal: '🌙', ko: '로켓이 달나라로 가요. 별 사이로 길을 찾아 주세요!', en: 'The rocket is flying to the moon. Find the way through the stars!', done: '로켓이 달에 도착했어요!', doneEn: 'We made it to the moon!', bg: ['#2a2457', '#1a1f4f'], wall: '#8f8fff', deco: ['⭐', '🪐', '✨', '☄️'], dark: true },
+  { id: 'bee', who: '🐝', goal: '🌸', ko: '꿀벌이 꽃을 찾아가요. 윙윙~ 길을 알려 주세요!', en: 'The bee is looking for a flower. Buzz, buzz!', done: '꿀벌이 꽃을 찾았어요! 달콤해요!', doneEn: 'Sweet flower!', bg: ['#fff9d6', '#ffeea8'], wall: '#d9a400', deco: ['🌻', '🌼', '🍯', '🌷'] },
+  { id: 'puppy', who: '🐶', goal: '🦴', ko: '강아지가 뼈다귀를 숨겨 뒀어요. 어디였더라? 길을 찾아 주세요!', en: 'The puppy hid a bone somewhere. Help it find the bone!', done: '강아지가 뼈다귀를 찾았어요! 멍멍!', doneEn: 'Woof! Found it!', bg: ['#f3e9ff', '#dcc8ff'], wall: '#7a4fd1', deco: ['🏡', '🌳', '⚽', '🦴'] },
+];
+const MAZE_LEVELS = [{ id: 'easy', ko: '쉬움', emo: '🙂', c: 6, r: 4 }, { id: 'mid', ko: '보통', emo: '😎', c: 9, r: 6 }, { id: 'hard', ko: '어려움', emo: '🤯', c: 12, r: 8 }];
+let mazeLevel = 'easy', mz = null;
+function renderMazeLevels() {
+  const box = $('mzLevels'); box.innerHTML = '';
+  MAZE_LEVELS.forEach(l => {
+    const b = document.createElement('button'); b.className = 'dtab' + (l.id === mazeLevel ? ' on' : '');
+    b.innerHTML = `<span class="emoji">${l.emo}</span><span>${l.ko} · ${l.c}×${l.r}</span>`;
+    b.onclick = () => { mazeLevel = l.id; sfx.tap(); renderMazeLevels(); };
+    box.appendChild(b);
+  });
+}
+function makeMazeTiles() {
+  const g = $('mzGrid'); g.innerHTML = '';
+  MAZE_STORIES.forEach(st => {
+    const t = document.createElement('button'); t.className = 'card tile';
+    t.innerHTML = `<div class="emo">${st.who}<small>→</small>${st.goal}</div><span class="nm">${st.ko.split('!')[0].split('.')[0]}</span>`;
+    t.onclick = () => { sfx.tap(); startMaze(st); };
+    g.appendChild(t);
+  });
+}
+function startMaze(st) {
+  const lv = MAZE_LEVELS.find(l => l.id === mazeLevel);
+  mz = { st, lv, W: null, C: 0, R: 0, path: [], done: false, drawing: false, bump: null };
+  $('mazeTitle').textContent = `${st.who} 미로 찾기`;
+  $('mzWho').textContent = st.who; $('mzMsg').textContent = st.ko;
+  go('maze');
+  say([{ t: st.ko, lang: 'ko' }, { t: st.en, lang: 'en' }]);
+}
+function layoutMaze() {
+  if (!mz) return;
+  const m = $('mazeMain'), W = m.clientWidth - 40, H = m.clientHeight - 30, top = $('mzTop').offsetHeight + 16;
+  const fw = W, fh = H - top, land = fw > fh;
+  // 가로로 긴 화면이면 가로가 길게, 세로 화면이면 세로가 길게
+  const C = land ? Math.max(mz.lv.c, mz.lv.r) : Math.min(mz.lv.c, mz.lv.r), R = land ? Math.min(mz.lv.c, mz.lv.r) : Math.max(mz.lv.c, mz.lv.r);
+  if (!mz.W || mz.C !== C || mz.R !== R) { mz.W = genMaze(C, R); mz.C = C; mz.R = R; mz.path = [[0, 0]]; mz.done = false; }
+  const cs = Math.floor(Math.min((fw - 24) / C, (fh - 24) / R));
+  mz.cs = cs; mz.fw = cs * C + 24; mz.fh = cs * R + 24; mz.ox = 12; mz.oy = 12;
+  const f = $('mzField'); f.style.width = mz.fw + 'px'; f.style.height = mz.fh + 'px';
+  mz.ctx = fitCanvas($('mzCv'), mz.fw, mz.fh);
+  // 장식: 칸마다 정해진 자리에 작은 그림
+  drawMaze2();
+}
+const cellCenter = (r, c) => [mz.ox + (c + .5) * mz.cs, mz.oy + (r + .5) * mz.cs];
+const EMO_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+function drawMaze2() {
+  const ctx = mz.ctx, { W, C, R, cs, ox, oy, st } = mz;
+  ctx.clearRect(0, 0, mz.fw, mz.fh);
+  const g = ctx.createLinearGradient(0, 0, 0, mz.fh); g.addColorStop(0, st.bg[0]); g.addColorStop(1, st.bg[1]);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, mz.fw, mz.fh);
+  // 배경 장식
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `${cs * .42}px ${EMO_FONT}`; ctx.globalAlpha = .55;
+  let seed = 5; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) { if ((r === 0 && c === 0) || (r === R - 1 && c === C - 1)) continue; if (rnd() < .22) { const [x, y] = cellCenter(r, c); ctx.fillText(st.deco[Math.floor(rnd() * st.deco.length)], x, y + cs * .05); } }
+  ctx.globalAlpha = 1;
+  // 길 (칸 안쪽을 살짝 밝게)
+  // 벽
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(4, cs * .16); ctx.strokeStyle = st.wall;
+  ctx.beginPath();
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+    const w = W[r][c], x = ox + c * cs, y = oy + r * cs;
+    if (w.t) { ctx.moveTo(x, y); ctx.lineTo(x + cs, y); }
+    if (w.l) { ctx.moveTo(x, y); ctx.lineTo(x, y + cs); }
+    if (c === C - 1 && w.r) { ctx.moveTo(x + cs, y); ctx.lineTo(x + cs, y + cs); }
+    if (r === R - 1 && w.b) { ctx.moveTo(x, y + cs); ctx.lineTo(x + cs, y + cs); }
+  }
+  ctx.stroke();
+  // 부딪힌 벽은 빨갛게 깜빡
+  if (mz.bump) { ctx.strokeStyle = '#ff5a5f'; ctx.lineWidth = Math.max(5, cs * .2); ctx.beginPath(); ctx.moveTo(mz.bump[0], mz.bump[1]); ctx.lineTo(mz.bump[2], mz.bump[3]); ctx.stroke(); }
+  // 무지개 선
+  const p = mz.path;
+  if (p.length > 1) {
+    ctx.lineWidth = cs * .42;
+    for (let i = 1; i < p.length; i++) {
+      const [x0, y0] = cellCenter(...p[i - 1]), [x1, y1] = cellCenter(...p[i]);
+      const gr = ctx.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, RAINBOW[(i - 1) % 7]); gr.addColorStop(1, RAINBOW[i % 7]);
+      ctx.strokeStyle = gr; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    }
+    ctx.lineWidth = cs * .14; ctx.strokeStyle = 'rgba(255,255,255,.45)';
+    ctx.beginPath(); p.forEach(([r, c], i) => { const [x, y] = cellCenter(r, c); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+  }
+  // 출발 · 도착 · 주인공
+  const [gx, gy] = cellCenter(R - 1, C - 1), [sx, sy] = cellCenter(0, 0);
+  ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.arc(gx, gy, cs * .36, 0, 7); ctx.fill();
+  ctx.font = `${cs * .6}px ${EMO_FONT}`; ctx.fillText(st.goal, gx, gy + cs * .04);
+  if (p.length === 1) { ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.arc(sx, sy, cs * .4, 0, 7); ctx.fill(); }
+  const [hx, hy] = cellCenter(...p[p.length - 1]);
+  if (!mz.done) { ctx.font = `${cs * .66}px ${EMO_FONT}`; ctx.fillText(st.who, hx, hy + cs * .04); }
+  else { ctx.font = `${cs * .66}px ${EMO_FONT}`; ctx.fillText(st.who, gx - cs * .3, gy + cs * .04); }
+}
+function mazeCell(e) {
+  const r = $('mzCv').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  return [x, y, Math.floor((y - mz.oy) / mz.cs), Math.floor((x - mz.ox) / mz.cs)];
+}
+function canStep(from, to) {
+  const [r, c] = from, [nr, nc] = to, w = mz.W[r][c];
+  if (nr === r - 1 && nc === c) return !w.t; if (nr === r + 1 && nc === c) return !w.b;
+  if (nr === r && nc === c - 1) return !w.l; if (nr === r && nc === c + 1) return !w.r;
+  return false;
+}
+// 손가락이 빨리 지나가도 중간 칸을 빠뜨리지 않게, 지난 점과 지금 점 사이를 잘게 나눠서 봐요
+function mazeMove(e) {
+  if (!mz || mz.done || !mz.drawing) return;
+  const [x, y] = mazeCell(e), lp = mz.lastPt || [x, y];
+  const n = Math.max(1, Math.ceil(Math.hypot(x - lp[0], y - lp[1]) / (mz.cs / 3)));
+  for (let i = 1; i <= n; i++) mazeStep(lp[0] + (x - lp[0]) * i / n, lp[1] + (y - lp[1]) * i / n);
+  mz.lastPt = [x, y];
+}
+function mazeStep(x, y) {
+  if (!mz || mz.done) return;
+  const r = Math.floor((y - mz.oy) / mz.cs), c = Math.floor((x - mz.ox) / mz.cs);
+  if (r < 0 || c < 0 || r >= mz.R || c >= mz.C) return;
+  const p = mz.path, [hr, hc] = p[p.length - 1];
+  if (r === hr && c === hc) return;
+  // 바로 전 칸으로 돌아가면 선을 지워요
+  if (p.length > 1 && p[p.length - 2][0] === r && p[p.length - 2][1] === c) { p.pop(); drawMaze2(); return; }
+  if (Math.abs(r - hr) + Math.abs(c - hc) !== 1) return;   // 멀리 뛰면 무시 (손가락이 다시 선 끝으로 와야 해요)
+  if (!canStep([hr, hc], [r, c])) {
+    // 벽에 부딪힘: 그 벽을 빨갛게 보여 주고 톡 소리
+    if (!mz.bumpAt || performance.now() - mz.bumpAt > 350) {
+      mz.bumpAt = performance.now(); sfx.boop();
+      const x0 = mz.ox + Math.max(hc, c) * mz.cs, y0 = mz.oy + Math.max(hr, r) * mz.cs;
+      mz.bump = r === hr ? [x0, y0, x0, y0 + mz.cs] : [x0, y0, x0 + mz.cs, y0];
+      drawMaze2(); setTimeout(() => { mz.bump = null; if (mz.ctx) drawMaze2(); }, 300);
+    }
+    return;
+  }
+  const k = p.findIndex(([pr, pc]) => pr === r && pc === c);
+  if (k >= 0) p.length = k + 1; else p.push([r, c]);
+  tone(440 + p.length * 22, 0, .06, 'sine', .08);
+  drawMaze2();
+  if (r === mz.R - 1 && c === mz.C - 1) finishMaze();
+}
+function finishMaze() {
+  mz.done = true; mz.drawing = false;
+  drawMaze2(); sfx.ding();
+  $('mzWho').textContent = '🎉'; $('mzMsg').textContent = mz.st.done;
+  say([{ t: mz.st.done, lang: 'ko' }, { t: mz.st.doneEn, lang: 'en' }]);
+  setTimeout(() => celebrate('도착!', mz.st.done, [['다른 미로', 'pink', () => startMaze(mz.st)], ['다른 이야기', '', () => go('mazePick')]]), 1500);
+}
+$('mzCv').addEventListener('pointerdown', e => {
+  if (!mz || mz.done) return;
+  e.preventDefault(); $('mzCv').setPointerCapture(e.pointerId);
+  const [x, y, r, c] = mazeCell(e), p = mz.path, [hr, hc] = p[p.length - 1];
+  if (r === 0 && c === 0 && p.length > 1) { mz.path = [[0, 0]]; drawMaze2(); }   // 출발점을 다시 누르면 처음부터
+  else if (Math.abs(r - hr) + Math.abs(c - hc) > 1) return;                      // 선 끝 근처에서만 이어 그릴 수 있어요
+  mz.drawing = true; mz.lastPt = [x, y]; sfx.tap();
+});
+$('mzCv').addEventListener('pointermove', e => { if (mz && mz.drawing) { e.preventDefault(); mazeMove(e); } });
+['pointerup', 'pointercancel'].forEach(ev => $('mzCv').addEventListener(ev, () => { if (mz) mz.drawing = false; }));
+$('mzReset').onclick = () => { if (!mz) return; sfx.tap(); mz.path = [[0, 0]]; mz.done = false; drawMaze2(); };
+$('mzNew').onclick = () => { if (!mz) return; sfx.tap(); mz.W = null; layoutMaze(); };
+$('mzSay').onclick = () => { if (mz) say([{ t: mz.st.ko, lang: 'ko' }, { t: mz.st.en, lang: 'en' }]); };
+function renderMazePv() {
+  const cv = $('pvMaze'); cv.width = cv.height = 260; const x = cv.getContext('2d');
+  x.fillStyle = '#dff5d0'; x.fillRect(0, 0, 260, 260);
+  x.strokeStyle = '#3b8f3b'; x.lineWidth = 9; x.lineCap = 'round';
+  const L = [[20, 20, 240, 20], [20, 20, 20, 240], [240, 20, 240, 240], [20, 240, 240, 240], [75, 20, 75, 130], [130, 75, 185, 75], [185, 75, 185, 185], [75, 185, 130, 185], [130, 130, 130, 240], [20, 130, 75, 130]];
+  x.beginPath(); L.forEach(([a, b, c, d]) => { x.moveTo(a, b); x.lineTo(c, d); }); x.stroke();
+  const P = [[47, 47], [47, 157], [102, 157], [102, 102], [157, 102], [157, 212], [212, 212]];
+  x.lineWidth = 16;
+  for (let i = 1; i < P.length; i++) { const gr = x.createLinearGradient(...P[i - 1], ...P[i]); gr.addColorStop(0, RAINBOW[(i - 1) % 7]); gr.addColorStop(1, RAINBOW[i % 7]); x.strokeStyle = gr; x.beginPath(); x.moveTo(...P[i - 1]); x.lineTo(...P[i]); x.stroke(); }
+  x.font = `34px ${EMO_FONT}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('🐿️', 47, 47); x.fillText('🏠', 212, 212);
 }
 
 // =====================================================================
@@ -4307,6 +4510,7 @@ function renderPreviews() {
   renderIcePv();
   puzzlePreview($('pvPuzzle'), PLACES[1], 4);
   renderPianoPv();
+  renderMazePv();
 
   layout();
 }
@@ -4336,6 +4540,8 @@ renderSpotCats();
 renderPzLevels();
 renderHanTabs();
 renderEngModes();
+renderMazeLevels();
+makeMazeTiles();
 function renderDressPv() {
   let cv = $('pvDress'); cv.width = 260 * .78; cv.height = 260; drawDoll(cv.getContext('2d'), dollLayers({ ...emptyWorn('girl'), hat: 'hbow', dress: 'party', shoes: 'maryjane', acc: ['necklace'] }), 260);
   cv = $('pvGirl'); cv.width = 300 * .78; cv.height = 300; drawDoll(cv.getContext('2d'), dollLayers({ ...emptyWorn('girl'), top: 'tshirt', bottom: 'skirt', shoes: 'sneakers' }), 300);
