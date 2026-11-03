@@ -112,11 +112,12 @@
   .color-main.land { flex-direction: row; gap: 28px; }
   .board { padding: 10px; }
   .palette { padding: 14px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  @media (max-height: 800px) and (min-width: 700px) { .swatches { grid-template-columns: repeat(4, 46px); gap: 9px; } .sw.rainbow { grid-column: 1 / -1 !important; height: 34px; font-size: 12px; } }
   .now { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
   #nowSwatch { width: 30px; height: 30px; box-shadow: 0 0 0 3px var(--ink); }
   .swatches { display: grid; grid-template-columns: repeat(3, 54px); gap: 12px; }
   .color-main:not(.land) .swatches { grid-template-columns: repeat(10, 44px); gap: 10px; }
-  .sw.rainbow { grid-column: span 3; aspect-ratio: auto; height: 54px; color: #fff; font-size: 14px; font-weight: 700;
+  .sw.rainbow { grid-column: span 3; aspect-ratio: auto; height: 38px; color: #fff; font-size: 14px; font-weight: 700;
     text-shadow: 1px 1px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink); }
   .color-main:not(.land) .sw.rainbow { grid-column: span 2; height: 44px; font-size: 12px; }
   .pbtn:disabled { opacity: .45; }
@@ -245,6 +246,31 @@
   .dpal { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; width: 100%; }
   .dsw { aspect-ratio: 1; box-shadow: 0 0 0 2px var(--ink); font-size: 14px; font-weight: 700; background: #fff; }
   .dsw.sel { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px #fff, 0 0 0 6px var(--ink); }
+  .dsw.more { grid-column: span 2; aspect-ratio: auto; display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 13px;
+    background: conic-gradient(#ff5a5f, #ffd23f, #8ae66b, #6cc7ff, #a26bff, #ff5a5f); }
+  .dsw.more small, .dsw.more span { background: rgba(255,255,255,.85); border-radius: 6px; padding: 0 3px; font-size: 10px; }
+  .sw.more { font-size: 13px; background: conic-gradient(#ff5a5f, #ffd23f, #8ae66b, #6cc7ff, #a26bff, #ff5a5f) !important; }
+  .dpats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; }
+  .psw { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 3px 2px; background: #fff; box-shadow: 0 0 0 2px var(--ink); font-size: 16px; font-weight: 800; }
+  .psw canvas { width: 100%; max-width: 34px; aspect-ratio: 1; border-radius: 4px; }
+  .psw small { font-size: 9px; font-weight: 700; color: #4a5170; white-space: nowrap; }
+  .psw.sel { background: #fff3b0; transform: translateY(-3px); box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px #fff, 0 0 0 6px var(--ink); }
+  .wornlist { display: flex; gap: 8px; width: 100%; overflow-x: auto; padding: 4px 2px 6px; min-height: 92px; }
+  .wempty { font-size: 12px; color: #9aa0b8; margin: auto; }
+  .worn { flex: none; width: 70px; display: flex; flex-direction: column; align-items: center; background: #fff; box-shadow: 0 0 0 2px #d9dce6; padding: 3px; }
+  .worn canvas { width: 48px; height: 48px; }
+  .worn .wn { font-size: 9px; font-weight: 700; white-space: nowrap; overflow: hidden; max-width: 64px; }
+  .worn .wb { display: flex; gap: 2px; margin-top: 2px; }
+  .worn .wb button { width: 20px; height: 20px; font-size: 10px; background: #eef1f8; box-shadow: 0 0 0 1.5px var(--ink); padding: 0; line-height: 20px; }
+  .worn .wb button[data-a="off"] { background: #ffe1e3; }
+  #cpBox { position: fixed; inset: 0; display: none; background: rgba(43,45,66,.6); z-index: 45; align-items: center; justify-content: center; padding: 16px; }
+  #cpBox.show { display: flex; }
+  .cpcard { padding: 16px; display: flex; flex-direction: column; gap: 12px; align-items: center; background: #fff; width: min(520px, 100%); }
+  .cphead { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+  .cpnow { width: 44px; height: 44px; box-shadow: 0 0 0 3px var(--ink); border-radius: 8px; }
+  .cpwrap { position: relative; width: 100%; }
+  #cpCv { width: 100%; height: auto; aspect-ratio: 3 / 2; display: block; border-radius: 8px; box-shadow: 0 0 0 3px var(--ink); touch-action: none; }
+  #cpMark { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--ink); pointer-events: none; display: none; }
   .mission { position: absolute; left: 18px; top: 18px; display: none; align-items: center; gap: 10px; padding: 8px 12px; z-index: 2;
     background: rgba(255,255,255,.92); box-shadow: 0 0 0 3px var(--ink), 0 5px 0 rgba(43,45,66,.2); }
   .mission.show { display: flex; }
@@ -583,6 +609,10 @@
       <div class="ditems" id="dItems"></div>
       <div class="dpal-label">색을 고르고 옷을 누르면 색이 바뀌어요</div>
       <div class="dpal" id="dPalette"></div>
+      <div class="dpal-label">무늬를 고르고 옷을 누르면 무늬가 생겨요</div>
+      <div class="dpats" id="dPats"></div>
+      <div class="dpal-label">입은 옷 · ▲ 앞으로 ▼ 뒤로 ✕ 벗기</div>
+      <div class="wornlist" id="wornList"></div>
       <div class="tools"><button class="pbtn sm" id="undressBtn">다 벗기</button><button class="pbtn sm blue" id="saveDress">저장하기</button></div>
     </div>
   </div>
@@ -726,6 +756,11 @@
   </div>
 </section>
 
+<div id="cpBox"><div class="card cpcard">
+  <div class="cphead"><span class="cpnow" id="cpNow"></span><b>원하는 색을 눌러 보세요</b></div>
+  <div class="cpwrap"><canvas id="cpCv"></canvas><i id="cpMark"></i></div>
+  <div class="tools"><button class="pbtn sm" id="cpCancel">닫기</button><button class="pbtn sm pink" id="cpOk">이 색으로!</button></div>
+</div></div>
 <div id="exBox"><img id="exImg" alt="완성 그림"><span class="exhint">화면을 누르면 닫혀요</span></div>
 
 <div id="saveBox"><div class="card">
@@ -2536,11 +2571,14 @@ function makePalette() {
     b.onclick = () => { selColor = c; sfx.tap(); syncPalette(); sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
     $('swatches').appendChild(b);
   });
+  const mb = moreColorBtn(c => { selColor = c; syncPalette(); }); mb.classList.replace('dsw', 'sw'); mb.classList.add('rainbow');
+  mb.innerHTML = '🎨 색 더보기'; $('swatches').appendChild(mb);
   syncPalette();
 }
 function syncPalette() {
   document.querySelectorAll('.sw').forEach(b => b.classList.toggle('sel', b.dataset.c === selColor));
   $('nowSwatch').style.background = spCSS(selColor);
+  syncMoreBtn($('swatches'), selColor);
 }
 function startColor(def) {
   const art = build(def, 'A', scaleOf());
@@ -2755,6 +2793,49 @@ const EN_SPOT = {
 };
 const EN_COLORS = ['Red', 'Orange', 'Yellow', 'Light green', 'Green', 'Sky blue', 'Blue', 'Purple', 'Pink', 'Light pink',
                    'Brown', 'Beige', 'Gray', 'Black', 'White', 'Mint', 'Lavender', 'Hot pink', 'Navy', 'Rainbow', 'Pastel rainbow', 'Gold'];
+
+// ---------- 색 더보기: 그림판처럼 전체 색 중에서 골라요 ----------
+let cpCb = null, cpColor = '#ff5a5f';
+const hsl2hex = (h, s, l) => { s /= 100; l /= 100; const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); return '#' + [f(0), f(8), f(4)].map(v => Math.round(v * 255).toString(16).padStart(2, '0')).join(''); };
+function drawSpectrum() {
+  const cv = $('cpCv'), W = 360, H = 240; cv.width = W; cv.height = H; const x = cv.getContext('2d');
+  // 가로: 색(빨주노초파남보), 세로: 위는 연하게 → 가운데 진하게 → 아래 어둡게. 오른쪽 끝 한 줄은 흰색~검정
+  const img = x.createImageData(W, H), gw = 24;
+  for (let yy = 0; yy < H; yy++) for (let xx = 0; xx < W; xx++) {
+    const t = yy / (H - 1), hex = xx >= W - gw ? hsl2hex(0, 0, 100 - t * 100) : hsl2hex(xx / (W - gw) * 360, t < .5 ? 100 : 100 - (t - .5) * 60, 96 - t * 86);
+    const [r, g, b] = hexRGB(hex), i = (yy * W + xx) * 4; img.data[i] = r; img.data[i + 1] = g; img.data[i + 2] = b; img.data[i + 3] = 255;
+  }
+  x.putImageData(img, 0, 0);
+}
+function openPicker(cb, cur) {
+  cpCb = cb; cpColor = cur && /^#/.test(cur) ? cur : cpColor;
+  if (!$('cpCv')._drawn) { drawSpectrum(); $('cpCv')._drawn = true; }
+  $('cpNow').style.background = cpColor; $('cpBox').classList.add('show'); $('cpMark').style.display = 'none';
+}
+function cpPick(e) {
+  const cv = $('cpCv'), r = cv.getBoundingClientRect();
+  const px = Math.max(0, Math.min(cv.width - 1, Math.floor((e.clientX - r.left) / r.width * cv.width))), py = Math.max(0, Math.min(cv.height - 1, Math.floor((e.clientY - r.top) / r.height * cv.height)));
+  const d = cv.getContext('2d').getImageData(px, py, 1, 1).data;
+  cpColor = '#' + [d[0], d[1], d[2]].map(v => v.toString(16).padStart(2, '0')).join('');
+  $('cpNow').style.background = cpColor;
+  const m = $('cpMark'); m.style.display = 'block'; m.style.left = (e.clientX - r.left) + 'px'; m.style.top = (e.clientY - r.top) + 'px';
+}
+$('cpCv').addEventListener('pointerdown', e => { e.preventDefault(); $('cpCv').setPointerCapture(e.pointerId); $('cpCv')._down = true; cpPick(e); });
+$('cpCv').addEventListener('pointermove', e => { if ($('cpCv')._down) cpPick(e); });
+['pointerup', 'pointercancel'].forEach(ev => $('cpCv').addEventListener(ev, () => { $('cpCv')._down = false; }));
+$('cpOk').onclick = () => { sfx.pop(); $('cpBox').classList.remove('show'); if (cpCb) cpCb(cpColor); };
+$('cpCancel').onclick = () => { sfx.tap(); $('cpBox').classList.remove('show'); };
+// 팔레트 끝에 붙는 '색 더보기' 버튼
+function moreColorBtn(apply) {
+  const b = document.createElement('button'); b.className = 'dsw more'; b.innerHTML = '<span>🎨</span><small>더보기</small>';
+  b.onclick = () => { sfx.tap(); openPicker(c => { b.dataset.c = c; apply(c); }, b.dataset.c); };
+  return b;
+}
+function syncMoreBtn(box, cur) {
+  const b = box.querySelector('.more'); if (!b) return;
+  const custom = cur && !PALETTE.includes(cur);
+  b.classList.toggle('sel', !!custom); b.style.background = custom ? cur : '';
+}
 
 // ---------- 목소리 (아이패드에 들어 있는 음성) ----------
 const canSpeak = 'speechSynthesis' in window;
@@ -3223,7 +3304,7 @@ const ITEMS = [
   { id: 'party_bg', cat: 'bg', ko: '파티장', en: 'Party' }, { id: 'park', cat: 'bg', ko: '놀이동산', en: 'Amusement park' }, { id: 'pool', cat: 'bg', ko: '수영장', en: 'Pool' },
 ];
 const itemById = id => ITEMS.find(i => i.id === id);
-const emptyWorn = (g = 'girl') => ({ gender: g, hair: g === 'girl' ? 'long' : 'short', hat: null, top: null, bottom: null, dress: null, shoes: null, acc: [], bg: 'room' });
+const emptyWorn = (g = 'girl') => ({ gender: g, hair: g === 'girl' ? 'long' : 'short', hat: null, top: null, bottom: null, dress: null, shoes: null, acc: [], bg: 'room', order: [] });
 // 미션: 여자아이 / 남자아이마다 챙길 것이 조금 달라요
 const THEMES = [
   { id: 'school', emo: '🏫', ko: '학교 가는 날!', en: "Let's go to school!", need: { girl: ['shirt', 'pleat', 'sneakers', 'backpack'], boy: ['shirt', 'slacks', 'sneakers', 'backpack'] }, bg: 'school' },
@@ -3231,20 +3312,64 @@ const THEMES = [
   { id: 'park', emo: '🎡', ko: '놀이동산 가는 날!', en: "Let's go to the amusement park!", need: { girl: ['cap', 'tshirt', 'shorts', 'sneakers', 'cotton'], boy: ['cap', 'tshirt', 'shorts', 'sneakers', 'cotton'] }, bg: 'park' },
   { id: 'pool', emo: '🏊', ko: '수영장 가는 날!', en: "Let's go to the pool!", need: { girl: ['swim', 'swimcap', 'goggles', 'ring', 'flipflop'], boy: ['trunks', 'swimcap', 'goggles', 'ring', 'flipflop'] }, bg: 'pool' },
 ];
-let dress = null, dTab = 'top', dColor = null;
+let dress = null, dTab = 'top', dColor = null, dPat = null;
+const PAT_EN = { stripe: 'Striped', dots: 'Polka dot', check: 'Checked', star: 'Star', heart: 'Heart' };
 // 그릴 순서를 정해요. 각 항목: { key, draw(ctx) → 모양 }
+// ---------- 무늬 (줄무늬 · 물방울 · 체크 · 별 · 하트) ----------
+const DPATS = [['none', '✕', '무늬 없음'], ['stripe', '', '줄무늬'], ['dots', '', '물방울'], ['check', '', '체크'], ['star', '', '별'], ['heart', '', '하트']];
+// 옷마다 원래 색 (그리기 함수 안에 적혀 있는 색을 읽어 와요)
+const defColorOf = id => { const m = DRAW[id] && /c = c \|\| '(#[0-9a-fA-F]{6})'/.exec(DRAW[id].toString()); return m ? m[1] : '#ffffff'; };
+const isDarkHex = h => { const [r, g, b] = hexRGB(h); return r * .3 + g * .59 + b * .11 < 150; };
+const patCache = {};
+function patTile(kind, ink) {
+  const key = kind + ink; if (patCache[key]) return patCache[key];
+  const N = 64, t = document.createElement('canvas'); t.width = t.height = N; const x = t.getContext('2d');
+  x.fillStyle = x.strokeStyle = ink; x.lineCap = 'round';
+  const star = (cx, cy, R) => { x.beginPath(); starPts(cx, cy, R, R * .45).forEach(([a, b], k) => k ? x.lineTo(a, b) : x.moveTo(a, b)); x.closePath(); x.fill(); };
+  const heart = (cx, cy, R) => { x.beginPath(); x.moveTo(cx, cy + R * .9); x.bezierCurveTo(cx - R * 1.6, cy - R * .2, cx - R * .6, cy - R * 1.3, cx, cy - R * .35); x.bezierCurveTo(cx + R * .6, cy - R * 1.3, cx + R * 1.6, cy - R * .2, cx, cy + R * .9); x.fill(); };
+  if (kind === 'stripe') { x.lineWidth = 11; for (let k = -1; k <= 2; k++) { x.beginPath(); x.moveTo(k * 32 - 32, N + 32); x.lineTo(k * 32 + 32, -32); x.stroke(); } }
+  else if (kind === 'dots') { [[16, 16], [48, 48]].forEach(([a, b]) => { x.beginPath(); x.arc(a, b, 8, 0, 7); x.fill(); }); }
+  else if (kind === 'check') { x.globalAlpha = .55; x.fillRect(0, 0, N, 22); x.fillRect(0, 32, N, 22); x.fillRect(0, 0, 22, N); x.fillRect(32, 0, 22, N); }
+  else if (kind === 'star') { star(16, 18, 11); star(48, 50, 11); }
+  else if (kind === 'heart') { heart(16, 18, 9); heart(48, 50, 9); }
+  return patCache[key] = t;
+}
+// 옷 하나 그리기: 색 → 무늬(옷 모양 안에만) → 테두리 다시
+function drawItem(ctx, id, over) {
+  const col = over[id] || null, p = DRAW[id](ctx, col), pat = over['pat:' + id];
+  if (p && pat && pat !== 'none') {
+    const base = col && !SPC[col] ? col : SPC[col] ? '#ffd23f' : defColorOf(id);
+    const ink = isDarkHex(base) ? 'rgba(255,255,255,.8)' : (SPC[col] ? 'rgba(255,255,255,.85)' : mixHex(base, '#2b2d42', .4));
+    const pt = ctx.createPattern(patTile(pat, ink), 'repeat'); if (pt.setTransform) pt.setTransform(new DOMMatrix().scale(14 / 64));
+    ctx.save(); ctx.clip(p); ctx.fillStyle = pt; ctx.fillRect(0, 0, DW, DH); ctx.restore();
+    ctx.strokeStyle = SPC[col] ? SPC[col].ink : mixHex(base, '#2b2d42', .45); ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke(p);
+  }
+  return p;
+}
+// 입은 옷의 겹치는 순서 (앞뒤 바꾸기). 새로 입은 옷은 종류에 맞는 자리로 들어가요
+const D_RANK = { shoes: 0, bottom: 1, top: 2, dress: 3, acc: 4, hat: 6 };
+function wornIds(worn) { return [worn.hat, worn.top, worn.bottom, worn.dress, worn.shoes, ...worn.acc].filter(Boolean).filter(id => itemById(id)); }
+function syncOrder(worn) {
+  const ids = wornIds(worn); let ord = (worn.order || []).filter(id => ids.includes(id));
+  ids.filter(id => !ord.includes(id)).forEach(id => {
+    const rk = D_RANK[itemById(id).cat]; let at = ord.length;
+    for (let i = ord.length - 1; i >= 0; i--) { if (D_RANK[itemById(ord[i]).cat] <= rk) { at = i + 1; break; } if (i === 0) at = 0; }
+    ord.splice(at, 0, id);
+  });
+  return worn.order = ord;
+}
 function dollLayers(worn, over = {}) {
   const L = [], g = worn.gender || 'girl';
-  const W = [worn.hat, worn.top, worn.bottom, worn.dress, worn.shoes, ...worn.acc].filter(Boolean).map(itemById).filter(Boolean);
-  const add = it => L.push({ key: it.id, draw: ctx => DRAW[it.id](ctx, over[it.id] || null) });
+  const W = syncOrder(worn).map(itemById);
+  const add = it => L.push({ key: it.id, draw: ctx => drawItem(ctx, it.id, over) });
   const hair = HAIRS[worn.hair] || HAIRS.long, hc = over.hair || (g === 'girl' ? '#6b3f2a' : '#3a2a20');
   W.filter(i => i.layer === 'behind').forEach(add);
   if (hair.back) L.push({ key: 'hair', draw: ctx => sh(ctx, P2(hair.back), hc, 2.2) });
   if (hair.extra) L.push({ key: 'hair', draw: ctx => { hair.extra(ctx, hc); return null; } });
   L.push({ key: 'doll', draw: ctx => { drawBody(ctx, g); return P2('M 70 86 Q 70 40 120 40 Q 170 40 170 86 Q 170 136 120 140 Q 70 136 70 86 Z M 92 154 L 148 154 L 148 300 L 92 300 Z'); } });
   if (W.some(i => i.id === 'backpack')) L.push({ key: 'backpack', draw: ctx => DRAW.backpack2(ctx, over.backpack || null) });
-  W.filter(i => i.cat === 'shoes').forEach(add); W.filter(i => i.cat === 'bottom').forEach(add); W.filter(i => i.cat === 'top').forEach(add); W.filter(i => i.cat === 'dress').forEach(add);
-  W.filter(i => i.layer === 'body').forEach(add);
+  // 몸에 입는 옷은 '입은 옷' 목록 순서대로 겹쳐요
+  W.filter(i => ['shoes', 'bottom', 'top', 'dress'].includes(i.cat) || i.layer === 'body').forEach(add);
   L.push({ key: 'doll', draw: ctx => { drawFace(ctx, g); return null; } });
   W.filter(i => i.layer === 'face').forEach(add);
   L.push({ key: 'hair', draw: ctx => sh(ctx, P2(hair.front), hc, 2.2) });
@@ -3270,7 +3395,7 @@ function startDress(g) {
   sayEn("Let's get dressed!");
 }
 function setBg(id) { $('dressBoard').className = 'card board bg-' + id; }
-function redrawDress() { if (!dress.ctx) return; dress.L = drawDoll(dress.ctx, dollLayers(dress.worn, dress.over), dress.size); }
+function redrawDress() { if (!dress.ctx) return; dress.L = drawDoll(dress.ctx, dollLayers(dress.worn, dress.over), dress.size); renderWornList(); }
 function renderDTabs() {
   const box = $('dTabs'); box.innerHTML = '';
   DCATS.forEach(([cat, emo, ko]) => {
@@ -3322,6 +3447,7 @@ function toggleItem(it) {
     if (it.cat === 'dress') { w.top = null; w.bottom = null; }
     if (it.cat === 'top' || it.cat === 'bottom') w.dress = null;
     if (dColor) dress.over[it.id] = dColor; else delete dress.over[it.id];
+    if (dPat && dPat !== 'none') dress.over['pat:' + it.id] = dPat; else delete dress.over['pat:' + it.id];
     sfx.pop();
   }
   redrawDress(); syncDItems(); checkMission();
@@ -3333,12 +3459,59 @@ function makeDPalette() {
     const b = document.createElement('button'); b.className = 'dsw';
     if (c === null) b.textContent = '↺'; else b.style.background = spCSS(c);
     b.dataset.c = c || '';
-    b.onclick = () => { dColor = c; sfx.tap(); syncDPalette(); if (c) sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
+    b.onclick = () => { dColor = c; dPat = null; sfx.tap(); syncDPalette(); if (c) sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
     box.appendChild(b);
   });
+  box.appendChild(moreColorBtn(c => { dColor = c; dPat = null; syncDPalette(); }));
+  makeDPatterns();
   syncDPalette();
 }
-function syncDPalette() { document.querySelectorAll('#dPalette .dsw').forEach(b => b.classList.toggle('sel', b.dataset.c === (dColor || ''))); }
+function syncDPalette() {
+  document.querySelectorAll('#dPalette .dsw').forEach(b => b.classList.toggle('sel', !dPat && b.dataset.c === (dColor || '')));
+  syncMoreBtn($('dPalette'), dPat ? null : dColor);
+  document.querySelectorAll('#dPats .psw').forEach(b => b.classList.toggle('sel', b.dataset.p === dPat));
+}
+function makeDPatterns() {
+  const box = $('dPats'); box.innerHTML = '';
+  DPATS.forEach(([id, emo, ko]) => {
+    const b = document.createElement('button'); b.className = 'psw'; b.dataset.p = id; b.title = ko;
+    if (id === 'none') b.textContent = emo;
+    else { const cv = document.createElement('canvas'); cv.width = cv.height = 64; const x = cv.getContext('2d'); x.fillStyle = '#ffb3d0'; x.fillRect(0, 0, 64, 64); x.drawImage(patTile(id, '#ffffff'), 0, 0); b.append(cv); }
+    b.insertAdjacentHTML('beforeend', `<small>${ko}</small>`);
+    b.onclick = () => { dPat = dPat === id ? null : id; sfx.tap(); syncDPalette(); if (dPat && dPat !== 'none') sayEn(PAT_EN[dPat]); };
+    box.appendChild(b);
+  });
+}
+// ---------- 입은 옷 목록: ✕ 벗기 · ▲ 앞으로 · ▼ 뒤로 ----------
+function wornThumb(id) {
+  const big = document.createElement('canvas'); big.width = DW; big.height = DH; const x = big.getContext('2d');
+  if (id === 'backpack') DRAW.backpack2(x, dress.over.backpack || null);
+  drawItem(x, id, dress.over);
+  const d = x.getImageData(0, 0, DW, DH).data; let x0 = DW, y0 = DH, x1 = 0, y1 = 0;
+  for (let yy = 0; yy < DH; yy += 2) for (let xx = 0; xx < DW; xx += 2) if (d[(yy * DW + xx) * 4 + 3] > 30) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy; }
+  const cv = document.createElement('canvas'); cv.width = cv.height = 64; if (x1 < x0) return cv;
+  const w = x1 - x0 + 6, h = y1 - y0 + 6, k = Math.min(58 / w, 58 / h);
+  cv.getContext('2d').drawImage(big, x0 - 3, y0 - 3, w, h, (64 - w * k) / 2, (64 - h * k) / 2, w * k, h * k);
+  return cv;
+}
+function renderWornList() {
+  const box = $('wornList'); if (!box || !dress) return;
+  const ord = syncOrder(dress.worn).slice().reverse();   // 맨 앞에 있는 옷이 왼쪽
+  box.innerHTML = ord.length ? '' : '<span class="wempty">아직 아무것도 안 입었어요</span>';
+  ord.forEach(id => {
+    const it = itemById(id), el = document.createElement('div'); el.className = 'worn';
+    el.append(wornThumb(id));
+    el.insertAdjacentHTML('beforeend', `<span class="wn">${it.ko}</span><div class="wb"><button data-a="up">▲</button><button data-a="down">▼</button><button data-a="off">✕</button></div>`);
+    el.querySelectorAll('button').forEach(b => b.onclick = () => {
+      const o = dress.worn.order, i = o.indexOf(id);
+      if (b.dataset.a === 'off') { toggleItem(it); return; }
+      const j = b.dataset.a === 'up' ? i + 1 : i - 1;   // 그리는 순서에서 뒤 = 앞에 보임
+      if (j < 0 || j >= o.length) { sfx.boop(); return; }
+      [o[i], o[j]] = [o[j], o[i]]; sfx.tap(); redrawDress();
+    });
+    box.appendChild(el);
+  });
+}
 $('dressCv').addEventListener('pointerdown', e => {
   if (!dress || !dress.L) return;
   const r = e.currentTarget.getBoundingClientRect(), size = dress.size, u = size / DH, ox = (size * .78 - DW * u) / 2;
@@ -3346,10 +3519,17 @@ $('dressCv').addEventListener('pointerdown', e => {
   const l = dollHit(dress.L, px, py);
   if (!l) return;
   if (l.key === 'doll') { sfx.tap(); sayEn('Hello!'); return; }
+  const it = itemById(l.key);
+  // 무늬를 골라 뒀으면 무늬를, 아니면 색을 입혀요 (머리에는 무늬가 없어요)
+  if (dPat && it) {
+    if (dPat === 'none') delete dress.over['pat:' + l.key]; else dress.over['pat:' + l.key] = dPat;
+    sfx.pop(); redrawDress();
+    sayEn(dPat === 'none' ? it.en + '!' : PAT_EN[dPat] + ' ' + it.en + '!');
+    return;
+  }
   if (dColor) { dress.over[l.key] = dColor; sfx.pop(); redrawDress(); }
   else if (dress.over[l.key]) { delete dress.over[l.key]; sfx.tap(); redrawDress(); }
   else sfx.tap();
-  const it = itemById(l.key);
   sayEn((dColor ? colorWord(dColor) : '') + (it ? it.en : l.key === 'hair' ? 'Hair' : '') + '!');
 });
 $('undressBtn').onclick = () => { sfx.tap(); const bg = dress.worn.bg, g = dress.worn.gender; dress.worn = emptyWorn(g); dress.worn.bg = bg; dress.over = {}; redrawDress(); syncDItems(); checkMission(); };
@@ -3863,9 +4043,10 @@ function makeIPalette() {
     b.onclick = () => { iColor = c; sfx.tap(); syncIPalette(); if (c) sayEn(EN_COLORS[PALETTE.indexOf(c)]); };
     box.appendChild(b);
   });
+  box.appendChild(moreColorBtn(c => { iColor = c; syncIPalette(); }));
   syncIPalette();
 }
-function syncIPalette() { document.querySelectorAll('#iPalette .dsw').forEach(b => b.classList.toggle('sel', b.dataset.c === (iColor || ''))); }
+function syncIPalette() { document.querySelectorAll('#iPalette .dsw').forEach(b => b.classList.toggle('sel', b.dataset.c === (iColor || ''))); syncMoreBtn($('iPalette'), iColor); }
 $('iceCv').addEventListener('pointerdown', e => {
   if (!ice || !ice.hits) return;
   const r = e.currentTarget.getBoundingClientRect();
